@@ -1,0 +1,25 @@
+dist: xenial
+language: java
+
+jdk:
+  - openjdk11
+
+# disable shallow clone so SonarCloud can use SCM history to compute blame data
+git:
+  depth: false
+
+# the first part of the cache phase happens
+# between git checkout and before_install
+cache:
+  directories:
+    - $HOME/.m2/repository
+
+# the default java install step does
+# mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+install:
+  - mvn install -DskipTests=true -B -V -Psource-quality
+
+# before_cache happens before the second part of the cache phase,
+# which happens after script
+before_cache:
+  - rm -rf $HOME/.m2/repository/io/lighty

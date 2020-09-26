@@ -1,0 +1,60 @@
+module lighty-test-notifications {
+
+    yang-version 1.1;
+
+    namespace "yang:lighty:test:notifications";
+    prefix "ltn";
+
+    organization "Pantheon.tech";
+
+    description "This model is designed to test netconf notifications.";
+
+    revision 2018-08-20 {
+        description "Initial revision.";
+    }
+
+    rpc triggerDataNotification {
+        description "Trigger dataNotification events.";
+        input {
+           leaf ClientId {
+               type uint16;
+               mandatory true;
+               description "Id provided by client to identify origin of incoming notifications";
+           }
+           leaf Count {
+               type uint16;
+               mandatory true;
+               description "Number of notifications to be send by backend.";
+           }
+           leaf Delay {
+               type uint32;
+               mandatory true;
+               description "Delay between notifications in milliseconds.";
+           }
+           leaf Payload {
+               type string;
+               mandatory true;
+               description "Notification payload.";
+           }
+        }
+    }
+
+    notification dataNotification {
+        leaf Ordinal {
+             type uint16;
+             mandatory true;
+             description "Ordinal number of notification.";
+        }
+        leaf ClientId {
+             type uint16;
+             mandatory true;
+             description "Id of client which triggered this notification";
+        }
+        leaf Payload {
+             type string;
+             mandatory true;
+             description "Notification payload.";
+        }
+    }
+
+}
