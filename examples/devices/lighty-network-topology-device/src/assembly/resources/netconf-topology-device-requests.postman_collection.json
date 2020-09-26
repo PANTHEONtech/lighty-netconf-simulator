@@ -1,0 +1,544 @@
+{
+	"info": {
+		"_postman_id": "0af29dad-8db5-4f37-9212-2879d8912b02",
+		"name": "netconf-topology-device-requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PUT netconf-node simulator-device",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "X-FromAppId",
+						"value": "csit-sdnc",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"value": "csit-sdnc",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n    \"netconf-topology:node\" :[ {\n      \"node-id\": \"simulator-device\",\n      \"host\": \"127.0.0.1\",\n      \"port\": 17830,\n      \"username\": \"admin\",\n      \"password\": \"admin\",\n      \"tcp-only\": false,\n      \"keepalive-delay\": 0,\n      \"netconf-node-configuration:schemaless\": false\n      }\n    ]\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/data/network-topology:network-topology/topology=topology-netconf/node=simulator-device",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"data",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-topology",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n      \"topology-id\": \"ExampleTopology\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:create-topology",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:create-topology"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-topologies",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:get-topologies",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:get-topologies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add-node-into-topology",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n      \"topology-id\": \"ExampleTopology\",\n      \"node\": [\n        {\n          \"node-id\": \"ExampleNode\"\n        },\n        {\n          \"node-id\": \"ExampleNode2\"\n        }\n      ]\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:add-node-into-topology",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:add-node-into-topology"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-topology-by-id",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n      \"topology-id\": \"ExampleTopology\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:get-topology-by-id",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:get-topology-by-id"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-topology-ids",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:get-topology-ids",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:get-topology-ids"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove-node-from-topology",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n      \"topology-id\": \"ExampleTopology\",\n      \"node-id\": \"ExampleNode2\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:remove-node-from-topology",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:remove-node-from-topology"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove-topology",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"input\": {\n      \"topology-id\": \"ExampleTopology\"\n    }\n}"
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:remove-topology",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:remove-topology"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove-all-topologies",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "X-FromAppId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "X-TransactionId",
+						"type": "text",
+						"value": "csit-sdnc",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YWRtaW46S3A4Yko0U1hzek0wV1hsaGFrM2VIbGNzZTJnQXc4NHZhb0dHbUp2VXkyVQ==",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:8181/restconf/operations/network-topology:network-topology/topology=topology-netconf/node=simulator-device/yang-ext:mount/network-topology-rpcs:remove-all-topologies",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "8181",
+					"path": [
+						"restconf",
+						"operations",
+						"network-topology:network-topology",
+						"topology=topology-netconf",
+						"node=simulator-device",
+						"yang-ext:mount",
+						"network-topology-rpcs:remove-all-topologies"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

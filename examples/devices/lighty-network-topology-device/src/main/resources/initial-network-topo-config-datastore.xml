@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+        <topology>
+            <topology-id>default-topology</topology-id>
+        </topology>
+    </network-topology>
+</data>

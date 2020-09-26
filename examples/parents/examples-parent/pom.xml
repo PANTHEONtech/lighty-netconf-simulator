@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2020 PANTHEON.tech s.r.o. All Rights Reserved.
+
+  This program and the accompanying materials are made available under the
+  terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  and is available at https://www.eclipse.org/legal/epl-v10.html
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.lighty.core</groupId>
+        <artifactId>lighty-app-parent</artifactId>
+        <version>12.2.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>io.lighty.netconf.device.examples</groupId>
+    <artifactId>examples-parent</artifactId>
+    <version>12.2.0</version>
+    <packaging>pom</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <description>
+        Parent pom for code artifacts using Lighty.io.
+    </description>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- lighty components -->
+            <dependency>
+                <groupId>io.lighty.netconf.device.examples</groupId>
+                <artifactId>examples-bom</artifactId>
+                <version>12.2.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

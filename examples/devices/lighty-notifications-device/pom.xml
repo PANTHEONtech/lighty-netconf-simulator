@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2020 PANTHEON.tech s.r.o. All Rights Reserved.
+
+  This program and the accompanying materials are made available under the
+  terms of the Eclipse Public License v1.0 which accompanies this distribution,
+  and is available at https://www.eclipse.org/legal/epl-v10.html
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.lighty.netconf.device.examples</groupId>
+        <artifactId>examples-parent</artifactId>
+        <version>12.2.0</version>
+        <relativePath>../../parents/examples-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>lighty-notifications-device</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <application.main.class>io.lighty.netconf.device.notification.Main</application.main.class>
+        <application.attach.zip>true</application.attach.zip>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.lighty.netconf.device.examples.models</groupId>
+            <artifactId>lighty-example-notifications-model</artifactId>
+            <version>12.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>io.lighty.netconf.device</groupId>
+            <artifactId>lighty-netconf-device</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
