@@ -14,7 +14,7 @@
     <parent>
         <groupId>io.lighty.netconf.device.examples</groupId>
         <artifactId>examples-parent</artifactId>
-        <version>12.2.0</version>
+        <version>12.2.1-SNAPSHOT</version>
         <relativePath>../../parents/examples-parent/pom.xml</relativePath>
     </parent>
 
@@ -30,7 +30,6 @@
         <dependency>
             <groupId>io.lighty.netconf.device.examples.models</groupId>
             <artifactId>lighty-example-data-center-model</artifactId>
-            <version>12.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
