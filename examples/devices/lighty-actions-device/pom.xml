@@ -30,17 +30,14 @@
         <dependency>
             <groupId>io.lighty.netconf.device.examples.models</groupId>
             <artifactId>lighty-example-data-center-model</artifactId>
-            <version>13.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>io.lighty.netconf.device</groupId>
