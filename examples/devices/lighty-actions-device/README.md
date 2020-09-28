@@ -1,6 +1,6 @@
 # Lighty Actions Device
 This is example NETCONF device which can process yang actions. Device supports actions
-described in lighty-example-data-center-model yang from examples/models/lighty-example-data-center-model.
+described in `lighty-example-data-center-model` yang from `examples/models/lighty-example-data-center-model`.
 YANG action is an operation which is tied to a specific YANG container or data
 node in the datastore. Lighty-actions-netconf-app can be used to trigger
 actions on this device.
