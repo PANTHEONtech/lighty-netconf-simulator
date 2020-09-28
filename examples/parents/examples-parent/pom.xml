@@ -30,7 +30,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- lighty components -->
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>examples-bom</artifactId>

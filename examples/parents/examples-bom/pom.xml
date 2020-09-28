@@ -23,35 +23,13 @@
     <dependencyManagement>
         <dependencies>
 
-            <!-- Additional upstream dependencies -->
             <dependency>
-                <groupId>io.lighty.kit.models</groupId>
-                <artifactId>lighty-kit-sample-models</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.clients</groupId>
-                <artifactId>lighty-binding-aware-rest-client</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.clients</groupId>
-                <artifactId>lighty-binding-independent-rest-client</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.clients</groupId>
-                <artifactId>lighty-raw-rest-client</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.models.test</groupId>
+                <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-network-topology-device-model</artifactId>
                 <version>12.2.0</version>
             </dependency>
-
             <dependency>
-                <groupId>io.lighty.models</groupId>
+                <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-data-center-model</artifactId>
                 <version>12.2.0</version>
             </dependency>
@@ -76,23 +54,8 @@
                 <version>12.2.0</version>
             </dependency>
             <dependency>
-                <groupId>io.lighty.models.test</groupId>
+                <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-notifications-model</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.modules.northbound.restconf</groupId>
-                <artifactId>lighty-restconf-nb</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.kit.examples.controllers</groupId>
-                <artifactId>lighty-restconf-netconf-app</artifactId>
-                <version>12.2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>io.lighty.kit.examples.controllers</groupId>
-                <artifactId>lighty-community-restconf-netconf-app</artifactId>
                 <version>12.2.0</version>
             </dependency>
 
@@ -125,6 +88,17 @@
                 <groupId>org.xmlunit</groupId>
                 <artifactId>xmlunit-assertj</artifactId>
                 <version>2.7.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>1.7.25</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
