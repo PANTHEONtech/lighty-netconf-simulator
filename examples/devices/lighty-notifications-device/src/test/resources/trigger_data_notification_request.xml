@@ -1,0 +1,15 @@
+<rpc xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" message-id="m-1">
+<!--    <get>-->
+<!--        <filter ns0:type="subtree" xmlns:ns0="urn:ietf:params:xml:ns:netconf:base:1.0">-->
+<!--            <netconf-state xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-monitoring">-->
+<!--                <schemas/>-->
+<!--            </netconf-state>-->
+<!--        </filter>-->
+<!--    </get>-->
+    <triggerDataNotification xmlns="yang:lighty:test:notifications">
+        <ClientId>1</ClientId>
+        <Count>1</Count>
+        <Delay>1000</Delay>
+        <Payload>Test Notification</Payload>
+    </triggerDataNotification>
+</rpc>
