@@ -1,0 +1,15 @@
+<rpc message-id="m-1" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <edit-config>
+        <target>
+            <running/>
+        </target>
+        <config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <toaster xmlns="http://netconfcentral.org/ns/toaster">
+                <darknessFactor nc:operation="create">750</darknessFactor>
+                <toasterManufacturer nc:operation="create">Pantheon</toasterManufacturer>
+                <toasterModelNumber nc:operation="create">SuperToaster9000</toasterModelNumber>
+                <toasterStatus nc:operation="create">up</toasterStatus>
+            </toaster>
+        </config>
+    </edit-config>
+</rpc>
