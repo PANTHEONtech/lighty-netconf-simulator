@@ -1,0 +1,15 @@
+<rpc message-id="m-2" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <add-node-into-topology xmlns="urn:tech.pantheon.netconfdevice.network.topology.rpcs">
+        <topology-id>test-topology</topology-id>
+        <node>
+            <node-id>test-nettopo-node</node-id>
+            <host>127.0.0.1</host>
+            <port>17835</port>
+            <username>admin</username>
+            <password>admin</password>
+            <tcp-only>false</tcp-only>
+            <keepalive-delay>0</keepalive-delay>
+            <schemaless>false</schemaless>
+        </node>
+    </add-node-into-topology>
+</rpc>
