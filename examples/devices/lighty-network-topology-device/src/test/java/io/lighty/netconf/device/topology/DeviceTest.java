@@ -17,6 +17,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -39,6 +40,7 @@ import org.opendaylight.netconf.client.conf.NetconfClientConfiguration.NetconfCl
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
 import org.opendaylight.netconf.nettyutil.NeverReconnectStrategy;
 import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,6 +52,10 @@ public class DeviceTest {
     private static final String USER = "admin";
     private static final String PASS = "admin";
     private static final int DEVICE_SIMULATOR_PORT = 9090;
+    private static final String CREATE_TOPOLOGY_REQUEST_XML = "create_topology_request.xml";
+    private static final String DELETE_TOPOLOGY_REQUEST_XML = "delete_topology_request.xml";
+    private static final String ADD_NODE_REQUEST_XML = "add_node_request.xml";
+    private static final String EXPECTED_VALUES_XML = "expected_values.xml";
 
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
@@ -110,6 +116,44 @@ public class DeviceTest {
             }
             assertThat(networkTopologySchemaContained);
         }
+    }
+
+    @Test
+    public void topologyRpcsTest() throws ExecutionException, InterruptedException, IOException, URISyntaxException,
+            SAXException, TimeoutException {
+        final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
+        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+            final Document expectedValuesDoc = XmlUtil.readXmlToDocument(xmlFileToInputStream(EXPECTED_VALUES_XML));
+
+            final NetconfMessage createTopoResponse = performNetconfRequest(CREATE_TOPOLOGY_REQUEST_XML,
+                    sessionListener);
+            validateNetconfResponse(createTopoResponse, expectedValuesDoc, "create_topo");
+
+            final NetconfMessage addNodeResponse = performNetconfRequest(ADD_NODE_REQUEST_XML, sessionListener);
+            validateNetconfResponse(addNodeResponse, expectedValuesDoc, "add_node");
+
+            final NetconfMessage deleteTopoResponse =
+                    performNetconfRequest(DELETE_TOPOLOGY_REQUEST_XML, sessionListener);
+            validateNetconfResponse(deleteTopoResponse, expectedValuesDoc, "delete_topo");
+        }
+    }
+
+    private void validateNetconfResponse(NetconfMessage netconfResponse, Document expectedValuesDoc, String rpcAction) {
+        final String expectedResponse = expectedValuesDoc.getDocumentElement()
+                .getElementsByTagName(rpcAction).item(0).getAttributes().item(0).getNodeValue();
+
+        assertResponseIsIdentical(netconfResponse, new ByteArrayInputStream(expectedResponse.getBytes()));
+    }
+
+    private NetconfMessage performNetconfRequest(String fileName, SimpleNetconfClientSessionListener sessionListener)
+            throws SAXException, IOException, URISyntaxException,
+            InterruptedException, ExecutionException, TimeoutException {
+
+        final NetconfMessage getSchemaMessage =
+                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream(fileName)));
+
+        return sessionListener.sendRequest(getSchemaMessage)
+                .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     private void assertResponseIsIdentical(final NetconfMessage response, final InputStream comparedResponse) {
