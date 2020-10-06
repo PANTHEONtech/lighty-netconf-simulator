@@ -249,7 +249,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         return Lists.reverse(qNames);
     }
 
-    private static YangInstanceIdentifier retrieveElementYII(
+    protected static YangInstanceIdentifier retrieveElementYII(
         final SchemaContext schemaContext, final NormalizedNode<?, ?> normalizedNode,
             final Element deviceElement, final String xpathExpression) {
         final List<Node> nodes = RPCUtil.getNodes(deviceElement.getChildNodes());
