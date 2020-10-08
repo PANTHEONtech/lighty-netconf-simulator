@@ -1,0 +1,14 @@
+<rpc message-id="m-7" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <edit-config>
+        <target>
+            <running/>
+        </target>
+        <config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+                <topology nc:operation="delete">
+                    <topology-id>test-config-topology</topology-id>
+                </topology>
+            </network-topology>
+        </config>
+    </edit-config>
+</rpc>
