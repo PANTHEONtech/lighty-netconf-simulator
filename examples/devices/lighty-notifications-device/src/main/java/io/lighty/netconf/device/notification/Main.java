@@ -7,7 +7,6 @@
  */
 package io.lighty.netconf.device.notification;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import io.lighty.netconf.device.NetconfDevice;
 import io.lighty.netconf.device.NetconfDeviceBuilder;
@@ -24,7 +23,6 @@ public class Main {
     );
 
     private ShutdownHook shutdownHook;
-    private NetconfDevice netconfDevice;
 
     public static void main(final String[] args) {
         final Main app = new Main();
@@ -38,7 +36,7 @@ public class Main {
     public void start(final String[] args, final boolean registerShutdownHook) {
         final int port = getPortFromArgs(args);
         final TriggerNotificationProcessor triggerNotificationProcessor = new TriggerNotificationProcessor();
-        this.netconfDevice = new NetconfDeviceBuilder()
+        final NetconfDevice netconfDevice = new NetconfDeviceBuilder()
                 .setCredentials("admin", "admin")
                 .setBindingPort(port)
                 .withModels(NOTIFICATION_MODEL_PATHS)
@@ -94,10 +92,5 @@ public class Main {
         } catch (final Exception e) {
             return 17830;
         }
-    }
-
-    @VisibleForTesting
-    public NetconfDevice getNetconfDevice() {
-        return netconfDevice;
     }
 }
