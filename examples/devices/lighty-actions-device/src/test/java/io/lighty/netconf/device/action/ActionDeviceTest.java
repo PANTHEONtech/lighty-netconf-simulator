@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020 PANTHEON.tech s.r.o. All Rights Reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at https://www.eclipse.org/legal/epl-v10.html
+ */
 package io.lighty.netconf.device.action;
 
 import static org.testng.Assert.assertEquals;
@@ -43,6 +50,12 @@ public class ActionDeviceTest {
     private static final String USER = "admin";
     private static final String PASS = "admin";
     private static final int DEVICE_SIMULATOR_PORT = 9090;
+    private static final String RESET_ACTION_EXPECTED_VALUE = "2020-09-03T16:20:00Z";
+    private static final String START_ACTION_EXPECTED_VALUE = "2020-09-03T16:30:00Z";
+    public static final String START_ACTION_REQUEST_XML = "start_action_request.xml";
+    public static final String RESET_ACTION_REQUEST_XML = "reset_action_request.xml";
+    public static final String START_TAG = "start-finished-at";
+    public static final String RESET_TAG = "reset-finished-at";
 
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
@@ -77,15 +90,12 @@ public class ActionDeviceTest {
     public void getSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        final NetconfMessage getSchemaMessage =
-                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream("get_schemas_request.xml")));
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage getSchemaResponse = sessionListener
-                    .sendRequest(getSchemaMessage)
-                    .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final NetconfMessage schemaResponse = sentRequesttoDevice(
+                    sessionListener, "get_schemas_request.xml");
 
-            final NodeList schema = getSchemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
+            final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
             assertTrue(schema.getLength() > 0);
 
             boolean exampleDataCenterSchemaContained = false;
@@ -109,28 +119,30 @@ public class ActionDeviceTest {
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            performActionOnDevice(sessionListener, "start_action_request.xml",
-                    "start-finished-at", "2020-09-03T16:30:00Z");
-            performActionOnDevice(sessionListener, "reset_action_request.xml",
-                    "reset-finished-at", "2020-09-03T16:20:00Z");
+            final NetconfMessage startActionResponse = sentRequesttoDevice(sessionListener, START_ACTION_REQUEST_XML);
+            final String startResultTag = startActionResponse.getDocument().getDocumentElement().getElementsByTagName(
+                    START_TAG).item(0).getTextContent();
+            assertEquals(startResultTag, START_ACTION_EXPECTED_VALUE);
+
+            final NetconfMessage resetActionResponse = sentRequesttoDevice(sessionListener, RESET_ACTION_REQUEST_XML);
+            final String resetResultTag = resetActionResponse.getDocument().getDocumentElement().getElementsByTagName(
+                    RESET_TAG).item(0).getTextContent();
+            assertEquals(resetResultTag, RESET_ACTION_EXPECTED_VALUE);
         }
     }
 
-    private void performActionOnDevice(SimpleNetconfClientSessionListener sessionListener, String fileName,
-                                       String responseTag, String expectedValue)
+    private NetconfMessage sentRequesttoDevice(SimpleNetconfClientSessionListener sessionListener,
+                                               String requestFileName)
             throws SAXException, IOException, URISyntaxException,
             InterruptedException, ExecutionException, TimeoutException {
         final NetconfMessage actionSchemaMessage =
-                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream(fileName)));
+                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream(requestFileName)));
 
-        final NetconfMessage netconfActionResponse = sessionListener
+        return sessionListener
                 .sendRequest(actionSchemaMessage)
                 .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
-        final String actionValue = netconfActionResponse.getDocument()
-                .getDocumentElement().getElementsByTagName(responseTag).item(0).getTextContent();
 
-        assertEquals(actionValue, expectedValue);
     }
 
     public static InputStream xmlFileToInputStream(final String fileName) throws URISyntaxException, IOException {
