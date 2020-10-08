@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2020 PANTHEON.tech s.r.o. All Rights Reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at https://www.eclipse.org/legal/epl-v10.html
+ */
 package io.lighty.devices.notification.tests;
 
 import static org.testng.Assert.assertTrue;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
-import io.lighty.netconf.device.NetconfDevice;
 import io.lighty.netconf.device.notification.Main;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
@@ -46,11 +52,14 @@ public class NotificationTest {
     private static final String USER = "admin";
     private static final String PASS = "admin";
     private static final int DEVICE_SIMULATOR_PORT = 9090;
-
+    private static final String SUBCRIBE_TO_NOTIFICATIONS_REQUEST_XML = "subcribe_to_notifications_request.xml";
+    private static final String TRIGGER_DATA_NOTIFICATION_REQUEST_XML = "trigger_data_notification_request.xml";
+    private static final String SUBSCRIBE_MSG_TAG = "m-2";
+    private static final String EXPECTED_NOTIFICATION_PAYLOAD = "Test Notification";
+    private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
     private static NetconfClientDispatcherImpl dispatcher;
-    private static NetconfDevice netconfDevice;
 
     @BeforeAll
     public static void setupClass() {
@@ -58,7 +67,6 @@ public class NotificationTest {
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false);
         nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientDispatcher.class));
         dispatcher = new NetconfClientDispatcherImpl(nettyGroup, nettyGroup, new HashedWheelTimer());
-        netconfDevice = deviceSimulator.getNetconfDevice();
     }
 
     @AfterAll
@@ -87,15 +95,11 @@ public class NotificationTest {
     public void getNotificationSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        final NetconfMessage getSchemaMessage =
-                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream("get_schemas_request.xml")));
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage getSchemaResponse = sessionListener
-                    .sendRequest(getSchemaMessage)
-                    .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final NetconfMessage schemaResponse = sendRequesttoDevice(sessionListener, GET_SCHEMAS_REQUEST_XML);
 
-            final NodeList schema = getSchemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
+            final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
             assertTrue(schema.getLength() > 0);
 
             boolean notificationSchemaContained = false;
@@ -118,23 +122,40 @@ public class NotificationTest {
     public void triggerNotificationRpcTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
             ExecutionException, TimeoutException {
 
-        final CountDownLatch cdl = new CountDownLatch(1);
-        netconfDevice.getNetconfDeviceServices().getNotificationService()
-                .registerNotificationListener(new DataNotificationListener(cdl));
-
-        final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        final NetconfMessage getSchemaMessage = new NetconfMessage(
-                XmlUtil.readXmlToDocument(xmlFileToInputStream("trigger_data_notification_request.xml")));
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final NotificationNetconfSessionListener sessionListener =
+                new NotificationNetconfSessionListener(countDownLatch, EXPECTED_NOTIFICATION_PAYLOAD);
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage getSchemaResponse = sessionListener
-                    .sendRequest(getSchemaMessage)
-                    .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final NetconfMessage subscribeResponse =
+                    sendRequesttoDevice(sessionListener, SUBCRIBE_TO_NOTIFICATIONS_REQUEST_XML);
 
-            int responseLength = getSchemaResponse.getDocument().getElementsByTagName("ok").getLength();
-            assertTrue(responseLength > 0);
-            final boolean isNotificationPublished = cdl.await(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-            assertThat(isNotificationPublished);
+            final boolean okPresent =
+                    subscribeResponse.getDocument().getDocumentElement().getElementsByTagName("ok").getLength() > 0;
+            assertTrue(okPresent);
+
+            final boolean msgIdMatches = subscribeResponse.getDocument()
+                    .getDocumentElement().getAttribute("message-id").equals(SUBSCRIBE_MSG_TAG);
+
+            assertTrue(msgIdMatches);
+
+            sendRequesttoDevice(sessionListener, TRIGGER_DATA_NOTIFICATION_REQUEST_XML);
+
+            final boolean isNotificationPublished = countDownLatch.await(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            assertTrue(isNotificationPublished);
         }
+    }
+
+    private NetconfMessage sendRequesttoDevice(SimpleNetconfClientSessionListener sessionListener,
+                                               String requestFileName)
+            throws SAXException, IOException, URISyntaxException,
+            InterruptedException, ExecutionException, TimeoutException {
+
+        final NetconfMessage netconfMessage =
+                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream(requestFileName)));
+
+        return sessionListener
+                .sendRequest(netconfMessage)
+                .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 }
