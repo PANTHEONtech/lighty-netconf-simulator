@@ -69,6 +69,7 @@ public class Main {
                 .setBindingPort(port)
                 .withModels(toasterModules)
                 .withDefaultRequestProcessors()
+                .withDefaultNotificationProcessor()
                 .withDefaultCapabilities()
                 .withRequestProcessor(makeToastProcessor)
                 .withRequestProcessor(cancelToastProcessor)
@@ -86,8 +87,10 @@ public class Main {
         }
 
         NetconfDevice netconfDevice = netconfDeviceBuilder.build();
-        netconfDevice.start();
+        toasterService.setNotificationPublishService(
+                netconfDevice.getNetconfDeviceServices().getNotificationPublishService());
 
+        netconfDevice.start();
         //5. Register shutdown hook
         shutdownHook = new ShutdownHook(netconfDevice, toasterService);
         if (registerShutdownHook) {
