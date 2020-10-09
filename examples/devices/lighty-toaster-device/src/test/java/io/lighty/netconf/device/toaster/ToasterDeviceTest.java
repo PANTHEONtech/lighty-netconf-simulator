@@ -94,7 +94,7 @@ public class ToasterDeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage schemaResponse = sentRequesttoDevice(GET_SCHEMAS_REQUEST_XML,
+            final NetconfMessage schemaResponse = sentRequestToDevice(GET_SCHEMAS_REQUEST_XML,
                     sessionListener);
 
             final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
@@ -120,41 +120,40 @@ public class ToasterDeviceTest {
     public void toasterRpcsTest() throws ExecutionException, InterruptedException, URISyntaxException, SAXException,
             TimeoutException, IOException {
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final CountDownLatch notificationReceivedLatch = new CountDownLatch(1);
         final SimpleNetconfClientSessionListener sessionListener =
-                new NotificationNetconfSessionListener(countDownLatch);
+                new NotificationNetconfSessionListener(notificationReceivedLatch);
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage subscribeResponse = sentRequesttoDevice(
-                    SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListener);
-            assertEquals(
-                    subscribeResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),"ok");
+            final NetconfMessage subscribeResponse =
+                    sentRequestToDevice(SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(subscribeResponse));
 
-            final NetconfMessage createToasterResponse = sentRequesttoDevice(CREATE_TOASTER_REQUEST_XML,
-                    sessionListener);
-            assertEquals(createToasterResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),
-                    "ok");
+            final NetconfMessage createToasterResponse =
+                    sentRequestToDevice(CREATE_TOASTER_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(createToasterResponse));
 
-            final NetconfMessage toasterData = sentRequesttoDevice(GET_TOASTER_DATA_REQUEST_XML,
-                    sessionListener);
+            final NetconfMessage toasterData =
+                    sentRequestToDevice(GET_TOASTER_DATA_REQUEST_XML, sessionListener);
             final String toasterDarknessFactor = toasterData.getDocument()
                     .getDocumentElement().getElementsByTagName("darknessFactor").item(0).getTextContent();
-
             assertEquals(EXPECTED_DARKNESS_FACTOR, toasterDarknessFactor);
 
-            final NetconfMessage makeToastResponse = sentRequesttoDevice(MAKE_TOAST_REQUEST_XML, sessionListener);
-            assertEquals(makeToastResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),
-                    "ok");
+            final NetconfMessage makeToastResponse = sentRequestToDevice(MAKE_TOAST_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(makeToastResponse));
 
-            final NetconfMessage restockToastResponse = sentRequesttoDevice(RESTOCK_TOAST_REQUEST_XML,
-                    sessionListener);
-            assertEquals(restockToastResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),
-                    "ok");
-            final boolean await = countDownLatch.await(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final NetconfMessage restockToastResponse =
+                    sentRequestToDevice(RESTOCK_TOAST_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(restockToastResponse));
+            final boolean await = notificationReceivedLatch.await(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             assertTrue(await);
         }
     }
 
-    public static NetconfMessage sentRequesttoDevice(String requestFileName,
+    private boolean containsOkElement(final NetconfMessage responseMessage) {
+        return responseMessage.getDocument().getElementsByTagName("ok").getLength() > 0;
+    }
+
+    public static NetconfMessage sentRequestToDevice(String requestFileName,
                                                      SimpleNetconfClientSessionListener sessionListener)
             throws SAXException, IOException, URISyntaxException,
             InterruptedException, ExecutionException, TimeoutException {
