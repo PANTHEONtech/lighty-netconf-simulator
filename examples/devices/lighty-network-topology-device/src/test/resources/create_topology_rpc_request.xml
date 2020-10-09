@@ -1,0 +1,5 @@
+<rpc message-id="m-1" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <create-topology xmlns="urn:tech.pantheon.netconfdevice.network.topology.rpcs">
+        <topology-id>test-topology</topology-id>
+    </create-topology>
+</rpc>

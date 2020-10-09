@@ -1,0 +1,18 @@
+<rpc message-id="m-6" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <edit-config>
+        <target>
+            <running/>
+        </target>
+        <config xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology" nc:operation="merge">
+                <topology>
+                    <topology-id>test-config-topology-merge</topology-id>
+                    <node>
+                        <node-id>test-nettopo-node</node-id>
+                        <port xmlns="urn:opendaylight:netconf-node-topology" nc:operation="merge">17835</port>
+                    </node>
+                </topology>
+            </network-topology>
+        </config>
+    </edit-config>
+</rpc>

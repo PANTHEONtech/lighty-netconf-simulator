@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at https://www.eclipse.org/legal/epl-v10.html
  */
-
 package io.lighty.netconf.device.topology;
 
 import static io.lighty.netconf.device.topology.TestUtils.xmlFileToInputStream;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
@@ -50,10 +50,21 @@ public class DeviceTest {
     private static final String USER = "admin";
     private static final String PASS = "admin";
     private static final int DEVICE_SIMULATOR_PORT = 9090;
-
+    private static final String CREATE_TOPOLOGY_RPC_REQUEST_XML = "create_topology_rpc_request.xml";
+    private static final String CREATE_TOPOLOGY_RPC_RESPONSE_XML = "create_topology_rpc_response.xml";
+    private static final String DELETE_TOPOLOGY_RPC_REQUEST_XML = "delete_topology_rpc_request.xml";
+    private static final String DELETE_TOPOLOGY_RPC_RESPONSE_XML = "delete_topology_rpc_response.xml";
+    private static final String ADD_NODE_RPC_REQUEST_XML = "add_node_rpc_request.xml";
+    private static final String EXCEPTED_ADD_NODE_RESPONSE = "add_node_rpc_response.xml";
+    private static final String CREATE_TOPOLOGY_CONFIG_REQUEST_XML = "create_topology_config_request.xml";
+    private static final String MERGE_TOPOLOGY_CONFIG_REQUEST_XML = "merge_topology_config_request.xml";
+    private static final String GET_CONFIG_REQUEST_XML = "get_config_request.xml";
+    private static final String DELETE_TOPOLOGY_CONFIG_REQUEST_XML = "delete_topology_config_request.xml";
+    private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
     private static NetconfClientDispatcherImpl dispatcher;
+
 
     @BeforeAll
     public static void setUpClass() {
@@ -85,15 +96,11 @@ public class DeviceTest {
     public void getSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        final NetconfMessage getSchemaMessage =
-                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream("get_schemas_request.xml")));
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage getSchemaResponse = sessionListener
-                    .sendRequest(getSchemaMessage)
-                    .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
 
-            final NodeList schema = getSchemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
+            final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
             assertTrue(schema.getLength() > 0);
 
             boolean networkTopologySchemaContained = false;
@@ -110,6 +117,80 @@ public class DeviceTest {
             }
             assertThat(networkTopologySchemaContained);
         }
+    }
+
+
+    @Test
+    public void deviceConfigOperationsTest() throws InterruptedException, ExecutionException,
+            IOException, TimeoutException, URISyntaxException, SAXException {
+        final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
+        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+            final NetconfMessage createTopoResponse =
+                    sendRequestToDevice(CREATE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(createTopoResponse));
+
+            final NetconfMessage mergeTopoResponse =
+                    sendRequestToDevice(MERGE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(mergeTopoResponse));
+
+            final NetconfMessage getConfigDataResponse = sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
+
+            final NodeList topologies = getConfigDataResponse.getDocument().getElementsByTagName("topology");
+            assertEquals(topologies.getLength(), 2);
+            assertEquals(getTopologyID(topologies.item(0)), "test-config-topology");
+            assertEquals(getTopologyID(topologies.item(1)), "test-config-topology-merge");
+            final NodeList nodes = getConfigDataResponse.getDocument().getElementsByTagName("node");
+            assertEquals(nodes.getLength(), 1);
+
+            final NetconfMessage deleteTopologyResponse =
+                    sendRequestToDevice(DELETE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(deleteTopologyResponse));
+
+            final NetconfMessage getConfigDataResponseAfterDelete =
+                    sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
+            final NodeList topologiesAfterDelete =
+                    getConfigDataResponseAfterDelete.getDocument().getElementsByTagName("topology");
+            assertEquals(topologiesAfterDelete.getLength(), 1);
+        }
+    }
+
+    private boolean containsOkElement(final NetconfMessage responseMessage) {
+        return responseMessage.getDocument().getElementsByTagName("ok").getLength() > 0;
+    }
+
+    private String getTopologyID(final Node topologyItem) {
+        return topologyItem.getChildNodes().item(1).getChildNodes().item(0).getNodeValue();
+    }
+
+    @Test
+    public void deviceRpcTest() throws ExecutionException, InterruptedException, IOException, URISyntaxException,
+            SAXException, TimeoutException {
+        final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
+        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+
+            final NetconfMessage createTopoResponse =
+                    sendRequestToDevice(CREATE_TOPOLOGY_RPC_REQUEST_XML, sessionListener);
+            assertResponseIsIdentical(createTopoResponse, xmlFileToInputStream(CREATE_TOPOLOGY_RPC_RESPONSE_XML));
+
+            final NetconfMessage addNodeResponse = sendRequestToDevice(ADD_NODE_RPC_REQUEST_XML, sessionListener);
+            assertResponseIsIdentical(addNodeResponse, xmlFileToInputStream(EXCEPTED_ADD_NODE_RESPONSE));
+
+            final NetconfMessage deleteTopoResponse =
+                    sendRequestToDevice(DELETE_TOPOLOGY_RPC_REQUEST_XML, sessionListener);
+            assertResponseIsIdentical(deleteTopoResponse, xmlFileToInputStream(DELETE_TOPOLOGY_RPC_RESPONSE_XML));
+        }
+    }
+
+    private NetconfMessage sendRequestToDevice(String requestFileName,
+                                               SimpleNetconfClientSessionListener sessionListener)
+            throws SAXException, IOException, URISyntaxException,
+            InterruptedException, ExecutionException, TimeoutException {
+
+        final NetconfMessage requestMessage =
+                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream(requestFileName)));
+
+        return sessionListener.sendRequest(requestMessage)
+                .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     private void assertResponseIsIdentical(final NetconfMessage response, final InputStream comparedResponse) {
