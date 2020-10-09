@@ -24,7 +24,7 @@ public class NotificationNetconfSessionListener  extends SimpleNetconfClientSess
     public synchronized void onMessage(final NetconfClientSession session, final NetconfMessage message) {
         super.onMessage(session, message);
         if (isNotification(message)) {
-                this.countDownLatch.countDown();
+            this.countDownLatch.countDown();
         }
     }
 

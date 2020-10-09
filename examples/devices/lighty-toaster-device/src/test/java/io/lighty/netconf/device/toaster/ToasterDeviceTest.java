@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2020 PANTHEON.tech s.r.o. All Rights Reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at https://www.eclipse.org/legal/epl-v10.html
+ */
 package io.lighty.netconf.device.toaster;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -9,9 +16,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +56,8 @@ public class ToasterDeviceTest {
     private static final String RESTOCK_TOAST_REQUEST_XML = "restock_toast_request.xml";
     private static final String CREATE_TOASTER_REQUEST_XML = "create_toaster_request.xml";
     private static final String GET_TOASTER_DATA_REQUEST_XML = "get_toaster_data_request.xml";
+    public static final String SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML = "subscribe_to_notifications_request.xml";
+    public static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
 
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
@@ -78,15 +92,12 @@ public class ToasterDeviceTest {
     public void getSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        final NetconfMessage getSchemaMessage = new NetconfMessage(
-                XmlUtil.readXmlToDocument(TestUtils.xmlFileToInputStream("get_schemas_request.xml")));
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage getSchemaResponse = sessionListener
-                    .sendRequest(getSchemaMessage)
-                    .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final NetconfMessage schemaResponse = sentRequesttoDevice(GET_SCHEMAS_REQUEST_XML,
+                    sessionListener);
 
-            final NodeList schema = getSchemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
+            final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
             assertTrue(schema.getLength() > 0);
 
             boolean toasterSchemaContained = false;
@@ -110,50 +121,53 @@ public class ToasterDeviceTest {
             TimeoutException, IOException {
 
         final CountDownLatch countDownLatch = new CountDownLatch(1);
-        final SimpleNetconfClientSessionListener sessionListener = new NotificationNetconfSessionListener(countDownLatch);
+        final SimpleNetconfClientSessionListener sessionListener =
+                new NotificationNetconfSessionListener(countDownLatch);
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage createToasterResponse = createToaster(sessionListener);
-            assertEquals(createToasterResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(), "ok");
+            final NetconfMessage subscribeResponse = sentRequesttoDevice(
+                    SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListener);
+            assertEquals(
+                    subscribeResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),"ok");
 
-            final NetconfMessage toasterData = getToaster(sessionListener);
+            final NetconfMessage createToasterResponse = sentRequesttoDevice(CREATE_TOASTER_REQUEST_XML,
+                    sessionListener);
+            assertEquals(createToasterResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),
+                    "ok");
+
+            final NetconfMessage toasterData = sentRequesttoDevice(GET_TOASTER_DATA_REQUEST_XML,
+                    sessionListener);
             final String toasterDarknessFactor = toasterData.getDocument()
                     .getDocumentElement().getElementsByTagName("darknessFactor").item(0).getTextContent();
 
             assertEquals(EXPECTED_DARKNESS_FACTOR, toasterDarknessFactor);
 
-            makeToast(MAKE_TOAST_REQUEST_XML, sessionListener);
-            restockToast(RESTOCK_TOAST_REQUEST_XML, sessionListener);
-            countDownLatch.await();
+            final NetconfMessage makeToastResponse = sentRequesttoDevice(MAKE_TOAST_REQUEST_XML, sessionListener);
+            assertEquals(makeToastResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),
+                    "ok");
+
+            final NetconfMessage restockToastResponse = sentRequesttoDevice(RESTOCK_TOAST_REQUEST_XML,
+                    sessionListener);
+            assertEquals(restockToastResponse.getDocument().getElementsByTagName("ok").item(0).getLocalName(),
+                    "ok");
+            final boolean await = countDownLatch.await(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            assertTrue(await);
         }
     }
 
-    private NetconfMessage createToaster(SimpleNetconfClientSessionListener sessionListener) throws InterruptedException,
-            ExecutionException, IOException, TimeoutException, URISyntaxException, SAXException {
+    public static NetconfMessage sentRequesttoDevice(String requestFileName,
+                                                     SimpleNetconfClientSessionListener sessionListener)
+            throws SAXException, IOException, URISyntaxException,
+            InterruptedException, ExecutionException, TimeoutException {
 
-        return TestUtils.performNetconfRequest(CREATE_TOASTER_REQUEST_XML, sessionListener);
+        final NetconfMessage actionSchemaMessage =
+                new NetconfMessage(XmlUtil.readXmlToDocument(xmlFileToInputStream(requestFileName)));
+
+        return sessionListener.sendRequest(actionSchemaMessage).get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 
-    private NetconfMessage getToaster(SimpleNetconfClientSessionListener sessionListener) throws InterruptedException,
-            ExecutionException, IOException, TimeoutException, URISyntaxException, SAXException {
-
-        return TestUtils.performNetconfRequest(GET_TOASTER_DATA_REQUEST_XML, sessionListener);
-    }
-
-    public void makeToast(String fileName, SimpleNetconfClientSessionListener sessionListener)
-            throws InterruptedException, ExecutionException, TimeoutException, IOException,
-            URISyntaxException, SAXException {
-
-        final NetconfMessage makeToastResponse = TestUtils.performNetconfRequest(fileName, sessionListener);
-        TestUtils.checkForRpcErrors(makeToastResponse);
-    }
-
-
-    private void restockToast(String fileName, SimpleNetconfClientSessionListener sessionListener)
-            throws InterruptedException, ExecutionException, IOException,
-            TimeoutException, URISyntaxException, SAXException {
-
-        final NetconfMessage restockToastResponse = TestUtils.performNetconfRequest(fileName, sessionListener);
-        TestUtils.checkForRpcErrors(restockToastResponse);
+    public static InputStream xmlFileToInputStream(final String fileName) throws URISyntaxException, IOException {
+        final URL getRequest = ToasterDeviceTest.class.getClassLoader().getResource(fileName);
+        return new FileInputStream(new File(Objects.requireNonNull(getRequest).toURI()));
     }
 
 }
