@@ -148,7 +148,9 @@ public class DeviceTest {
 
             final NetconfMessage getConfigDataResponseAfterDelete =
                     sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
-            assertEquals(getConfigDataResponseAfterDelete.getDocument().getElementsByTagName("topology").getLength(), 1);
+            final NodeList topologiesAfterDelete =
+                    getConfigDataResponseAfterDelete.getDocument().getElementsByTagName("topology");
+            assertEquals(topologiesAfterDelete.getLength(), 1);
         }
     }
 
