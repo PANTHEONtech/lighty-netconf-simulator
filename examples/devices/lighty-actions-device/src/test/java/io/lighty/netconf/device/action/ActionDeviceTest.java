@@ -141,8 +141,6 @@ public class ActionDeviceTest {
         return sessionListener
                 .sendRequest(actionSchemaMessage)
                 .get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-
-
     }
 
     public static InputStream xmlFileToInputStream(final String fileName) throws URISyntaxException, IOException {
