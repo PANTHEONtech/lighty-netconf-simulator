@@ -10,6 +10,7 @@ package io.lighty.netconf.device.toaster.rpcs;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.lighty.netconf.device.requests.notification.NotificationPublishService;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,6 +23,8 @@ import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToasterInput;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToasterOutput;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToasterOutputBuilder;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterRestocked;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterRestockedBuilder;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -33,6 +36,7 @@ public class ToasterServiceImpl implements ToasterService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceImpl.class);
 
     private final ExecutorService executor;
+    private NotificationPublishService notificationPublishService;
 
     public ToasterServiceImpl() {
         this.executor = Executors.newFixedThreadPool(1);
@@ -76,7 +80,11 @@ public class ToasterServiceImpl implements ToasterService, AutoCloseable {
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<RestockToasterOutput>> restockToaster(final RestockToasterInput input) {
         LOG.info("restockToaster {}", input.getAmountOfBreadToStock());
+
+        publishRestockNotification(input);
+
         final SettableFuture<RpcResult<RestockToasterOutput>> result = SettableFuture.create();
+
         this.executor.submit(new Callable<RpcResult<RestockToasterOutput>>() {
             @Override
             public RpcResult<RestockToasterOutput> call() throws Exception {
@@ -87,6 +95,18 @@ public class ToasterServiceImpl implements ToasterService, AutoCloseable {
             }
         });
         return result;
+    }
+
+    private void publishRestockNotification(RestockToasterInput input) {
+        if (this.notificationPublishService != null) {
+            ToasterRestocked reStockedNotification = new ToasterRestockedBuilder()
+                    .setAmountOfBread(input.getAmountOfBreadToStock()).build();
+            notificationPublishService.publish(reStockedNotification, ToasterRestocked.QNAME);
+        }
+    }
+
+    public void setNotificationPublishService(NotificationPublishService notificationPublishService) {
+        this.notificationPublishService = notificationPublishService;
     }
 
     @Override
