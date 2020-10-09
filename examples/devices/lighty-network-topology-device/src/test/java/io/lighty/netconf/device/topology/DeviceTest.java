@@ -17,7 +17,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -52,14 +51,11 @@ public class DeviceTest {
     private static final String PASS = "admin";
     private static final int DEVICE_SIMULATOR_PORT = 9090;
     private static final String CREATE_TOPOLOGY_RPC_REQUEST_XML = "create_topology_rpc_request.xml";
+    private static final String CREATE_TOPOLOGY_RPC_RESPONSE_XML = "create_topology_rpc_response.xml";
     private static final String DELETE_TOPOLOGY_RPC_REQUEST_XML = "delete_topology_rpc_request.xml";
+    private static final String DELETE_TOPOLOGY_RPC_RESPONSE_XML = "delete_topology_rpc_response.xml";
     private static final String ADD_NODE_RPC_REQUEST_XML = "add_node_rpc_request.xml";
-    private static final String EXCEPTED_CREATE_TOPO_RESPONSE = "<rpc-reply xmlns=\""
-            + "urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"m-1\"><" + "ok/></rpc-reply>";
-    private static final String EXCEPTED_ADD_NODE_RESPONSE = "<rpc-reply xmlns=\""
-            + "urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"m-2\"><ok/></rpc-reply>";
-    private static final String EXCEPTED_DELETE_TOPO_RESPONSE = "<rpc-reply xmlns=\""
-            + "urn:ietf:params:xml:ns:netconf:base:1.0\" message-id=\"m-3\"><ok/></rpc-reply>";
+    private static final String EXCEPTED_ADD_NODE_RESPONSE = "add_node_rpc_response.xml";
     private static final String CREATE_TOPOLOGY_CONFIG_REQUEST_XML = "create_topology_config_request.xml";
     private static final String MERGE_TOPOLOGY_CONFIG_REQUEST_XML = "merge_topology_config_request.xml";
     private static final String GET_CONFIG_REQUEST_XML = "get_config_request.xml";
@@ -102,7 +98,7 @@ public class DeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage schemaResponse = sendRequesttoDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
+            final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
 
             final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
             assertTrue(schema.getLength() > 0);
@@ -129,28 +125,39 @@ public class DeviceTest {
             IOException, TimeoutException, URISyntaxException, SAXException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage createTopoResponse = sendRequesttoDevice(
-                    CREATE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
-            assertEquals(createTopoResponse.getDocument()
-                    .getElementsByTagName("ok").item(0).getLocalName(), "ok");
+            final NetconfMessage createTopoResponse =
+                    sendRequestToDevice(CREATE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(createTopoResponse));
 
-            final NetconfMessage mergeTopoResponse = sendRequesttoDevice(
-                    MERGE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
-            assertEquals(mergeTopoResponse.getDocument()
-                    .getElementsByTagName("ok").item(0).getLocalName(), "ok");
+            final NetconfMessage mergeTopoResponse =
+                    sendRequestToDevice(MERGE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(mergeTopoResponse));
 
-            NetconfMessage getConfigDataResponse = sendRequesttoDevice(GET_CONFIG_REQUEST_XML, sessionListener);
+            final NetconfMessage getConfigDataResponse = sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
 
-            assertEquals(getConfigDataResponse.getDocument().getElementsByTagName("topology").getLength(), 2);
-            assertEquals(getConfigDataResponse.getDocument().getElementsByTagName("node").getLength(), 1);
+            final NodeList topologies = getConfigDataResponse.getDocument().getElementsByTagName("topology");
+            assertEquals(topologies.getLength(), 2);
+            assertEquals(getTopologyID(topologies.item(0)), "test-config-topology");
+            assertEquals(getTopologyID(topologies.item(1)), "test-config-topology-merge");
+            final NodeList nodes = getConfigDataResponse.getDocument().getElementsByTagName("node");
+            assertEquals(nodes.getLength(), 1);
 
-            final NetconfMessage deleteTopologyResponse = sendRequesttoDevice(
-                    DELETE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
-            deleteTopologyResponse.getDocument();
+            final NetconfMessage deleteTopologyResponse =
+                    sendRequestToDevice(DELETE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
+            assertTrue(containsOkElement(deleteTopologyResponse));
 
-            getConfigDataResponse = sendRequesttoDevice(GET_CONFIG_REQUEST_XML, sessionListener);
-            assertEquals(getConfigDataResponse.getDocument().getElementsByTagName("topology").getLength(), 1);
+            final NetconfMessage getConfigDataResponseAfterDelete =
+                    sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
+            assertEquals(getConfigDataResponseAfterDelete.getDocument().getElementsByTagName("topology").getLength(), 1);
         }
+    }
+
+    private boolean containsOkElement(final NetconfMessage responseMessage) {
+        return responseMessage.getDocument().getElementsByTagName("ok").getLength() > 0;
+    }
+
+    private String getTopologyID(final Node topologyItem) {
+        return topologyItem.getChildNodes().item(1).getChildNodes().item(0).getNodeValue();
     }
 
     @Test
@@ -158,25 +165,21 @@ public class DeviceTest {
             SAXException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
-            final NetconfMessage createTopoResponse = sendRequesttoDevice(CREATE_TOPOLOGY_RPC_REQUEST_XML,
-                    sessionListener);
 
-            assertResponseIsIdentical(createTopoResponse,
-                    new ByteArrayInputStream(EXCEPTED_CREATE_TOPO_RESPONSE.getBytes()));
+            final NetconfMessage createTopoResponse =
+                    sendRequestToDevice(CREATE_TOPOLOGY_RPC_REQUEST_XML, sessionListener);
+            assertResponseIsIdentical(createTopoResponse, xmlFileToInputStream(CREATE_TOPOLOGY_RPC_RESPONSE_XML));
 
-            final NetconfMessage addNodeResponse = sendRequesttoDevice(ADD_NODE_RPC_REQUEST_XML, sessionListener);
-            assertResponseIsIdentical(addNodeResponse,
-                    new ByteArrayInputStream(EXCEPTED_ADD_NODE_RESPONSE.getBytes()));
+            final NetconfMessage addNodeResponse = sendRequestToDevice(ADD_NODE_RPC_REQUEST_XML, sessionListener);
+            assertResponseIsIdentical(addNodeResponse, xmlFileToInputStream(EXCEPTED_ADD_NODE_RESPONSE));
 
             final NetconfMessage deleteTopoResponse =
-                    sendRequesttoDevice(DELETE_TOPOLOGY_RPC_REQUEST_XML, sessionListener);
-
-            assertResponseIsIdentical(deleteTopoResponse,
-                    new ByteArrayInputStream(EXCEPTED_DELETE_TOPO_RESPONSE.getBytes()));
+                    sendRequestToDevice(DELETE_TOPOLOGY_RPC_REQUEST_XML, sessionListener);
+            assertResponseIsIdentical(deleteTopoResponse, xmlFileToInputStream(DELETE_TOPOLOGY_RPC_RESPONSE_XML));
         }
     }
 
-    private NetconfMessage sendRequesttoDevice(String requestFileName,
+    private NetconfMessage sendRequestToDevice(String requestFileName,
                                                SimpleNetconfClientSessionListener sessionListener)
             throws SAXException, IOException, URISyntaxException,
             InterruptedException, ExecutionException, TimeoutException {
