@@ -1,0 +1,5 @@
+<rpc message-id="m-4" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <restock-toaster xmlns="http://netconfcentral.org/ns/toaster">
+        <amountOfBreadToStock>10</amountOfBreadToStock>
+    </restock-toaster>
+</rpc>
