@@ -403,7 +403,8 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                         .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                             .rev131021.network.topology.topology.Node.class, nk)
                         .build();
-                final Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nodeOptional =
+                final Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                        .rev131021.network.topology.topology.Node> nodeOptional =
                         readTx.read(datastoreType, tii).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 if (nodeOptional.isPresent()) {
                     final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology

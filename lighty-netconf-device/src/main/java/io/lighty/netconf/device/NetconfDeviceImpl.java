@@ -113,7 +113,8 @@ public class NetconfDeviceImpl implements NetconfDevice {
             writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             final String dataTreeString = NormalizedNodes.toStringTree(initialDataBI);
             LOG.trace("Initial {} datastore data: {}", datastoreType, dataTreeString);
-        } catch (SerializationException | IOException | ExecutionException | InterruptedException | TimeoutException e) {
+        } catch (SerializationException | IOException | ExecutionException | InterruptedException
+                | TimeoutException e) {
             String msg = "Unable to set initial state of " + datastoreType + " datastore from XML!";
             LOG.error(msg, e);
             throw new IllegalStateException(msg, e);
