@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -173,7 +176,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                         .setNode(finalListOper)
                         .build();
                 writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
-                writeTx.commit().get();
+                writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
                 final AddNodeIntoTopologyOutput addNodeIntoTopologyOutput = new AddNodeIntoTopologyOutputBuilder()
                         .build();
@@ -203,7 +206,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                                 topology.key()).build();
                 writeTx.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
                 writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
-                writeTx.commit().get();
+                writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 final CreateTopologyOutput topologyOutput = new CreateTopologyOutputBuilder().build();
 
                 final RpcResult<CreateTopologyOutput> rpcResult = RpcResultBuilder.success(topologyOutput).build();
@@ -315,8 +318,8 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                         InstanceIdentifier.builder(NetworkTopology.class)
                         .child(Topology.class, topology.key())
                         .build();
-                final Optional<Topology> readTopology =
-                    readTx.read(LogicalDatastoreType.CONFIGURATION, tii).get();
+                final Optional<Topology> readTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
                     .rev180320.topology.data.Topology> finalTopology =
                         new ArrayList<>();
@@ -401,8 +404,8 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                             .rev131021.network.topology.topology.Node.class, nk)
                         .build();
                 final Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                    .rev131021.network.topology.topology.Node> nodeOptional =
-                        readTx.read(datastoreType, tii).get();
+                        .rev131021.network.topology.topology.Node> nodeOptional =
+                        readTx.read(datastoreType, tii).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 if (nodeOptional.isPresent()) {
                     final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                         .rev131021.network.topology.topology.Node node = nodeOptional.get();
@@ -460,8 +463,8 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                     NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction();
                 final InstanceIdentifier<NetworkTopology> tii =
                         InstanceIdentifier.builder(NetworkTopology.class).build();
-                final Optional<NetworkTopology> networkTopology =
-                    readTx.read(LogicalDatastoreType.CONFIGURATION, tii).get();
+                final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 if (networkTopology.isPresent()) {
                     final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
                         .rev180320.topology.data.TopologyBuilder topologyBuilder =
@@ -530,20 +533,21 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private void removeFromDatastore(final InstanceIdentifier<?> instanceIdentifier)
-        throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException, TimeoutException {
         final WriteTransaction writeTx = this.dataBrokerService.newWriteOnlyTransaction();
         writeTx.delete(LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
         writeTx.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        writeTx.commit().get();
+        writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
-    private List<TopologyId> prepareGetTopologyIds() throws ExecutionException, InterruptedException {
+    private List<TopologyId> prepareGetTopologyIds() throws ExecutionException, InterruptedException, TimeoutException {
         final ReadTransaction readTx = this.dataBrokerService.newReadOnlyTransaction();
         final InstanceIdentifier<NetworkTopology> ntii =
                 InstanceIdentifier.builder(NetworkTopology.class)
                 .build();
-        final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, ntii).get();
+        final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, ntii)
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         final List<TopologyId> topologyIds = new ArrayList<>();
         if (networkTopology.isPresent()) {
             for (final Topology topology : networkTopology.get().nonnullTopology().values()) {

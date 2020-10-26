@@ -13,6 +13,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -97,7 +98,9 @@ public class DeviceTest {
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
 
             final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
@@ -124,7 +127,9 @@ public class DeviceTest {
     public void deviceConfigOperationsTest() throws InterruptedException, ExecutionException,
             IOException, TimeoutException, URISyntaxException, SAXException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage createTopoResponse =
                     sendRequestToDevice(CREATE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
             assertTrue(containsOkElement(createTopoResponse));
@@ -166,7 +171,9 @@ public class DeviceTest {
     public void deviceRpcTest() throws ExecutionException, InterruptedException, IOException, URISyntaxException,
             SAXException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
 
             final NetconfMessage createTopoResponse =
                     sendRequestToDevice(CREATE_TOPOLOGY_RPC_REQUEST_XML, sessionListener);
