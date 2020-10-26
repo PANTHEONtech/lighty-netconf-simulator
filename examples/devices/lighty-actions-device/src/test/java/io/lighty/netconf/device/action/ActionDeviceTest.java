@@ -11,6 +11,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -91,7 +92,9 @@ public class ActionDeviceTest {
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sentRequesttoDevice(
                     sessionListener, "get_schemas_request.xml");
 
@@ -118,7 +121,9 @@ public class ActionDeviceTest {
     public void actionsTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage startActionResponse = sentRequesttoDevice(sessionListener, START_ACTION_REQUEST_XML);
             final String startResultTag = startActionResponse.getDocument().getDocumentElement().getElementsByTagName(
                     START_TAG).item(0).getTextContent();

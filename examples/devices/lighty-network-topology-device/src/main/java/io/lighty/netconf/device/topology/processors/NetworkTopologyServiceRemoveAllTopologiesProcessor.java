@@ -7,7 +7,10 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev180320.NetworkTopologyRpcsService;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev180320.RemoveAllTopologiesInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev180320.RemoveAllTopologiesOutput;
@@ -38,9 +41,9 @@ public class NetworkTopologyServiceRemoveAllTopologiesProcessor extends NetworkT
 
     @Override
     protected RpcResult<RemoveAllTopologiesOutput> execMethod(final RemoveAllTopologiesInput input)
-            throws ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException, TimeoutException {
         final RpcResult<RemoveAllTopologiesOutput> voidRpcResult = this.networkTopologyRpcsService.removeAllTopologies(
-                input).get();
+                input).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         return voidRpcResult;
     }
 }

@@ -10,6 +10,7 @@ package io.lighty.netconf.device.requests;
 import io.lighty.codecs.api.SerializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.response.Response;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -88,8 +91,8 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
     }
 
     private Document processResponse(final CompletableFuture<Response> responseOutput)
-            throws ExecutionException, InterruptedException, ParserConfigurationException {
-        final Response listResponse = responseOutput.get();
+            throws ExecutionException, InterruptedException, ParserConfigurationException, TimeoutException {
+        final Response listResponse = responseOutput.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         final Document error = listResponse.getErrorDocument();
         if (error != null) {
             return error;

@@ -12,6 +12,7 @@ import io.lighty.codecs.api.SerializationException;
 import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.RpcHandlerImpl;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -109,10 +110,10 @@ public class NetconfDeviceImpl implements NetconfDevice {
                     .deserialize(netconfDeviceServices.getRootSchemaNode(), reader);
             DOMDataTreeWriteTransaction writeTx = netconfDeviceServices.getDOMDataBroker().newWriteOnlyTransaction();
             writeTx.put(datastoreType, YangInstanceIdentifier.empty(), initialDataBI);
-            writeTx.commit().get();
+            writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             final String dataTreeString = NormalizedNodes.toStringTree(initialDataBI);
             LOG.trace("Initial {} datastore data: {}", datastoreType, dataTreeString);
-        } catch (SerializationException | IOException | ExecutionException | InterruptedException e) {
+        } catch (SerializationException | IOException | ExecutionException | InterruptedException | TimeoutException e) {
             String msg = "Unable to set initial state of " + datastoreType + " datastore from XML!";
             LOG.error(msg, e);
             throw new IllegalStateException(msg, e);

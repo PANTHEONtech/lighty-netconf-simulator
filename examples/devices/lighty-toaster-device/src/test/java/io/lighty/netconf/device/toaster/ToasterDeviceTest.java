@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.lighty.codecs.xml.XmlUtil;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -93,7 +94,9 @@ public class ToasterDeviceTest {
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sentRequestToDevice(GET_SCHEMAS_REQUEST_XML,
                     sessionListener);
 
@@ -123,7 +126,9 @@ public class ToasterDeviceTest {
         final CountDownLatch notificationReceivedLatch = new CountDownLatch(1);
         final SimpleNetconfClientSessionListener sessionListener =
                 new NotificationNetconfSessionListener(notificationReceivedLatch);
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage subscribeResponse =
                     sentRequestToDevice(SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListener);
             assertTrue(containsOkElement(subscribeResponse));
