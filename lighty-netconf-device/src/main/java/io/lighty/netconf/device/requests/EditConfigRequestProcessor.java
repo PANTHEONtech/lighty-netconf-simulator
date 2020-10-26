@@ -16,6 +16,7 @@ import io.lighty.netconf.device.response.ResponseErrorMessage;
 import io.lighty.netconf.device.utils.DefaultOperation;
 import io.lighty.netconf.device.utils.Operation;
 import io.lighty.netconf.device.utils.RPCUtil;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.StringReader;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -180,10 +183,10 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                 break;
         }
         try {
-            writeTx.commit().get();
+            writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             responseFuture.complete(new ResponseData(Collections.emptyList()));
             return responseFuture;
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             if (e.getCause() instanceof TransactionCommitFailedException) {
                 final Throwable error = e.getCause();
                 if (error.getCause() instanceof SchemaValidationFailedException) {
@@ -348,8 +351,8 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
         try {
             return readTx.exists(LogicalDatastoreType.CONFIGURATION, path)
-                    .get();
-        } catch (InterruptedException | ExecutionException e) {
+                    .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             throw createTxException(data, e, operationToExecute.getOperationName().toUpperCase(Locale.ROOT));
         }
     }

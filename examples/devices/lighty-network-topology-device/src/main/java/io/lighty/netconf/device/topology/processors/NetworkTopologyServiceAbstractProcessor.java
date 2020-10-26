@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import javax.xml.transform.TransformerException;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -70,11 +71,12 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
                 responseData = new ResponseData(Collections.singletonList(containerNode));
             }
             return CompletableFuture.completedFuture(responseData);
-        } catch (final ExecutionException | InterruptedException | SerializationException | TransformerException e) {
+        } catch (final ExecutionException | InterruptedException | SerializationException | TransformerException | TimeoutException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);
         }
     }
 
-    protected abstract RpcResult<O> execMethod(T input) throws ExecutionException, InterruptedException;
+    protected abstract RpcResult<O> execMethod(T input)
+            throws ExecutionException, InterruptedException, TimeoutException;
 }

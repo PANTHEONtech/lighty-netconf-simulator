@@ -15,11 +15,14 @@ import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.xml.transform.TransformerException;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -57,14 +60,14 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
 
             //3. invoke RPC and wait for completion
             final Future<RpcResult<O>> invokeRpc = execMethod(input);
-            final RpcResult<O> rpcResult = invokeRpc.get();
+            final RpcResult<O> rpcResult = invokeRpc.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
             //4. convert RPC output to ContainerNode
             final ContainerNode data = this.dataCodec.convertToBindingIndependentRpc(rpcResult.getResult());
 
             //5. create response
             return CompletableFuture.completedFuture(new ResponseData(Collections.singletonList(data)));
-        } catch (final InterruptedException | ExecutionException | SerializationException | TransformerException e) {
+        } catch (final InterruptedException | ExecutionException | SerializationException | TransformerException | TimeoutException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);
         }
