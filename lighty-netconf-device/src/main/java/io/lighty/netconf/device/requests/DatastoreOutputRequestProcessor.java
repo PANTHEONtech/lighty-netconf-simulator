@@ -10,11 +10,14 @@ package io.lighty.netconf.device.requests;
 import com.google.common.util.concurrent.FluentFuture;
 import io.lighty.codecs.api.SerializationException;
 import io.lighty.netconf.device.utils.RPCUtil;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -46,13 +49,13 @@ public abstract class DatastoreOutputRequestProcessor extends BaseRequestProcess
         try (DOMDataTreeReadTransaction domDataReadOnlyTransaction = domDataBroker.newReadOnlyTransaction()) {
             FluentFuture<Optional<NormalizedNode<?, ?>>> readData =
                     domDataReadOnlyTransaction.read(datastoreType, YangInstanceIdentifier.empty());
-            listData = readData.get();
+            listData = readData.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
             if (listData.isPresent()) {
                 ContainerNode containerNode = (ContainerNode) listData.get();
                 return new ArrayList<>(containerNode.getValue());
             }
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
             LOG.error("Exception thrown while getting data from datastore!", e);
         }
         return Collections.emptyList();

@@ -11,6 +11,7 @@ import static org.testng.Assert.assertTrue;
 import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 import io.lighty.netconf.device.notification.Main;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -96,7 +97,9 @@ public class NotificationTest {
             ExecutionException, TimeoutException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sendRequesttoDevice(sessionListener, GET_SCHEMAS_REQUEST_XML);
 
             final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
@@ -126,7 +129,9 @@ public class NotificationTest {
         final NotificationNetconfSessionListener sessionListener =
                 new NotificationNetconfSessionListener(countDownLatch, EXPECTED_NOTIFICATION_PAYLOAD);
 
-        try (NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener)).get()) {
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage subscribeResponse =
                     sendRequesttoDevice(sessionListener, SUBCRIBE_TO_NOTIFICATIONS_REQUEST_XML);
 

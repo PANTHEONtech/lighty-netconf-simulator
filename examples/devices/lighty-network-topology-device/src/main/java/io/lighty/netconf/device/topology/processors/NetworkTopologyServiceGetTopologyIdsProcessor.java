@@ -7,7 +7,10 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev180320.GetTopologyIdsInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev180320.GetTopologyIdsOutput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev180320.NetworkTopologyRpcsService;
@@ -37,9 +40,9 @@ public class NetworkTopologyServiceGetTopologyIdsProcessor extends NetworkTopolo
 
     @Override
     protected RpcResult<GetTopologyIdsOutput> execMethod(final GetTopologyIdsInput input) throws ExecutionException,
-            InterruptedException {
+            InterruptedException, TimeoutException {
         final RpcResult<GetTopologyIdsOutput> voidRpcResult = this.networkTopologyRpcsService.getTopologyIds(input)
-                .get();
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         return voidRpcResult;
     }
 }
