@@ -67,7 +67,8 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
 
             //5. create response
             return CompletableFuture.completedFuture(new ResponseData(Collections.singletonList(data)));
-        } catch (final InterruptedException | ExecutionException | SerializationException | TransformerException | TimeoutException e) {
+        } catch (final InterruptedException | ExecutionException | SerializationException | TransformerException
+                | TimeoutException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);
         }
