@@ -15,17 +15,24 @@ import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 public class NotificationNetconfSessionListener  extends SimpleNetconfClientSessionListener {
 
     private CountDownLatch countDownLatch;
+    private NetconfMessage receivedNotif;
 
     public NotificationNetconfSessionListener(CountDownLatch countDownLatch) {
         this.countDownLatch = countDownLatch;
+        this.receivedNotif = null;
     }
 
     @Override
     public synchronized void onMessage(final NetconfClientSession session, final NetconfMessage message) {
         super.onMessage(session, message);
         if (isNotification(message)) {
+            this.receivedNotif = message;
             this.countDownLatch.countDown();
         }
+    }
+
+    public NetconfMessage getReceivedNotificationMessage() {
+        return this.receivedNotif;
     }
 
     private boolean isNotification(NetconfMessage message) {
