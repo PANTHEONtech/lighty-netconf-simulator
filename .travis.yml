@@ -17,7 +17,7 @@ cache:
 # the default java install step does
 # mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 install:
-  - mvn install -DskipTests=true -B -V -Psource-quality
+  - mvn install -B -V -Psource-quality
 
 # before_cache happens before the second part of the cache phase,
 # which happens after script
