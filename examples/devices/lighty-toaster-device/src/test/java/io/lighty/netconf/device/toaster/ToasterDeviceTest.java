@@ -7,7 +7,6 @@
  */
 package io.lighty.netconf.device.toaster;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -116,7 +115,7 @@ public class ToasterDeviceTest {
                     }
                 }
             }
-            assertThat(toasterSchemaContained);
+            assertTrue(toasterSchemaContained);
         }
     }
 

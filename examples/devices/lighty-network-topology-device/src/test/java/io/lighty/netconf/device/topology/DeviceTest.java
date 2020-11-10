@@ -118,10 +118,9 @@ public class DeviceTest {
                     }
                 }
             }
-            assertThat(networkTopologySchemaContained);
+            assertTrue(networkTopologySchemaContained);
         }
     }
-
 
     @Test
     public void deviceConfigOperationsTest() throws InterruptedException, ExecutionException,
