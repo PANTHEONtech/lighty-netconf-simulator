@@ -8,7 +8,6 @@
 package io.lighty.devices.notification.tests;
 
 import static org.testng.Assert.assertTrue;
-import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 import io.lighty.netconf.device.notification.Main;
 import io.lighty.netconf.device.utils.TimeoutUtil;
@@ -117,7 +116,7 @@ public class NotificationTest {
                     }
                 }
             }
-            assertThat(notificationSchemaContained);
+            assertTrue(notificationSchemaContained);
         }
     }
 
