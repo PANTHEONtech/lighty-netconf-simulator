@@ -120,22 +120,14 @@ public class ToasterDeviceTest {
         }
     }
 
-    @Disabled
     @Test
-    //TODO Fix OK response in makeToast RPC
     public void toasterRpcsTest() throws ExecutionException, InterruptedException, URISyntaxException, SAXException,
             TimeoutException, IOException {
 
-        final CountDownLatch notificationReceivedLatch = new CountDownLatch(1);
-        final NotificationNetconfSessionListener sessionListenerNotification =
-                new NotificationNetconfSessionListener(notificationReceivedLatch);
         final SimpleNetconfClientSessionListener sessionListenerSimple =
             new SimpleNetconfClientSessionListener();
 
-        try (NetconfClientSession sessionNotification =
-                dispatcher.createClient(createSHHConfig(sessionListenerNotification))
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-            NetconfClientSession sessionSimple =
+        try (NetconfClientSession sessionSimple =
                 dispatcher.createClient(createSHHConfig(sessionListenerSimple))
                     .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
 
@@ -149,16 +141,39 @@ public class ToasterDeviceTest {
                     .getDocumentElement().getElementsByTagName("darknessFactor").item(0).getTextContent();
             assertEquals(EXPECTED_DARKNESS_FACTOR, toasterDarknessFactor);
 
-            final NetconfMessage subscribeResponse =
-                sentRequestToDevice(SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListenerNotification);
-            assertTrue(containsOkElement(subscribeResponse));
-
             final NetconfMessage makeToastResponse =
                 sentRequestToDevice(MAKE_TOAST_REQUEST_XML, sessionListenerSimple);
             assertTrue(containsOkElement(makeToastResponse));
 
             final NetconfMessage restockToastResponse =
                 sentRequestToDevice(RESTOCK_TOAST_REQUEST_XML, sessionListenerSimple);
+            assertTrue(containsOkElement(restockToastResponse));
+        }
+    }
+
+    @Test
+    public void toasterNotificationTest() throws ExecutionException, InterruptedException, URISyntaxException,
+            SAXException, TimeoutException, IOException {
+
+        final CountDownLatch notificationReceivedLatch = new CountDownLatch(1);
+        final NotificationNetconfSessionListener sessionListenerNotification =
+                new NotificationNetconfSessionListener(notificationReceivedLatch);
+        final SimpleNetconfClientSessionListener sessionListenerSimple =
+                new SimpleNetconfClientSessionListener();
+
+        try (NetconfClientSession sessionNotification =
+                dispatcher.createClient(createSHHConfig(sessionListenerNotification))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                NetconfClientSession sessionSimple =
+                        dispatcher.createClient(createSHHConfig(sessionListenerSimple))
+                                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+
+            final NetconfMessage subscribeResponse =
+                    sentRequestToDevice(SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListenerNotification);
+            assertTrue(containsOkElement(subscribeResponse));
+
+            final NetconfMessage restockToastResponse =
+                    sentRequestToDevice(RESTOCK_TOAST_REQUEST_XML, sessionListenerSimple);
             assertTrue(containsOkElement(restockToastResponse));
 
             final boolean await = notificationReceivedLatch.await(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -167,6 +182,12 @@ public class ToasterDeviceTest {
             NetconfMessage restockToastNotification = sessionListenerNotification.getReceivedNotificationMessage();
             assertNotNull(restockToastNotification);
             assertTrue(containsNotificationElement(restockToastNotification));
+            final String amountOfBreadExpected = XmlUtil
+                    .readXmlToDocument(xmlFileToInputStream(RESTOCK_TOAST_REQUEST_XML))
+                    .getElementsByTagName("amountOfBreadToStock").item(0).getTextContent();
+            final String amountOfBread = restockToastNotification.getDocument().getElementsByTagName("amountOfBread")
+                    .item(0).getTextContent();
+            assertEquals(amountOfBreadExpected, amountOfBread);
         }
     }
 
