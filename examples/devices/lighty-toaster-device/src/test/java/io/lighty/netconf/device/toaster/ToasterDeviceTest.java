@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.netconf.api.NetconfMessage;
 import org.opendaylight.netconf.client.NetconfClientDispatcher;
@@ -168,7 +167,6 @@ public class ToasterDeviceTest {
             NetconfMessage restockToastNotification = sessionListenerNotification.getReceivedNotificationMessage();
             assertNotNull(restockToastNotification);
             assertTrue(containsNotificationElement(restockToastNotification));
-
         }
     }
 

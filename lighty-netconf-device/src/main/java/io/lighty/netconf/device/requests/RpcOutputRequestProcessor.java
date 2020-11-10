@@ -68,13 +68,13 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
             List<Node> outputNodes = convertOutputToXmlNodes(responseOutput, builder, newDocument);
             List<Node> outputNodesData = new ArrayList<>();
             NodeList nodeList = outputNodes.get(0).getChildNodes();
-            if(nodeList.getLength() < 1) {
+            if (nodeList.getLength() < 1) {
                 outputNodesData.add(RPCUtil.createOkNode(newDocument));
             } else {
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node node = nodeList.item(i);
                     Element data = newDocument.createElementNS(
-                        getIdentifier().getNamespace().toString(), node.getNodeName());
+                            getIdentifier().getNamespace().toString(), node.getNodeName());
                     final int length = node.getChildNodes().getLength();
                     for (int j = 0; j < length; j++) {
                         data.appendChild(node.getFirstChild());
