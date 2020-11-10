@@ -10,7 +10,7 @@ package io.lighty.netconf.device.utils;
 
 public abstract class TimeoutUtil {
 
-    public static final long TIMEOUT_MILLIS = 30;
+    public static final long TIMEOUT_MILLIS = 10_000;
 
     private TimeoutUtil() {
     }
