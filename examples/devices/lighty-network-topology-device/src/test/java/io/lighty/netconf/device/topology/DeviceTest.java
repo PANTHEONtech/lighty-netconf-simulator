@@ -119,7 +119,7 @@ public class DeviceTest {
                     }
                 }
             }
-            assertThat(networkTopologySchemaContained);
+            assertTrue(networkTopologySchemaContained);
         }
     }
 

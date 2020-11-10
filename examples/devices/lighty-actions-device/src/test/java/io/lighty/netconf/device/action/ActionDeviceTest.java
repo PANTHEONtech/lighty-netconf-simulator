@@ -9,7 +9,6 @@ package io.lighty.netconf.device.action;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -47,6 +46,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class ActionDeviceTest {
+
     private static final long REQUEST_TIMEOUT_MILLIS = 5_000;
     private static final String USER = "admin";
     private static final String PASS = "admin";
@@ -113,7 +113,7 @@ public class ActionDeviceTest {
                     }
                 }
             }
-            assertThat(exampleDataCenterSchemaContained);
+            assertTrue(exampleDataCenterSchemaContained);
         }
     }
 
