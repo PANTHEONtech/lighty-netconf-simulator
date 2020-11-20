@@ -17,7 +17,7 @@
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
     <artifactId>lighty-example-network-topology-device-model</artifactId>
-    <version>13.0.1-SNAPSHOT</version>
+    <version>13.0.1</version>
 
     <dependencies>
         <dependency>
