@@ -17,6 +17,6 @@
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
     <artifactId>lighty-example-notifications-model</artifactId>
-    <version>12.2.1</version>
+    <version>12.2.2-SNAPSHOT</version>
 
 </project>
