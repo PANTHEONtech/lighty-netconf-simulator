@@ -7,7 +7,6 @@
  */
 package io.lighty.netconf.device;
 
-import com.google.common.collect.ImmutableSet;
 import io.lighty.netconf.device.requests.CommitRequestProcessor;
 import io.lighty.netconf.device.requests.DeleteConfigRequestProcessor;
 import io.lighty.netconf.device.requests.EditConfigRequestProcessor;
