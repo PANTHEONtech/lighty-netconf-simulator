@@ -127,12 +127,6 @@ public class NetconfDeviceBuilder {
 
     public NetconfDeviceBuilder withDefaultNotificationProcessor() {
         this.withRequestProcessor(new CreateSubscriptionRequestProcessor());
-        Set<YangModuleInfo> moduleInfo = ImmutableSet.of(
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf.notification._1._0
-                    .rev080714.$YangModuleInfoImpl.getInstance(),
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types
-                    .rev130715.$YangModuleInfoImpl.getInstance());
-        moduleInfos.addAll(moduleInfo);
         this.creator = new NotificationPublishServiceImpl();
         return this;
     }
