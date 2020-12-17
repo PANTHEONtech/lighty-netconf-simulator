@@ -30,6 +30,7 @@
         <dependency>
             <groupId>io.lighty.models.test</groupId>
             <artifactId>lighty-toaster</artifactId>
+            <version>13.0.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

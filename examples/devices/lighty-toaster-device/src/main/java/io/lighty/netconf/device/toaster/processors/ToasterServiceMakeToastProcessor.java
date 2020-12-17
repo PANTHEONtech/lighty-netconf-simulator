@@ -8,9 +8,9 @@
 package io.lighty.netconf.device.toaster.processors;
 
 import java.util.concurrent.Future;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.MakeToastInput;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.MakeToastOutput;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterService;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev201216.MakeToastInput;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev201216.MakeToastOutput;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev201216.ToasterService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;

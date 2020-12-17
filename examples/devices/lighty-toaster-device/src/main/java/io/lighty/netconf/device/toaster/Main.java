@@ -52,7 +52,7 @@ public class Main {
         //1. Load models from classpath
         Set<YangModuleInfo> toasterModules = ModelUtils.getModelsFromClasspath(
             ModuleId.from(
-                "http://netconfcentral.org/ns/toaster", "toaster", "2009-11-20"));
+                "http://netconfcentral.org/ns/toaster", "toaster", "2020-12-16"));
 
         //2. Initialize RPCs
         ToasterServiceImpl toasterService = new ToasterServiceImpl();

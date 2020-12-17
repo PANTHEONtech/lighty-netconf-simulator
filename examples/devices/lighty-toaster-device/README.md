@@ -1,7 +1,7 @@
 # Lighty toaster device example
 This netconf device example shows how to customize base `lighty-netconf-device`
 to support functionality described in your custom yang model. In this netconf
-device the toaster yang model `toaster@2009-11-20.yang` is used. Therefore the
+device the toaster yang model `toaster@2020-12-16.yang` is used. Therefore the
 name: toaster device.
 
 ### Brief description
@@ -228,7 +228,7 @@ response:
 ```
 
 ### Toaster Model
-YANG model used by the device is toaster@2009-11-20.yang.
+YANG model used by the device is toaster@2020-12-16.yang.
 
 Toaster device has defined 3 RPCs in YANG model:
 
@@ -278,7 +278,7 @@ device logs.
 Example of log info for make-toast RPC:
 ```
 INFO [nioEventLoopGroup-2-3] (ToasterServiceMakeToastProcessor.java:30) - execute RPC: make-toast
-INFO [nioEventLoopGroup-2-3] (ToasterServiceImpl.java:35) - makeToast 2 interface org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.FrozenWaffle
+INFO [nioEventLoopGroup-2-3] (ToasterServiceImpl.java:35) - makeToast 2 interface org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev201216.FrozenWaffle
 ```
 contains information with what parameters was RPC called:
 `toasterDoneness: 2` and `toasterToastType: frozen-waffle`.
@@ -306,7 +306,7 @@ toast type: pink-bread)
         <error-info>
             <ERROR>java.lang.UnsupportedOperationException:
                 java.lang.IllegalArgumentException:
-                    Parsed QName (http://netconfcentral.org/ns/toaster?revision=2009-11-20)pink-bread
+                    Parsed QName (http://netconfcentral.org/ns/toaster?revision=2020-12-16)pink-bread
                     does not refer to a valid identity
             </ERROR>
         </error-info>
