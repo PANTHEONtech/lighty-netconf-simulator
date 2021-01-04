@@ -16,10 +16,6 @@
     <version>13.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <properties>
-        <sonar.java.source>1.11</sonar.java.source>
-    </properties>
-
     <modules>
         <module>lighty-netconf-device</module>
         <module>examples</module>
