@@ -17,7 +17,7 @@ mvn clean install
 ```
 * The NETCONF Device Library build is located at:
 
-`lighty-netconf-device\target\lighty-netconf-device-13.0.2-SNAPSHOT.jar`
+`lighty-netconf-device\target\lighty-netconf-device-13.1.0.jar`
 
 * The build & run procedures for the example devices are described in each device's README.
 

@@ -10,16 +10,16 @@ Check commands in [Notifications device model](#notifications-device-model) on h
 Build root project - for more details check: [README](../../../README.md)
 
 **Run device**
-* extract binary distribution `lighty-notifications-device-13.0.2-SNAPSHOT-bin.zip`
+* extract binary distribution `lighty-notifications-device-13.1.0-bin.zip`
 from target directory
 * run jar file from zip with default parameter
 ```
-java -jar lighty-notifications-device-13.0.2-SNAPSHOT.jar
+java -jar lighty-notifications-device-13.1.0.jar
 ```
 To run device on specific port, add port number as an argument
 * run device on specific port `12345` (any available port)
 ```
-java -jar lighty-notifications-device-13.0.2-SNAPSHOT.jar 12345
+java -jar lighty-notifications-device-13.1.0.jar 12345
 ```
 
 ### Connect to device via SSH

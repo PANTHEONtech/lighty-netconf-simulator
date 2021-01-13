@@ -12,11 +12,11 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-binding-parent</artifactId>
-        <version>13.0.0</version>
+        <version>13.1.0</version>
         <relativePath/>
     </parent>
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
     <artifactId>lighty-example-data-center-model</artifactId>
-    <version>13.0.2-SNAPSHOT</version>
+    <version>13.1.0</version>
 </project>

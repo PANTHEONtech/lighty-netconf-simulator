@@ -11,7 +11,7 @@
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-bom</artifactId>
-    <version>13.0.2-SNAPSHOT</version>
+    <version>13.1.0</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -26,37 +26,37 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-network-topology-device-model</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-data-center-model</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-netconf-device</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-action-device</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-toaster-device</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-network-topology-device</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-notifications-model</artifactId>
-                <version>13.0.2-SNAPSHOT</version>
+                <version>13.1.0</version>
             </dependency>
 
             <dependency>
