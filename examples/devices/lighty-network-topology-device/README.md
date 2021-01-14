@@ -19,12 +19,12 @@ Build root project - for more details check: [README](../../../README.md)
 * extract binary distribution in target directory
 * run jar file from zip with default parameter
 ```
-java -jar lighty-network-topology-device-13.0.2-SNAPSHOT.jar
+java -jar lighty-network-topology-device-13.1.0.jar
 ```
 * to run device on specific port it is necessary to add port number as an argument
 * run device on specific port `12345` (any available port)
 ```
-java -jar lighty-network-topology-device-13.0.2-SNAPSHOT.jar 12345
+java -jar lighty-network-topology-device-13.1.0.jar 12345
 ```
 
 ### Connect to device via SSH

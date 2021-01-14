@@ -13,16 +13,16 @@ of the processor calls method of `ToasterServiceImpl` which implements
 Build root project - for more details check: [README](../../../README.md)
 
 **Run device**
-* extract binary distribution `lighty-toaster-device-13.0.2-SNAPSHOT-bin.zip`
+* extract binary distribution `lighty-toaster-device-13.1.0-bin.zip`
 from target directory
 * run jar file from zip with default parameter
 ```
-java -jar lighty-toaster-device-13.0.2-SNAPSHOT.jar
+java -jar lighty-toaster-device-13.1.0.jar
 ```
 To run device on specific port, add port number as an argument
 * run device on specific port `12345` (any available port)
 ```
-java -jar lighty-toaster-device-13.0.2-SNAPSHOT.jar 12345
+java -jar lighty-toaster-device-13.1.0.jar 12345
 ```
 
 ### Connect to device via SSH

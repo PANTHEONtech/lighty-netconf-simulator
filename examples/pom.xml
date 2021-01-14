@@ -14,7 +14,7 @@
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-aggregator</artifactId>
     <packaging>pom</packaging>
-    <version>13.0.2-SNAPSHOT</version>
+    <version>13.1.0</version>
 
     <modules>
         <module>parents</module>

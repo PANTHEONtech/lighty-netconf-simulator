@@ -6,7 +6,7 @@
 #
 # When run without a parameter a default port 17830 will be used.
 
-CLASSPATH=lighty-toaster-device-13.0.2-SNAPSHOT.jar
+CLASSPATH=lighty-toaster-device-13.1.0.jar
 
 for jar in `ls -1 lib/`;
 do

@@ -28,12 +28,12 @@ Build root project - for more details check: [README](../../../README.md)
 * extract binary distribution in target directory
 * run jar file from zip with default parameter
 ```
-java -jar lighty-action-device-13.0.2-SNAPSHOT.jar
+java -jar lighty-action-device-13.1.0.jar
 ```
 To run device on specific port, add port number as an argument
 * run device on specific port `12345` (any available port)
 ```
-java -jar lighty-action-device-13.0.2-SNAPSHOT.jar 12345
+java -jar lighty-action-device-13.1.0.jar 12345
 ```
 
 ### Connect to device via SSH

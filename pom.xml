@@ -13,7 +13,7 @@
 
     <groupId>io.lighty.netconf.device</groupId>
     <artifactId>netconf-device-aggregator</artifactId>
-    <version>13.0.2-SNAPSHOT</version>
+    <version>13.1.0</version>
     <packaging>pom</packaging>
 
     <modules>

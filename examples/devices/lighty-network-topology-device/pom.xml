@@ -14,7 +14,7 @@
     <parent>
         <groupId>io.lighty.netconf.device.examples</groupId>
         <artifactId>examples-parent</artifactId>
-        <version>13.0.2-SNAPSHOT</version>
+        <version>13.1.0</version>
         <relativePath>../../parents/examples-parent/pom.xml</relativePath>
     </parent>
 
