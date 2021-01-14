@@ -7,15 +7,14 @@
  */
 package io.lighty.netconf.device.toaster;
 
+import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.lighty.core.common.models.ModuleId;
 import io.lighty.netconf.device.NetconfDevice;
 import io.lighty.netconf.device.NetconfDeviceBuilder;
 import io.lighty.netconf.device.toaster.processors.ToasterServiceCancelToastProcessor;
 import io.lighty.netconf.device.toaster.processors.ToasterServiceMakeToastProcessor;
 import io.lighty.netconf.device.toaster.processors.ToasterServiceRestockToasterProcessor;
 import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
-import io.lighty.netconf.device.utils.ModelUtils;
 import java.io.InputStream;
 import java.util.Set;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
@@ -26,6 +25,11 @@ public class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private ShutdownHook shutdownHook;
+    private static final Set<YangModuleInfo> TOASTER_MODEL_PATHS = ImmutableSet.of(
+        org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.$YangModuleInfoImpl.getInstance(),
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf.notification._1._0.rev080714
+            .$YangModuleInfoImpl.getInstance()
+    );
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -49,12 +53,7 @@ public class Main {
 
         LOG.info("[https://lighty.io]");
 
-        //1. Load models from classpath
-        Set<YangModuleInfo> toasterModules = ModelUtils.getModelsFromClasspath(
-            ModuleId.from(
-                "http://netconfcentral.org/ns/toaster", "toaster", "2009-11-20"));
-
-        //2. Initialize RPCs
+        //1. Initialize RPCs
         ToasterServiceImpl toasterService = new ToasterServiceImpl();
         ToasterServiceMakeToastProcessor makeToastProcessor =
             new ToasterServiceMakeToastProcessor(toasterService);
@@ -63,11 +62,11 @@ public class Main {
         ToasterServiceRestockToasterProcessor restockToasterProcessor =
             new ToasterServiceRestockToasterProcessor(toasterService);
 
-        //3. Initialize Netconf device
+        //2. Initialize Netconf device
         final NetconfDeviceBuilder netconfDeviceBuilder = new NetconfDeviceBuilder()
                 .setCredentials("admin", "admin")
                 .setBindingPort(port)
-                .withModels(toasterModules)
+                .withModels(TOASTER_MODEL_PATHS)
                 .withDefaultRequestProcessors()
                 .withDefaultNotificationProcessor()
                 .withDefaultCapabilities()
@@ -75,7 +74,7 @@ public class Main {
                 .withRequestProcessor(cancelToastProcessor)
                 .withRequestProcessor(restockToasterProcessor);
 
-        // Initialize DataStores
+        //3. Initialize DataStores
         if (initDataStore) {
             InputStream initialOperationalData = Main.class
                     .getResourceAsStream("/initial-toaster-operational-datastore.xml");
@@ -91,7 +90,7 @@ public class Main {
                 netconfDevice.getNetconfDeviceServices().getNotificationPublishService());
 
         netconfDevice.start();
-        //5. Register shutdown hook
+        //4. Register shutdown hook
         shutdownHook = new ShutdownHook(netconfDevice, toasterService);
         if (registerShutdownHook) {
             Runtime.getRuntime().addShutdownHook(shutdownHook);
