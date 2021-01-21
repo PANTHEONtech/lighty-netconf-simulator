@@ -23,6 +23,8 @@ public final class ModelUtils {
 
     public static final Set<String> DEFAULT_CAPABILITIES =
             ImmutableSet.of("urn:ietf:params:netconf:base:1.0", "urn:ietf:params:netconf:base:1.1");
+    public static final String DEFAULT_NOTIFICATION_CAPABILITY =
+        "urn:ietf:params:netconf:capability:notification:1.0";
 
     /**
      * Get all Yang modules from classpath filtered by top-level module.

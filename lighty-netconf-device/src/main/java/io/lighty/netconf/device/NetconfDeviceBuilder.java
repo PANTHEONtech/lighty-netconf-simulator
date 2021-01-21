@@ -36,6 +36,7 @@ public class NetconfDeviceBuilder {
     private InputStream initialOperationalData;
     private InputStream initialConfigurationData;
     private Map<QName, RequestProcessor> requestProcessors;
+    private Set<String> allCapabilities;
     private NotificationPublishServiceImpl creator;
     private boolean netconfMonitoringEnabled;
 
@@ -43,6 +44,7 @@ public class NetconfDeviceBuilder {
         this.configurationBuilder = new ConfigurationBuilder();
         this.requestProcessors = new HashMap<>();
         this.moduleInfos = new HashSet<>();
+        this.allCapabilities = new HashSet<>();
         this.netconfMonitoringEnabled = true;
     }
 
@@ -75,7 +77,7 @@ public class NetconfDeviceBuilder {
     }
 
     public NetconfDeviceBuilder withCapabilities(Set<String> capabilities) {
-        this.configurationBuilder.setCapabilities(capabilities);
+        this.allCapabilities.addAll(capabilities);
         return this;
     }
 
@@ -85,7 +87,7 @@ public class NetconfDeviceBuilder {
     }
 
     public NetconfDeviceBuilder withDefaultCapabilities() {
-        this.configurationBuilder.setCapabilities(ModelUtils.DEFAULT_CAPABILITIES);
+        this.allCapabilities.addAll(ModelUtils.DEFAULT_CAPABILITIES);
         return this;
     }
 
@@ -125,6 +127,7 @@ public class NetconfDeviceBuilder {
     }
 
     public NetconfDeviceBuilder withDefaultNotificationProcessor() {
+        this.allCapabilities.add(ModelUtils.DEFAULT_NOTIFICATION_CAPABILITY);
         this.withRequestProcessor(new CreateSubscriptionRequestProcessor());
         this.creator = new NotificationPublishServiceImpl();
         return this;
@@ -159,6 +162,7 @@ public class NetconfDeviceBuilder {
      * @return new implementation of NetconfDevice
      */
     public NetconfDevice build() {
+        this.configurationBuilder.setCapabilities(this.allCapabilities);
         if (netconfMonitoringEnabled) {
             YangModuleInfo netconfMonitoringModule =
                 org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring
