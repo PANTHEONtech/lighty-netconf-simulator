@@ -128,6 +128,9 @@ public class NetconfDeviceBuilder {
 
     public NetconfDeviceBuilder withDefaultNotificationProcessor() {
         this.allCapabilities.add(ModelUtils.DEFAULT_NOTIFICATION_CAPABILITY);
+        YangModuleInfo netconfNotificationModel =org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf
+                .notification._1._0.rev080714.$YangModuleInfoImpl.getInstance();
+        this.moduleInfos.add(netconfNotificationModel);
         this.withRequestProcessor(new CreateSubscriptionRequestProcessor());
         this.creator = new NotificationPublishServiceImpl();
         return this;
