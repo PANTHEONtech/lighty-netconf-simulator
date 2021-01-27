@@ -128,6 +128,13 @@ public class NetconfDeviceBuilder {
 
     public NetconfDeviceBuilder withDefaultNotificationProcessor() {
         this.allCapabilities.add(ModelUtils.DEFAULT_NOTIFICATION_CAPABILITY);
+        //TODO This model shouldn't be needed anymore and should be provided internally
+        // based on the notification capability alone, but it turned it's still needed.
+        //  Created issue for it https://jira.opendaylight.org/browse/NETCONF-754 so keep checking on it.
+        YangModuleInfo netconfNotificationModel =
+                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf
+                        .notification._1._0.rev080714.$YangModuleInfoImpl.getInstance();
+        this.moduleInfos.add(netconfNotificationModel);
         this.withRequestProcessor(new CreateSubscriptionRequestProcessor());
         this.creator = new NotificationPublishServiceImpl();
         return this;
