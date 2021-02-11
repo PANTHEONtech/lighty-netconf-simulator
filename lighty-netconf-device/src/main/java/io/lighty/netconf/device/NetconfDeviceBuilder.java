@@ -157,6 +157,12 @@ public class NetconfDeviceBuilder {
         return this;
     }
 
+    // FIXME All created devices share the same datastore. Each simulated devices must have a separate datastore space.
+    public NetconfDeviceBuilder setDeviceCount(int deviceCount) {
+        this.configurationBuilder.setDeviceCount(deviceCount);
+        return this;
+    }
+
     public NetconfDeviceBuilder setThreadPoolSize(int threadPoolSize) {
         this.configurationBuilder.setThreadPoolSize(threadPoolSize);
         return this;
