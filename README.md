@@ -29,3 +29,12 @@ This tool contains 4 device examples, to demonstrate the usage of the NETCONF De
 - [**lighty Toaster Device**](./examples/devices/lighty-toaster-device/README.md)
 
 [Read about the background of this project here.](https://pantheon.tech/netconf-monitoring-get-schema/)
+
+## Known Issues
+
+**Problem:** Creating multiple simulators takes a long time.  
+ Delay can be caused by Random Number Generation `/dev/random`.   
+**Solution:** Use /dev/urandom instead of /dev/random by passing it as system property  
+`-Djava.security.egd=file:/dev/./urandom` or modify file `$JAVA_HOME/jre/lib/security/java.security`  
+by changing property `securerandom.source=file:/dev/random`
+to `securerandom.source=file:/dev/urandom`.
