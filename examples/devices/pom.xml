@@ -20,6 +20,7 @@
         <module>lighty-actions-device</module>
         <module>lighty-toaster-device</module>
         <module>lighty-network-topology-device</module>
+        <module>lighty-toaster-multiple-devices</module>
         <module>lighty-notifications-device</module>
     </modules>
 

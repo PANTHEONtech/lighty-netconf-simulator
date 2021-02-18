@@ -1,0 +1,6 @@
+<rpc message-id="mt1" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <make-toast xmlns="http://netconfcentral.org/ns/toaster">
+        <toasterDoneness>2</toasterDoneness>
+        <toasterToastType>frozen-waffle</toasterToastType>
+    </make-toast>
+</rpc>
