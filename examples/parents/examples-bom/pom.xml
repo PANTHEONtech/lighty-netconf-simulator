@@ -39,17 +39,17 @@
                 <version>13.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>io.lighty.netconf.device</groupId>
-                <artifactId>lighty-action-device</artifactId>
+                <groupId>io.lighty.netconf.device.examples</groupId>
+                <artifactId>lighty-actions-device</artifactId>
                 <version>13.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>io.lighty.netconf.device</groupId>
+                <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-device</artifactId>
                 <version>13.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>io.lighty.netconf.device</groupId>
+                <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-network-topology-device</artifactId>
                 <version>13.2.1-SNAPSHOT</version>
             </dependency>
