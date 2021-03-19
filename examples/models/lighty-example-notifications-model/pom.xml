@@ -12,11 +12,12 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-binding-parent</artifactId>
-        <version>13.2.0</version>
+        <!-- FIXME: Change to release version when will be available -->
+        <version>14.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
     <artifactId>lighty-example-notifications-model</artifactId>
-    <version>13.2.1-SNAPSHOT</version>
+    <version>14.0.0-SNAPSHOT</version>
 
 </project>
