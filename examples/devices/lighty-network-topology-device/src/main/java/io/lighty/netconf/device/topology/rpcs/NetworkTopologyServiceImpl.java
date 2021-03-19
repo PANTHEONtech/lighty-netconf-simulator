@@ -527,7 +527,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
             .network.topology.topology.NodeBuilder()
                 .withKey(nk)
                 .setNodeId(node.getNodeId())
-                .addAugmentation(NetconfNode.class, ncNode)
+                .addAugmentation(ncNode)
                 .build();
     }
 

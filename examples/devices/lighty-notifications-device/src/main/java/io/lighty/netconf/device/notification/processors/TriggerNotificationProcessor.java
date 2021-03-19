@@ -64,7 +64,7 @@ public class TriggerNotificationProcessor extends RpcOutputRequestProcessor {
                 final NormalizedNode<?, ?> deserializedNode =
                         xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
                 final TriggerDataNotificationInput input = this.dataCodec
-                        .convertToBindingAwareRpc(getRpcDefinition().getInput().getPath(),
+                        .convertToBindingAwareRpc(getRpcDefinition().getInput().getPath().asAbsolute(),
                                 (ContainerNode) deserializedNode);
 
                 final DataNotification notification = createNotification(input);

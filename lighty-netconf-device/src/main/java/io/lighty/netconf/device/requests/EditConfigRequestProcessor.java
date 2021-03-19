@@ -56,8 +56,8 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.opendaylight.yangtools.yang.data.util.DataSchemaContextNode;
 import org.opendaylight.yangtools.yang.data.util.DataSchemaContextTree;
+import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.Module;
-import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -117,9 +117,9 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                     ErrorSeverity.ERROR)));
         }
 
-        SchemaContext schemaContext = getNetconfDeviceServices().getAdapterContext().currentSerializer()
-                .getRuntimeContext().getEffectiveModelContext();
-        YangInstanceIdentifier path = retrieveElementYII(schemaContext, configNN,
+        EffectiveModelContext effectiveModelContext = getNetconfDeviceServices().getAdapterContext()
+                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+        YangInstanceIdentifier path = retrieveElementYII(effectiveModelContext, configNN,
                 configElement, "//*[@*[local-name() = 'operation']]");
         NormalizedNode<?, ?> data;
         if (path == null) {
@@ -202,8 +202,8 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
     }
 
     private void ensureParentsByMerge(final YangInstanceIdentifier path, final DOMDataTreeWriteTransaction writeTx) {
-        final SchemaContext schemaContext = getNetconfDeviceServices().getAdapterContext().currentSerializer()
-                .getRuntimeContext().getEffectiveModelContext();
+        final EffectiveModelContext effectiveModelContext = getNetconfDeviceServices().getAdapterContext()
+                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
         final List<PathArgument> normalizedPathWithoutChildArgs = new ArrayList<>();
         YangInstanceIdentifier rootNormalizedPath = null;
 
@@ -226,8 +226,8 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
         Preconditions.checkArgument(rootNormalizedPath != null, "Empty path received");
 
-        final NormalizedNode<?, ?> parentStructure = ImmutableNodes.fromInstanceId(schemaContext, YangInstanceIdentifier
-                .create(normalizedPathWithoutChildArgs));
+        final NormalizedNode<?, ?> parentStructure = ImmutableNodes.fromInstanceId(effectiveModelContext,
+                YangInstanceIdentifier.create(normalizedPathWithoutChildArgs));
         writeTx.merge(LogicalDatastoreType.CONFIGURATION, rootNormalizedPath, parentStructure);
     }
 
@@ -257,7 +257,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
     }
 
     protected static YangInstanceIdentifier retrieveElementYII(
-        final SchemaContext schemaContext, final NormalizedNode<?, ?> normalizedNode,
+            final EffectiveModelContext effectiveModelContext, final NormalizedNode<?, ?> normalizedNode,
             final Element deviceElement, final String xpathExpression) {
         final List<Node> nodes = RPCUtil.getNodes(deviceElement.getChildNodes());
         if (nodes.isEmpty()) {
@@ -271,7 +271,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                 return null;
             }
             final List<QName> buildQNamePath = buildQNamePath(foundNode);
-            return getYangInstanceIdentifier(buildQNamePath, normalizedNode, schemaContext);
+            return getYangInstanceIdentifier(buildQNamePath, normalizedNode, effectiveModelContext);
         } catch (final XPathExpressionException e) {
             throw new IllegalStateException(e);
         }
@@ -283,18 +283,17 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
      *
      * @param yangPath a path
      * @param input a list of normalized nodes
-     * @param schemaContext a schema context
+     * @param effectiveModelContext a schema context
      * @return YangInstanceIdentifier a yang instance identifier
      */
-    private static YangInstanceIdentifier getYangInstanceIdentifier(
-        final List<QName> yangPath, final NormalizedNode<?, ?> input,
-            final SchemaContext schemaContext) {
-        final DataSchemaContextTree contextTree = DataSchemaContextTree.from(schemaContext);
+    private static YangInstanceIdentifier getYangInstanceIdentifier(final List<QName> yangPath,
+            final NormalizedNode<?, ?> input, final EffectiveModelContext effectiveModelContext) {
+        final DataSchemaContextTree contextTree = DataSchemaContextTree.from(effectiveModelContext);
         DataSchemaContextNode<?> contextNode = contextTree.getRoot();
         YangInstanceIdentifier targetIdentifier = YangInstanceIdentifier.builder().build();
         final Iterator<QName> iterator = yangPath.iterator();
         while (iterator.hasNext()) {
-            final QName currentQname = parseQname(schemaContext, iterator.next());
+            final QName currentQname = parseQname(effectiveModelContext, iterator.next());
             contextNode = contextNode.getChild(currentQname);
             while (contextNode.isMixin()) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
@@ -320,20 +319,20 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
     /**
      * Parses Qname.
      *
-     * @param context a schema context
+     * @param effectiveModelContext a schema context
      * @param pathArgument a path
      * @return QName a parsed path.
      */
-    private static QName parseQname(final SchemaContext context, final QName pathArgument) {
+    private static QName parseQname(final EffectiveModelContext effectiveModelContext, final QName pathArgument) {
         Optional<Module> module;
         if (pathArgument.getRevision().isPresent()) {
-            module = context.findModule(pathArgument.getNamespace(), pathArgument.getRevision());
+            module = effectiveModelContext.findModule(pathArgument.getNamespace(), pathArgument.getRevision());
         } else {
-            final Collection<? extends Module> modules = context.findModules(pathArgument.getNamespace());
+            final Collection<? extends Module> modules = effectiveModelContext.findModules(pathArgument.getNamespace());
             if (modules.size() == 1) {
                 module = Optional.of(modules.iterator().next());
             } else {
-                module = context.findModule(pathArgument.getNamespace());
+                module = effectiveModelContext.findModule(pathArgument.getNamespace());
             }
         }
         if (!module.isPresent()) {

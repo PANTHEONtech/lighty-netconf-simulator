@@ -16,9 +16,6 @@ import io.lighty.netconf.device.requests.notification.NotificationPublishService
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executors;
-import org.opendaylight.binding.runtime.api.BindingRuntimeGenerator;
-import org.opendaylight.binding.runtime.api.DefaultBindingRuntimeContext;
-import org.opendaylight.binding.runtime.spi.ModuleInfoBackedContext;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
@@ -27,6 +24,11 @@ import org.opendaylight.mdsal.binding.dom.adapter.BindingDOMNotificationServiceA
 import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.binding.dom.codec.impl.BindingCodecContext;
 import org.opendaylight.mdsal.binding.generator.impl.DefaultBindingRuntimeGenerator;
+import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeGenerator;
+import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeTypes;
+import org.opendaylight.mdsal.binding.runtime.api.DefaultBindingRuntimeContext;
+import org.opendaylight.mdsal.binding.runtime.api.ModuleInfoSnapshot;
+import org.opendaylight.mdsal.binding.runtime.spi.ModuleInfoSnapshotResolver;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.broker.DOMNotificationRouter;
@@ -41,7 +43,6 @@ import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContextListener;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
 import org.opendaylight.yangtools.yang.parser.impl.YangParserFactoryImpl;
-import org.opendaylight.yangtools.yang.xpath.api.YangXPathParserFactory;
 import org.opendaylight.yangtools.yang.xpath.impl.AntlrXPathParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,16 +153,20 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
     }
 
     private AdapterContext createAdapterContext(Collection<YangModuleInfo> moduleInfos) {
-        final YangXPathParserFactory xpathFactory = new AntlrXPathParserFactory();
-        final YangParserFactoryImpl yangParserFactory = new YangParserFactoryImpl(xpathFactory);
-        final BindingRuntimeGenerator bindingRuntimeGenerator = new DefaultBindingRuntimeGenerator();
-        final ModuleInfoBackedContext ctx = ModuleInfoBackedContext.create("netconf-simulator", yangParserFactory);
-        ctx.registerModuleInfos(moduleInfos);
+        final YangParserFactoryImpl yangParserFactory = new YangParserFactoryImpl(new AntlrXPathParserFactory());
+        ModuleInfoSnapshotResolver snapshotResolver
+                = new ModuleInfoSnapshotResolver("netconf-simulator", yangParserFactory);
+        snapshotResolver.registerModuleInfos(moduleInfos);
+        ModuleInfoSnapshot moduleInfoSnapshot = snapshotResolver.takeSnapshot();
 
-        final DefaultBindingRuntimeContext runtimeContext = DefaultBindingRuntimeContext
-                .create(bindingRuntimeGenerator.generateTypeMapping(ctx.getEffectiveModelContext()), ctx);
-        final BindingCodecContext codecContext = new BindingCodecContext(runtimeContext);
-        return new ConstantAdapterContext(codecContext);
+        final BindingRuntimeGenerator bindingRuntimeGenerator = new DefaultBindingRuntimeGenerator();
+        final BindingRuntimeTypes bindingRuntimeTypes = bindingRuntimeGenerator
+                .generateTypeMapping(moduleInfoSnapshot.getEffectiveModelContext());
+        final DefaultBindingRuntimeContext bindingRuntimeContext
+                = new DefaultBindingRuntimeContext(bindingRuntimeTypes, moduleInfoSnapshot);
+
+        final BindingCodecContext bindingCodecContext = new BindingCodecContext(bindingRuntimeContext);
+        return new ConstantAdapterContext(bindingCodecContext);
     }
 
 }
