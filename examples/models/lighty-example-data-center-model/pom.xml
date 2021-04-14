@@ -12,7 +12,6 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-binding-parent</artifactId>
-        <!-- FIXME: Change to release version when will be available -->
         <version>14.0.0</version>
         <relativePath/>
     </parent>
