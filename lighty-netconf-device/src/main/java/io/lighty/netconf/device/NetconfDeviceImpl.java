@@ -49,7 +49,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
-import org.opendaylight.yangtools.yang.model.api.Module;
+import org.opendaylight.yangtools.yang.model.api.ModuleLike;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,11 +144,11 @@ public class NetconfDeviceImpl implements NetconfDevice {
         EffectiveModelContext modelContext =
             netconfDeviceServices.getAdapterContext()
                 .currentSerializer().getRuntimeContext().getEffectiveModelContext();
-        Queue<Collection<? extends Module>> queueModulesCollections = new LinkedList<>();
+        Queue<Collection<? extends ModuleLike>> queueModulesCollections = new LinkedList<>();
         queueModulesCollections.add(modelContext.getModules());
         while (!queueModulesCollections.isEmpty()) {
-            Collection<? extends Module> modules = queueModulesCollections.poll();
-            for (Module module : modules) {
+            Collection<? extends ModuleLike> modules = queueModulesCollections.poll();
+            for (ModuleLike module : modules) {
                 Schema schema = createSchemaFromModule(module);
                 if (!mapSchemas.containsKey(schema.key())) {
                     mapSchemas.put(schema.key(), schema);
@@ -170,7 +170,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
      * @param module represents module from which schema will be created
      * @return schema created from module parameter
      */
-    private Schema createSchemaFromModule(Module module) {
+    private Schema createSchemaFromModule(ModuleLike module) {
         return new SchemaBuilder()
             .setNamespace(new Uri(module.getNamespace().toString()))
             .setFormat(Yang.class)

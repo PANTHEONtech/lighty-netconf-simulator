@@ -53,8 +53,8 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
             //2. convert NormalizedNode<?, ?> into RPC input
-            final T input = dataCodec.convertToBindingAwareRpc(getRpcDefinition().getInput().getPath(),
-                    (ContainerNode) deserializedNode);
+            final T input = dataCodec.convertToBindingAwareRpc(
+                    getRpcDefinition().getInput().getPath().asAbsolute(), (ContainerNode) deserializedNode);
 
             //3. invoke RPC
             final RpcResult<O> rpcResult = execMethod(input);
