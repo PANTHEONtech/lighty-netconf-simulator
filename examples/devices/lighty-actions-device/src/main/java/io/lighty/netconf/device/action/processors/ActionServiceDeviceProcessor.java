@@ -7,6 +7,8 @@
  */
 package io.lighty.netconf.device.action.processors;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
@@ -65,7 +67,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
         final XmlElement fromDomElement = XmlElement.fromDomElement(requestXmlElement);
         final ActionDefinition actionDefinition = findActionInElement(fromDomElement);
 
-        if (actionDefinition.getQName().equals(Start.QNAME)) {
+        if (requireNonNull(actionDefinition).getQName().equals(Start.QNAME)) {
             this.actionProcessor = new StartActionProcessor(new StartAction(), this.adapterContext.currentSerializer());
         } else {
             this.actionProcessor = new ResetActionProcessor(new ResetAction(), this.adapterContext.currentSerializer());

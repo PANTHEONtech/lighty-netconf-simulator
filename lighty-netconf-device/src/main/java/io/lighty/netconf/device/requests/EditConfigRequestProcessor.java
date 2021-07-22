@@ -7,6 +7,8 @@
  */
 package io.lighty.netconf.device.requests;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.lighty.codecs.api.SerializationException;
@@ -295,7 +297,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         while (iterator.hasNext()) {
             final QName currentQname = parseQname(effectiveModelContext, iterator.next());
             contextNode = contextNode.getChild(currentQname);
-            while (contextNode.isMixin()) {
+            while (requireNonNull(contextNode).isMixin()) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
                         .node(contextNode.getIdentifier());
                 contextNode = contextNode.getChild(currentQname);
