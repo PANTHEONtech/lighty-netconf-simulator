@@ -15,6 +15,7 @@ import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -44,11 +45,11 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
 
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
-        try {
+        try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement)) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
             //1. convert XML input into NormalizedNode<?, ?>
-            final Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement);
+
             final NormalizedNode<?, ?> deserializedNode =
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
@@ -71,8 +72,8 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
                 responseData = new ResponseData(Collections.singletonList(containerNode));
             }
             return CompletableFuture.completedFuture(responseData);
-        } catch (final ExecutionException | InterruptedException | SerializationException | TransformerException
-                | TimeoutException e) {
+        } catch (final ExecutionException | InterruptedException | SerializationException |
+                TransformerException | TimeoutException | IOException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);
         }

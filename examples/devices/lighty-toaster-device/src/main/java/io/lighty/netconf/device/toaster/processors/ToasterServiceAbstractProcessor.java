@@ -16,6 +16,7 @@ import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
 import io.lighty.netconf.device.utils.TimeoutUtil;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
@@ -46,11 +47,10 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
 
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
-        try {
+        //1. convert XML input into NormalizedNode<?, ?>
+        try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement);) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
-            //1. convert XML input into NormalizedNode<?, ?>
-            final Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement);
             final NormalizedNode<?, ?> deserializedNode =
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
@@ -68,7 +68,7 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
             //5. create response
             return CompletableFuture.completedFuture(new ResponseData(Collections.singletonList(data)));
         } catch (final InterruptedException | ExecutionException | SerializationException | TransformerException
-                | TimeoutException e) {
+                | TimeoutException | IOException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);
         }

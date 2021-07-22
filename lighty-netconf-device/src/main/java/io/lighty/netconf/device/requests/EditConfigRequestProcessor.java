@@ -347,10 +347,8 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
     private boolean dataExists(final YangInstanceIdentifier path, final Operation operationToExecute,
             final NormalizedNode<?, ?> data) {
-        DOMDataTreeReadTransaction readTx = getNetconfDeviceServices().getDOMDataBroker()
-                .newReadOnlyTransaction();
-
-        try {
+        try (DOMDataTreeReadTransaction readTx =
+                     getNetconfDeviceServices().getDOMDataBroker().newReadOnlyTransaction()) {
             return readTx.exists(LogicalDatastoreType.CONFIGURATION, path)
                     .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
