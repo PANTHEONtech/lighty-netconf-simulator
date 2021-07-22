@@ -94,8 +94,11 @@ public class NetconfDeviceImpl implements NetconfDevice {
             try {
                 prepareSchemasForNetconfMonitoring().get(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 LOG.info("Netconf monitoring enabled successfully");
-            } catch (InterruptedException | TimeoutException | ExecutionException e) {
+            } catch (TimeoutException | ExecutionException e) {
                 LOG.error("Could not prepare Schemas to expose through NETCONF Monitoring", e);
+            } catch (InterruptedException e) {
+                LOG.error("Interrupted while preparing Schemas to expose through NETCONF Monitoring", e);
+                Thread.currentThread().interrupt();
             }
         }
         LOG.info("Netconf device started");
@@ -112,11 +115,14 @@ public class NetconfDeviceImpl implements NetconfDevice {
             writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             final String dataTreeString = NormalizedNodes.toStringTree(initialDataBI);
             LOG.trace("Initial {} datastore data: {}", datastoreType, dataTreeString);
-        } catch (SerializationException | IOException | ExecutionException | InterruptedException
-                | TimeoutException e) {
-            String msg = "Unable to set initial state of " + datastoreType + " datastore from XML!";
-            LOG.error(msg, e);
-            throw new IllegalStateException(msg, e);
+        } catch (SerializationException | IOException | ExecutionException | TimeoutException e) {
+            throw new IllegalStateException(
+                    String.format("Unable to set initial state of %s datastore from XML!", datastoreType), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(
+                    String.format("Interrupted while setting initial state of %s datastore from XML!",
+                            datastoreType), e);
         }
     }
 

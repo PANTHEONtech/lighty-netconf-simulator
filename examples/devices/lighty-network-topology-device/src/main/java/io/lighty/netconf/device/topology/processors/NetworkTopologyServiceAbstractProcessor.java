@@ -72,9 +72,13 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
                 responseData = new ResponseData(Collections.singletonList(containerNode));
             }
             return CompletableFuture.completedFuture(responseData);
-        } catch (final ExecutionException | InterruptedException | SerializationException |
-                TransformerException | TimeoutException | IOException e) {
+        } catch (final ExecutionException | SerializationException | TransformerException | TimeoutException
+                | IOException e) {
             LOG.error("Error while executing RPC", e);
+            return CompletableFuture.failedFuture(e);
+        } catch (final InterruptedException e) {
+            LOG.error("Interrupted while executing RPC", e);
+            Thread.currentThread().interrupt();
             return CompletableFuture.failedFuture(e);
         }
     }

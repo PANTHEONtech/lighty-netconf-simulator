@@ -189,6 +189,9 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             responseFuture.complete(new ResponseData(Collections.emptyList()));
             return responseFuture;
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             if (e.getCause() instanceof TransactionCommitFailedException) {
                 final Throwable error = e.getCause();
                 if (error.getCause() instanceof SchemaValidationFailedException) {
@@ -352,6 +355,9 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             return readTx.exists(LogicalDatastoreType.CONFIGURATION, path)
                     .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw createTxException(data, e, operationToExecute.getOperationName().toUpperCase(Locale.ROOT));
         }
     }
