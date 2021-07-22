@@ -138,10 +138,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
 
                     final List<AvailableCapability> availableCapabilities = new ArrayList<>();
                     for (final Module m : NetworkTopologyServiceImpl.this.effectiveModelContext.getModules()) {
-                        Revision revision = Revision.of("2017-01-01");
-                        if (m.getRevision().isPresent()) {
-                            revision = m.getRevision().get();
-                        }
+                        final Revision revision = m.getRevision().orElse(Revision.of("2017-01-01"));
                         final AvailableCapability ac = new AvailableCapabilityBuilder()
                                 .setCapabilityOrigin(AvailableCapability.CapabilityOrigin.DeviceAdvertised)
                                 .setCapability(String.format("(%s?revision=%s)%s", m.getNamespace(), revision,
