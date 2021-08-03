@@ -86,6 +86,9 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
             CompletableFuture<Response> responseOutput = execute(requestXmlElement);
             return processResponse(responseOutput);
         } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new UnsupportedOperationException(e);
         }
     }
