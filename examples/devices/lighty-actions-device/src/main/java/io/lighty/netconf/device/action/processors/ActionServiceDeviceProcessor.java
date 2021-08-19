@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,15 +66,15 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
         final XmlElement fromDomElement = XmlElement.fromDomElement(requestXmlElement);
-        final ActionDefinition actionDefinition = findActionInElement(fromDomElement);
+        final Optional<ActionDefinition> actionDefinition = requireNonNull(findActionInElement(fromDomElement));
 
-        if (requireNonNull(actionDefinition).getQName().equals(Start.QNAME)) {
+        if (actionDefinition.isPresent() && actionDefinition.get().getQName().equals(Start.QNAME)) {
             this.actionProcessor = new StartActionProcessor(new StartAction(), this.adapterContext.currentSerializer());
         } else {
             this.actionProcessor = new ResetActionProcessor(new ResetAction(), this.adapterContext.currentSerializer());
         }
         this.actionProcessor.init(getNetconfDeviceServices());
-        return this.actionProcessor.execute(requestXmlElement, actionDefinition);
+        return this.actionProcessor.execute(requestXmlElement, actionDefinition.get());
     }
 
     protected CompletableFuture<Response> execute(final Element requestXmlElement,
@@ -146,17 +147,17 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
         return null;
     }
 
-    private ActionDefinition findActionInElement(final XmlElement fromDomElement) {
+    private Optional<ActionDefinition> findActionInElement(final XmlElement fromDomElement) {
         for (final ActionDefinition actionDefinition : this.actions) {
             final QName actionQname = actionDefinition.getQName();
             try {
-                if (actionQname.getLocalName().equals(fromDomElement.getName()) && actionQname.getNamespace().toString()
-                        .equals(fromDomElement.getNamespace())) {
-                    return actionDefinition;
+                if (actionQname.getLocalName().equals(fromDomElement.getName())
+                        && actionQname.getNamespace().toString().equals(fromDomElement.getNamespace())) {
+                    return Optional.of(actionDefinition);
                 } else {
                     for (final XmlElement element : fromDomElement.getChildElements()) {
-                        final ActionDefinition actionDefinitionEle = findActionInElement(element);
-                        if (actionDefinitionEle != null) {
+                        final Optional<ActionDefinition> actionDefinitionEle = findActionInElement(element);
+                        if (actionDefinitionEle.isPresent()) {
                             return actionDefinitionEle;
                         }
                     }
@@ -165,7 +166,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
                 throw new RuntimeException(e);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private Collection<ActionDefinition> getAction() {
