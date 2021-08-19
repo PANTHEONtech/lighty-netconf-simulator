@@ -81,7 +81,6 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
         return factory;
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public Document processRequest(Element requestXmlElement) {
         try {
@@ -97,7 +96,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
                 final DocumentedException error = NetconfDocumentedException.wrap(e);
                 return error.toXMLDocument();
             } catch (DocumentedException ex) {
-                LOG.error("Could not wrap exception: {}", e.getMessage(), ex);
+                LOG.error("Could not wrap exception", ex);
                 return ex.toXMLDocument();
             }
         }
