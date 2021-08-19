@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.opendaylight.netconf.api.DocumentedException;
+import org.opendaylight.netconf.api.NetconfDocumentedException;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -85,11 +87,19 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
         try {
             CompletableFuture<Response> responseOutput = execute(requestXmlElement);
             return processResponse(responseOutput);
-        } catch (Exception e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.error("Interrupted while processing XML request: {}", requestXmlElement, e);
+            throw new IllegalStateException(e);
+        } catch (ExecutionException | ParserConfigurationException | TimeoutException e) {
+            LOG.error("Could not process XML request: {}", requestXmlElement, e);
+            try {
+                final DocumentedException error = NetconfDocumentedException.wrap(e);
+                return error.toXMLDocument();
+            } catch (DocumentedException ex) {
+                LOG.error("Could not wrap exception: {}", e.getMessage(), ex);
+                return ex.toXMLDocument();
             }
-            throw new UnsupportedOperationException(e);
         }
     }
 
