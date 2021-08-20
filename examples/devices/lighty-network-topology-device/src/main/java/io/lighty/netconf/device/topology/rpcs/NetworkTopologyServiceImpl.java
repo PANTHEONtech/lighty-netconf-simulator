@@ -138,10 +138,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
 
                     final List<AvailableCapability> availableCapabilities = new ArrayList<>();
                     for (final Module m : NetworkTopologyServiceImpl.this.effectiveModelContext.getModules()) {
-                        Revision revision = Revision.of("2017-01-01");
-                        if (m.getRevision().isPresent()) {
-                            revision = m.getRevision().get();
-                        }
+                        final Revision revision = m.getRevision().orElse(Revision.of("2017-01-01"));
                         final AvailableCapability ac = new AvailableCapabilityBuilder()
                                 .setCapabilityOrigin(AvailableCapability.CapabilityOrigin.DeviceAdvertised)
                                 .setCapability(String.format("(%s?revision=%s)%s", m.getNamespace(), revision,
@@ -311,42 +308,45 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<GetTopologyByIdOutput>>() {
             @Override
             public RpcResult<GetTopologyByIdOutput> call() throws Exception {
-                final ReadTransaction readTx =
-                    NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction();
-                final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
-                final InstanceIdentifier<Topology> tii =
-                        InstanceIdentifier.builder(NetworkTopology.class)
-                        .child(Topology.class, topology.key())
-                        .build();
-                final Optional<Topology> readTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-                final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                    .rev180320.topology.data.Topology> finalTopology =
-                        new ArrayList<>();
-                if (readTopology.isPresent()) {
-                    final Topology t = readTopology.get();
-                    final List<Node> finalList = new ArrayList<>();
-                    if (t.getNode() != null) {
-                        for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                            .rev131021.network.topology.topology.Node node : t.nonnullNode().values()) {
-                            final NodeKey nk2 = new NodeKey(node.getNodeId());
-                            final Node nb = buildNode(nk2, node);
-                            finalList.add(nb);
+                try (ReadTransaction readTx =
+                             NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction()) {
+                    final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
+                    final InstanceIdentifier<Topology> tii =
+                            InstanceIdentifier.builder(NetworkTopology.class)
+                                    .child(Topology.class, topology.key())
+                                    .build();
+                    final Optional<Topology> readTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
+                            .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                    final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                            .rev180320.topology.data.Topology> finalTopology =
+                            new ArrayList<>();
+                    if (readTopology.isPresent()) {
+                        final Topology t = readTopology.get();
+                        final List<Node> finalList = new ArrayList<>();
+                        if (t.getNode() != null) {
+                            for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                                    .rev131021.network.topology.topology.Node node : t.nonnullNode().values()) {
+                                final NodeKey nk2 = new NodeKey(node.getNodeId());
+                                final Node nb = buildNode(nk2, node);
+                                finalList.add(nb);
+                            }
                         }
+                        finalTopology.add(new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice
+                                .network.topology.rpcs.rev180320.topology.data.TopologyBuilder()
+                                .setTopologyId(new TopologyId(t.getTopologyId()))
+                                .withKey(new TopologyKey(t.getTopologyId()))
+                                .setNode(finalList)
+                                .build());
                     }
-                    finalTopology.add(new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice
-                        .network.topology.rpcs.rev180320.topology.data.TopologyBuilder()
-                            .setTopologyId(new TopologyId(t.getTopologyId()))
-                            .withKey(new TopologyKey(t.getTopologyId()))
-                            .setNode(finalList)
-                            .build());
+                    final GetTopologyByIdOutput getTopologyByIdOutput = new GetTopologyByIdOutputBuilder().setTopology(
+                            finalTopology).build();
+                    final RpcResult<GetTopologyByIdOutput> rpcResult = RpcResultBuilder.success(getTopologyByIdOutput)
+                            .build();
+                    result.set(rpcResult);
+                    return rpcResult;
                 }
-                final GetTopologyByIdOutput getTopologyByIdOutput = new GetTopologyByIdOutputBuilder().setTopology(
-                        finalTopology).build();
-                final RpcResult<GetTopologyByIdOutput> rpcResult = RpcResultBuilder.success(getTopologyByIdOutput)
-                        .build();
-                result.set(rpcResult);
-                return rpcResult;
+
+
             }
         });
         return result;
@@ -382,68 +382,69 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<GetNodeFromTopologyByIdOutput>>() {
             @Override
             public RpcResult<GetNodeFromTopologyByIdOutput> call() throws Exception {
-                final ReadTransaction readTx =
-                    NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction();
-                LogicalDatastoreType datastoreType;
-                if (input.isIsConfig()) {
-                    datastoreType = LogicalDatastoreType.CONFIGURATION;
-                } else {
-                    datastoreType = LogicalDatastoreType.OPERATIONAL;
-                }
-                final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
-                final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                    .rev131021.network.topology.topology.NodeKey nk =
-                        new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                            .rev131021.network.topology.topology.NodeKey(input.getNodeId());
-
-                final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                    .rev131021.network.topology.topology.Node> tii =
-                        InstanceIdentifier.builder(NetworkTopology.class)
-                        .child(Topology.class, topology.key())
-                        .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                            .rev131021.network.topology.topology.Node.class, nk)
-                        .build();
-                final Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                        .rev131021.network.topology.topology.Node> nodeOptional =
-                        readTx.read(datastoreType, tii).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-                if (nodeOptional.isPresent()) {
-                    final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                        .rev131021.network.topology.topology.Node node = nodeOptional.get();
-                    final List<Node> finalList = new ArrayList<>();
-                    final NodeKey nk2 = new NodeKey(node.getNodeId());
-                    final NodeBuilder build = new NodeBuilder()
-                            .withKey(nk2);
-                    build.setNodeId(node.getNodeId());
-                    final NetconfNode augmentation = node.augmentation(NetconfNode.class);
-                    if (augmentation != null) {
-                        build.setHost(augmentation.getHost())
-                            .setPort(augmentation.getPort())
-                            .setCredentials(augmentation.getCredentials())
-                            .setTcpOnly(augmentation.isTcpOnly())
-                            .setConnectionStatus(augmentation.getConnectionStatus())
-                            .setUnavailableCapabilities(augmentation.getUnavailableCapabilities())
-                            .setAvailableCapabilities(augmentation.getAvailableCapabilities());
-                        if (input.isIsConfig()) {
-                            build.setSchemaless(augmentation.isSchemaless());
-                        }
+                try (ReadTransaction readTx =
+                             NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction()) {
+                    LogicalDatastoreType datastoreType;
+                    if (input.isIsConfig()) {
+                        datastoreType = LogicalDatastoreType.CONFIGURATION;
+                    } else {
+                        datastoreType = LogicalDatastoreType.OPERATIONAL;
                     }
+                    final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
+                    final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                            .rev131021.network.topology.topology.NodeKey nk =
+                            new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                                    .rev131021.network.topology.topology.NodeKey(input.getNodeId());
 
-                    final Node nb = build.build();
-                    finalList.add(nb);
+                    final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                            .rev131021.network.topology.topology.Node> tii =
+                            InstanceIdentifier.builder(NetworkTopology.class)
+                                    .child(Topology.class, topology.key())
+                                    .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                                            .rev131021.network.topology.topology.Node.class, nk)
+                                    .build();
+                    final Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                            .rev131021.network.topology.topology.Node> nodeOptional =
+                            readTx.read(datastoreType, tii).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                    if (nodeOptional.isPresent()) {
+                        final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                                .rev131021.network.topology.topology.Node node = nodeOptional.get();
+                        final List<Node> finalList = new ArrayList<>();
+                        final NodeKey nk2 = new NodeKey(node.getNodeId());
+                        final NodeBuilder build = new NodeBuilder()
+                                .withKey(nk2);
+                        build.setNodeId(node.getNodeId());
+                        final NetconfNode augmentation = node.augmentation(NetconfNode.class);
+                        if (augmentation != null) {
+                            build.setHost(augmentation.getHost())
+                                    .setPort(augmentation.getPort())
+                                    .setCredentials(augmentation.getCredentials())
+                                    .setTcpOnly(augmentation.isTcpOnly())
+                                    .setConnectionStatus(augmentation.getConnectionStatus())
+                                    .setUnavailableCapabilities(augmentation.getUnavailableCapabilities())
+                                    .setAvailableCapabilities(augmentation.getAvailableCapabilities());
+                            if (input.isIsConfig()) {
+                                build.setSchemaless(augmentation.isSchemaless());
+                            }
+                        }
 
-                    final GetNodeFromTopologyByIdOutput nodeFromTopologyByIdOutput =
-                            new GetNodeFromTopologyByIdOutputBuilder().setNode(finalList).build();
-                    final RpcResult<GetNodeFromTopologyByIdOutput> rpcResult = RpcResultBuilder.success(
-                            nodeFromTopologyByIdOutput).build();
-                    result.set(rpcResult);
-                    return rpcResult;
-                } else {
-                    final GetNodeFromTopologyByIdOutput getNodeFromTopologyByIdOutput =
-                            new GetNodeFromTopologyByIdOutputBuilder().build();
-                    final RpcResult<GetNodeFromTopologyByIdOutput> rpcResult = RpcResultBuilder.success(
-                            getNodeFromTopologyByIdOutput).build();
-                    result.set(rpcResult);
-                    return rpcResult;
+                        final Node nb = build.build();
+                        finalList.add(nb);
+
+                        final GetNodeFromTopologyByIdOutput nodeFromTopologyByIdOutput =
+                                new GetNodeFromTopologyByIdOutputBuilder().setNode(finalList).build();
+                        final RpcResult<GetNodeFromTopologyByIdOutput> rpcResult = RpcResultBuilder.success(
+                                nodeFromTopologyByIdOutput).build();
+                        result.set(rpcResult);
+                        return rpcResult;
+                    } else {
+                        final GetNodeFromTopologyByIdOutput getNodeFromTopologyByIdOutput =
+                                new GetNodeFromTopologyByIdOutputBuilder().build();
+                        final RpcResult<GetNodeFromTopologyByIdOutput> rpcResult = RpcResultBuilder.success(
+                                getNodeFromTopologyByIdOutput).build();
+                        result.set(rpcResult);
+                        return rpcResult;
+                    }
                 }
             }
         });
@@ -459,52 +460,55 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<GetTopologiesOutput>>() {
             @Override
             public RpcResult<GetTopologiesOutput> call() throws Exception {
-                final ReadTransaction readTx =
-                    NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction();
-                final InstanceIdentifier<NetworkTopology> tii =
-                        InstanceIdentifier.builder(NetworkTopology.class).build();
-                final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-                if (networkTopology.isPresent()) {
-                    final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                        .rev180320.topology.data.TopologyBuilder topologyBuilder =
-                            new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                                .rev180320.topology.data.TopologyBuilder();
-                    final Collection<Topology> topologyList = networkTopology.get().nonnullTopology().values();
-                    final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                        .rev180320.topology.data.Topology> topologyListFinal =
-                            new ArrayList<>();
-                    for (final Topology t : topologyList) {
-                        final List<Node> nodeList = new ArrayList<>();
-                        if (t.getNode() != null) {
-                            for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                                .rev131021.network.topology.topology.Node n : t.nonnullNode().values()) {
-                                final NodeKey nk = new NodeKey(n.getNodeId());
-                                final Node nb = buildNode(nk, n);
-                                nodeList.add(nb);
+                try (ReadTransaction readTx =
+                             NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction()) {
+                    final InstanceIdentifier<NetworkTopology> tii =
+                            InstanceIdentifier.builder(NetworkTopology.class).build();
+                    final Optional<NetworkTopology> networkTopology =
+                            readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
+                            .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                    if (networkTopology.isPresent()) {
+                        final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                                .rev180320.topology.data.TopologyBuilder topologyBuilder =
+                                new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                                        .rev180320.topology.data.TopologyBuilder();
+                        final Collection<Topology> topologyList = networkTopology.get().nonnullTopology().values();
+                        final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                                .rev180320.topology.data.Topology> topologyListFinal =
+                                new ArrayList<>();
+                        for (final Topology t : topologyList) {
+                            final List<Node> nodeList = new ArrayList<>();
+                            if (t.getNode() != null) {
+                                for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                                        .rev131021.network.topology.topology.Node n : t.nonnullNode().values()) {
+                                    final NodeKey nk = new NodeKey(n.getNodeId());
+                                    final Node nb = buildNode(nk, n);
+                                    nodeList.add(nb);
+                                }
                             }
+
+                            final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                                    .rev180320.topology.data.Topology tp =
+                                    topologyBuilder.withKey(new TopologyKey(t.getTopologyId()))
+                                            .setTopologyId(t.getTopologyId())
+                                            .setNode(nodeList)
+                                            .build();
+                            topologyListFinal.add(tp);
                         }
 
-                        final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                            .rev180320.topology.data.Topology tp =
-                                topologyBuilder.withKey(new TopologyKey(t.getTopologyId()))
-                                .setTopologyId(t.getTopologyId())
-                                .setNode(nodeList)
+                        final GetTopologiesOutput getTopologiesOutput = new GetTopologiesOutputBuilder()
+                                .setNetworkTopology(new NetworkTopologyBuilder().setTopology(topologyListFinal)
+                                        .build()).build();
+                        final RpcResult<GetTopologiesOutput> rpcResult = RpcResultBuilder.success(getTopologiesOutput)
                                 .build();
-                        topologyListFinal.add(tp);
+                        result.set(rpcResult);
+                        return rpcResult;
                     }
-
-                    final GetTopologiesOutput getTopologiesOutput = new GetTopologiesOutputBuilder().setNetworkTopology(
-                            new NetworkTopologyBuilder().setTopology(topologyListFinal).build()).build();
-                    final RpcResult<GetTopologiesOutput> rpcResult = RpcResultBuilder.success(getTopologiesOutput)
-                            .build();
+                    final RpcResult<GetTopologiesOutput> rpcResult = RpcResultBuilder.success(
+                            new GetTopologiesOutputBuilder().build()).build();
                     result.set(rpcResult);
                     return rpcResult;
                 }
-                final RpcResult<GetTopologiesOutput> rpcResult = RpcResultBuilder.success(
-                        new GetTopologiesOutputBuilder().build()).build();
-                result.set(rpcResult);
-                return rpcResult;
             }
         });
         return result;
@@ -542,19 +546,20 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private List<TopologyId> prepareGetTopologyIds() throws ExecutionException, InterruptedException, TimeoutException {
-        final ReadTransaction readTx = this.dataBrokerService.newReadOnlyTransaction();
-        final InstanceIdentifier<NetworkTopology> ntii =
-                InstanceIdentifier.builder(NetworkTopology.class)
-                .build();
-        final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, ntii)
-                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        final List<TopologyId> topologyIds = new ArrayList<>();
-        if (networkTopology.isPresent()) {
-            for (final Topology topology : networkTopology.get().nonnullTopology().values()) {
-                topologyIds.add(topology.getTopologyId());
+        try (ReadTransaction readTx = this.dataBrokerService.newReadOnlyTransaction()) {
+            final InstanceIdentifier<NetworkTopology> ntii =
+                    InstanceIdentifier.builder(NetworkTopology.class)
+                            .build();
+            final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, ntii)
+                    .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            final List<TopologyId> topologyIds = new ArrayList<>();
+            if (networkTopology.isPresent()) {
+                for (final Topology topology : networkTopology.get().nonnullTopology().values()) {
+                    topologyIds.add(topology.getTopologyId());
+                }
             }
+            return topologyIds;
         }
-        return topologyIds;
     }
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")

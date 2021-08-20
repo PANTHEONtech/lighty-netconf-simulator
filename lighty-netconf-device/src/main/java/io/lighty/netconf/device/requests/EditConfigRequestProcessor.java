@@ -7,6 +7,8 @@
  */
 package io.lighty.netconf.device.requests;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.lighty.codecs.api.SerializationException;
@@ -187,6 +189,9 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             responseFuture.complete(new ResponseData(Collections.emptyList()));
             return responseFuture;
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             if (e.getCause() instanceof TransactionCommitFailedException) {
                 final Throwable error = e.getCause();
                 if (error.getCause() instanceof SchemaValidationFailedException) {
@@ -288,18 +293,19 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
      */
     private static YangInstanceIdentifier getYangInstanceIdentifier(final List<QName> yangPath,
             final NormalizedNode<?, ?> input, final EffectiveModelContext effectiveModelContext) {
-        final DataSchemaContextTree contextTree = DataSchemaContextTree.from(effectiveModelContext);
-        DataSchemaContextNode<?> contextNode = contextTree.getRoot();
+        DataSchemaContextNode<?> contextNode = DataSchemaContextTree.from(effectiveModelContext).getRoot();
         YangInstanceIdentifier targetIdentifier = YangInstanceIdentifier.builder().build();
         final Iterator<QName> iterator = yangPath.iterator();
         while (iterator.hasNext()) {
             final QName currentQname = parseQname(effectiveModelContext, iterator.next());
-            contextNode = contextNode.getChild(currentQname);
+            contextNode = requireNonNull(contextNode.getChild(currentQname));
+
             while (contextNode.isMixin()) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
                         .node(contextNode.getIdentifier());
-                contextNode = contextNode.getChild(currentQname);
+                contextNode = requireNonNull(contextNode.getChild(currentQname));
             }
+
             final Optional<NormalizedNode<?, ?>> findNode =
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
             if (contextNode.isKeyedEntry() && findNode.isPresent()) {
@@ -345,13 +351,14 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
     private boolean dataExists(final YangInstanceIdentifier path, final Operation operationToExecute,
             final NormalizedNode<?, ?> data) {
-        DOMDataTreeReadTransaction readTx = getNetconfDeviceServices().getDOMDataBroker()
-                .newReadOnlyTransaction();
-
-        try {
+        try (DOMDataTreeReadTransaction readTx =
+                     getNetconfDeviceServices().getDOMDataBroker().newReadOnlyTransaction()) {
             return readTx.exists(LogicalDatastoreType.CONFIGURATION, path)
                     .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw createTxException(data, e, operationToExecute.getOperationName().toUpperCase(Locale.ROOT));
         }
     }
