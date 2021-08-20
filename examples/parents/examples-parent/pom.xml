@@ -20,7 +20,7 @@
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-parent</artifactId>
-    <version>14.1.0</version>
+    <version>14.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>examples-bom</artifactId>
-                <version>14.1.0</version>
+                <version>14.1.1-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
