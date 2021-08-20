@@ -61,6 +61,10 @@ public final class RPCUtil {
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
     static {
+        // When parsing the XML file, the content of the external entities is retrieved from an external storage such as
+        // the file system or network, which may lead, if no restrictions are put in place, to arbitrary file
+        // disclosures or server-side request forgery (SSRF) vulnerabilities.
+        // https://rules.sonarsource.com/java/RSPEC-2755
         TRANSFORMER_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         TRANSFORMER_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
     }
