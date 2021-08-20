@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.netconf.api.DocumentedException;
 import org.opendaylight.netconf.api.NetconfMessage;
@@ -34,6 +32,7 @@ import org.opendaylight.netconf.api.NetconfSession;
 import org.opendaylight.netconf.mapping.api.HandlingPriority;
 import org.opendaylight.netconf.mapping.api.NetconfOperationChainedExecution;
 import org.opendaylight.netconf.mapping.api.SessionAwareNetconfOperation;
+import org.opendaylight.yangtools.util.xml.UntrustedXML;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -80,9 +79,7 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
             try {
                 writer = xmlNodeConverter.serializeRpc(notificationDefinition.get(), containerNode);
                 try (InputStream is = new ByteArrayInputStream(writer.toString().getBytes(StandardCharsets.UTF_8))) {
-                    final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                    documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                    final DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
+                    final DocumentBuilder builder = UntrustedXML.newDocumentBuilder();
                     final Document notification = builder.parse(is);
                     final Element body =
                         notification.createElementNS(RPCUtil.CREATE_SUBSCRIPTION_NAMESPACE,
@@ -100,7 +97,7 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
                     final NetconfMessage netconfMessage = new NetconfMessage(document);
                     LOG.debug("Sending notification message: {}", netconfMessage.toString());
                     sessionList.forEach(session -> session.sendMessage(netconfMessage));
-                } catch (IOException | ParserConfigurationException | SAXException e) {
+                } catch (IOException | SAXException e) {
                     LOG.error("Failed to send notification message", e);
                 }
             } catch (final SerializationException e) {
