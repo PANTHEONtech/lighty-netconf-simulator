@@ -80,7 +80,9 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
             try {
                 writer = xmlNodeConverter.serializeRpc(notificationDefinition.get(), containerNode);
                 try (InputStream is = new ByteArrayInputStream(writer.toString().getBytes(StandardCharsets.UTF_8))) {
-                    final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                    documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                    final DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
                     final Document notification = builder.parse(is);
                     final Element body =
                         notification.createElementNS(RPCUtil.CREATE_SUBSCRIPTION_NAMESPACE,

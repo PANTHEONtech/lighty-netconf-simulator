@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -57,6 +58,13 @@ public final class RPCUtil {
     public static final String NETCONF_BASE_NAMESPACE = "urn:ietf:params:xml:ns:netconf:base:1.0";
     public static final String CREATE_SUBSCRIPTION_NAMESPACE = "urn:ietf:params:xml:ns:netconf:notification:1.0";
 
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+
+    static {
+        TRANSFORMER_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        TRANSFORMER_FACTORY.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    }
+
     /**
      * Transform {@link Element} instance into {@link Reader}.
      * @param requestXmlElement
@@ -67,7 +75,7 @@ public final class RPCUtil {
      *     In case transformation fails;
      */
     public static Reader createReaderFromElement(Element requestXmlElement) throws TransformerException {
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
         StringWriter sw = new StringWriter();
         StreamResult sr = new StreamResult(sw);
         DOMSource domSource = new DOMSource(requestXmlElement);
@@ -104,7 +112,7 @@ public final class RPCUtil {
      */
     public static String formatXml(Element xml) {
         try {
-            Transformer tf = TransformerFactory.newInstance().newTransformer();
+            Transformer tf = TRANSFORMER_FACTORY.newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name());
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
             Writer outWriter = new StringWriter();
