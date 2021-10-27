@@ -10,7 +10,7 @@ package io.lighty.netconf.device;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import io.lighty.codecs.XmlNodeConverter;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
 import java.util.Collection;

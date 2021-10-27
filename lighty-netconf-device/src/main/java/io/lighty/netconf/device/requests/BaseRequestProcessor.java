@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device.requests;
 
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.utils.TimeoutUtil;
@@ -178,6 +178,6 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
     }
 
     protected abstract String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
-            throws SerializationException;
+            throws SerializationException, SerializationException;
 
 }

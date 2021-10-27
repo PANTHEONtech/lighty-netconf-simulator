@@ -10,9 +10,8 @@ package io.lighty.netconf.device.action.processors;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.lighty.codecs.DataCodec;
-import io.lighty.codecs.XmlNodeConverter;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
@@ -22,6 +21,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
+import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.netconf.api.DocumentedException;
 import org.opendaylight.netconf.api.xml.XmlElement;
@@ -42,13 +43,14 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartActionProcessor.class);
 
-    private final DataCodec dataCodec;
+    private final CurrentAdapterSerializer adapterSerializer;
     private ActionDefinition actionDefinition;
     private final Start startAction;
 
     public StartActionProcessor(final Start startAction, final BindingDOMCodecServices codecServices) {
         this.startAction = startAction;
-        this.dataCodec = new DataCodec(codecServices);
+        final ConstantAdapterContext constantAdapterContext = new ConstantAdapterContext(codecServices);
+        this.adapterSerializer = constantAdapterContext.currentSerializer();
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -64,7 +66,7 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
             final Reader readerFromElement = RPCUtil.createReaderFromElement(actionElement);
             final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter.deserialize(this.actionDefinition
                     .getInput(), readerFromElement);
-            final Input input = this.dataCodec.getCodec().fromNormalizedNodeActionInput(Start.class, deserializedNode);
+            final Input input = this.adapterSerializer.fromNormalizedNodeActionInput(Start.class, deserializedNode);
             final ListenableFuture<RpcResult<Output>> outputFuture = this.startAction.invoke(InstanceIdentifier.create(
                     Device.class), input);
             final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
@@ -72,7 +74,7 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
 
                 @Override
                 public void onSuccess(final RpcResult<Output> result) {
-                    final NormalizedNode domOutput = StartActionProcessor.this.dataCodec.getCodec()
+                    final NormalizedNode domOutput = StartActionProcessor.this.adapterSerializer
                             .toNormalizedNodeActionOutput(Start.class, result.getResult());
                     final List<NormalizedNode> list = new ArrayList<>();
                     list.add(domOutput);

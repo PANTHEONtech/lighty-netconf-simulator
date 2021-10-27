@@ -7,9 +7,8 @@
  */
 package io.lighty.netconf.device.notification.processors;
 
-import io.lighty.codecs.DataCodec;
-import io.lighty.codecs.XmlNodeConverter;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
 import io.lighty.netconf.device.response.Response;
@@ -20,9 +19,12 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import javax.xml.transform.TransformerException;
+import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.DataNotification;
 import org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.DataNotificationBuilder;
 import org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.TriggerDataNotificationInput;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -42,11 +44,13 @@ public class TriggerNotificationProcessor extends RpcOutputRequestProcessor {
 
     private final QName qName = QName.create("yang:lighty:test:notifications", "triggerDataNotification");
     private NotificationPublishService notificationPublishService;
-    private DataCodec<TriggerDataNotificationInput> dataCodec;
+    private CurrentAdapterSerializer adapterSerializer;
 
     public void init(final NotificationPublishService paramNotificationPublishService) {
         this.notificationPublishService = paramNotificationPublishService;
-        this.dataCodec = new DataCodec<>(getNetconfDeviceServices().getAdapterContext().currentSerializer());
+        final ConstantAdapterContext constantAdapterContext
+                = new ConstantAdapterContext(getNetconfDeviceServices().getAdapterContext().currentSerializer());
+        this.adapterSerializer = constantAdapterContext.currentSerializer();
     }
 
     /**
@@ -58,21 +62,24 @@ public class TriggerNotificationProcessor extends RpcOutputRequestProcessor {
      */
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
-        try {
+        try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement)) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
-            try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement)) {
-                final NormalizedNode deserializedNode =
-                        xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
-                final TriggerDataNotificationInput input = this.dataCodec
-                        .convertToBindingAwareRpc(getRpcDefinition().getInput().getPath().asAbsolute(),
-                                (ContainerNode) deserializedNode);
-
+            final NormalizedNode deserializedNode
+                    = xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
+            final DataObject dataObject = this.adapterSerializer
+                    .fromNormalizedNodeRpcData(getRpcDefinition().getInput().getPath().asAbsolute(),
+                            (ContainerNode) deserializedNode);
+            if (dataObject instanceof TriggerDataNotificationInput) {
+                final TriggerDataNotificationInput input = (TriggerDataNotificationInput) dataObject;
                 final DataNotification notification = createNotification(input);
-
                 LOG.info("sending notification clientId={} {}/{}", input.getClientId(), 1, input.getCount());
                 this.notificationPublishService.publish(notification, DataNotification.QNAME);
+                return CompletableFuture.completedFuture(new ResponseData(Collections.emptyList()));
+            } else {
+                return CompletableFuture.failedFuture(new NotificationProcessorException(
+                        String.format("Expecting TriggerDataNotificationInput inside RPCDefinition, found: [%s]",
+                                dataObject.getClass().toString())));
             }
-            return CompletableFuture.completedFuture(new ResponseData(Collections.emptyList()));
         } catch (final TransformerException | SerializationException | IOException ex) {
             LOG.error("Could not trigger notification, {}", ex.getMessage());
             return CompletableFuture.failedFuture(ex);
@@ -92,5 +99,12 @@ public class TriggerNotificationProcessor extends RpcOutputRequestProcessor {
     @Override
     public QName getIdentifier() {
         return this.qName;
+    }
+
+    public static class NotificationProcessorException extends Exception {
+
+        public NotificationProcessorException(String message) {
+            super(message);
+        }
     }
 }

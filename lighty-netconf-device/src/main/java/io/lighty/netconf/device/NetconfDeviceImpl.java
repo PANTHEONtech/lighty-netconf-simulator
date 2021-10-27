@@ -8,7 +8,7 @@
 package io.lighty.netconf.device;
 
 import com.google.common.util.concurrent.FluentFuture;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
 import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.RpcHandlerImpl;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
