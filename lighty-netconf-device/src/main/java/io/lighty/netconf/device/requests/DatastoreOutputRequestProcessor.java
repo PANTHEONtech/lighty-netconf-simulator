@@ -37,17 +37,17 @@ public abstract class DatastoreOutputRequestProcessor extends BaseRequestProcess
     private static final Logger LOG = LoggerFactory.getLogger(DatastoreOutputRequestProcessor.class);
 
     @Override
-    protected String convertNormalizedNodeToXmlString(NormalizedNode<?, ?> normalizedNode)
+    protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter()
                 .serializeData(getNetconfDeviceServices().getRootSchemaNode(), normalizedNode).toString();
     }
 
-    protected List<NormalizedNode<?, ?>> getAllDataFromDatastore(LogicalDatastoreType datastoreType) {
+    protected List<NormalizedNode> getAllDataFromDatastore(LogicalDatastoreType datastoreType) {
         DOMDataBroker domDataBroker = getNetconfDeviceServices().getDOMDataBroker();
-        Optional<NormalizedNode<?, ?>> listData;
+        Optional<NormalizedNode> listData;
         try (DOMDataTreeReadTransaction domDataReadOnlyTransaction = domDataBroker.newReadOnlyTransaction()) {
-            FluentFuture<Optional<NormalizedNode<?, ?>>> readData =
+            FluentFuture<Optional<NormalizedNode>> readData =
                     domDataReadOnlyTransaction.read(datastoreType, YangInstanceIdentifier.empty());
             listData = readData.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
@@ -65,7 +65,7 @@ public abstract class DatastoreOutputRequestProcessor extends BaseRequestProcess
     }
 
     @Override
-    protected Document wrapToFinalDocumentReply(List<NormalizedNode<?, ?>> responseOutput)
+    protected Document wrapToFinalDocumentReply(List<NormalizedNode> responseOutput)
             throws ParserConfigurationException {
         // convert normalized nodes to xml nodes
         DocumentBuilder builder = getDocumentBuilderFactory().newDocumentBuilder();

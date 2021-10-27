@@ -72,9 +72,9 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
 
                 @Override
                 public void onSuccess(final RpcResult<Output> result) {
-                    final NormalizedNode<?, ?> domOutput = StartActionProcessor.this.dataCodec.getCodec()
+                    final NormalizedNode domOutput = StartActionProcessor.this.dataCodec.getCodec()
                             .toNormalizedNodeActionOutput(Start.class, result.getResult());
-                    final List<NormalizedNode<?, ?>> list = new ArrayList<>();
+                    final List<NormalizedNode> list = new ArrayList<>();
                     list.add(domOutput);
                     completableFuture.complete(new ResponseData(list));
                 }

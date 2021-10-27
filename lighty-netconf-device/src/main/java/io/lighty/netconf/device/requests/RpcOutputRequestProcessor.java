@@ -48,7 +48,7 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected String convertNormalizedNodeToXmlString(NormalizedNode<?, ?> normalizedNode)
+    protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter()
                 .serializeRpc(rpcDefinition.getOutput(), normalizedNode).toString();
@@ -59,7 +59,7 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected Document wrapToFinalDocumentReply(List<NormalizedNode<?, ?>> responseOutput)
+    protected Document wrapToFinalDocumentReply(List<NormalizedNode> responseOutput)
         throws ParserConfigurationException {
         DocumentBuilder builder = getDocumentBuilderFactory().newDocumentBuilder();
         Document newDocument = builder.newDocument();

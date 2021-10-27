@@ -90,9 +90,9 @@ public class ResetActionProcessor extends ActionServiceDeviceProcessor {
 
                 @Override
                 public void onSuccess(final RpcResult<Output> result) {
-                    final NormalizedNode<?, ?> domOutput = ResetActionProcessor.this.dataCodec.getCodec()
+                    final NormalizedNode domOutput = ResetActionProcessor.this.dataCodec.getCodec()
                             .toNormalizedNodeActionOutput(Reset.class, result.getResult());
-                    final List<NormalizedNode<?, ?>> list = new ArrayList<>();
+                    final List<NormalizedNode> list = new ArrayList<>();
                     list.add(domOutput);
                     completableFuture.complete(new ResponseData(list));
                 }

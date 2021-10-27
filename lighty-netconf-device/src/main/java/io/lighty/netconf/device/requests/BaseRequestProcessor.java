@@ -113,7 +113,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
         }
     }
 
-    protected abstract Document wrapToFinalDocumentReply(List<NormalizedNode<?, ?>> responseOutput)
+    protected abstract Document wrapToFinalDocumentReply(List<NormalizedNode> responseOutput)
         throws ParserConfigurationException;
 
     /**
@@ -126,7 +126,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
      * @param document       a document
      * @return Node the output node
      */
-    protected List<Node> convertOutputToXmlNodes(List<NormalizedNode<?, ?>> responseOutput, DocumentBuilder builder,
+    protected List<Node> convertOutputToXmlNodes(List<NormalizedNode> responseOutput, DocumentBuilder builder,
                                                  Document document) {
         Node responseOutputAsXmlNode;
         if (responseOutput.isEmpty()) {
@@ -148,9 +148,9 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
         return nodes;
     }
 
-    private List<String> convertOutputNormalizedNodesToXmlStrings(List<NormalizedNode<?, ?>> responseOutput) {
-        List<NormalizedNode<?, ?>> toConvert = new ArrayList<>();
-        for (NormalizedNode<?, ?> normalizedNode : responseOutput) {
+    private List<String> convertOutputNormalizedNodesToXmlStrings(List<NormalizedNode> responseOutput) {
+        List<NormalizedNode> toConvert = new ArrayList<>();
+        for (NormalizedNode normalizedNode : responseOutput) {
             // in case of MapNode we need to wrap every MapEntryNode to MapNode and serialize separately
             if (normalizedNode instanceof MapNode) {
                 toConvert.addAll(((MapNode) normalizedNode).getValue().stream().map(mapEntryNode ->
@@ -165,7 +165,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
             }
         }
         List<String> converted = new ArrayList<>();
-        for (NormalizedNode<?, ?> node : toConvert) {
+        for (NormalizedNode node : toConvert) {
             try {
                 converted.add(convertNormalizedNodeToXmlString(node));
             } catch (SerializationException e) {
@@ -177,7 +177,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
         return converted;
     }
 
-    protected abstract String convertNormalizedNodeToXmlString(NormalizedNode<?, ?> normalizedNode)
+    protected abstract String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException;
 
 }

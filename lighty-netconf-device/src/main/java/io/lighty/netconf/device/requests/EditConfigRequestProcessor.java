@@ -106,7 +106,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
         final String configString = RPCUtil.formatXml(configElement);
 
-        NormalizedNode<?, ?> configNN;
+        NormalizedNode configNN;
         try {
             configNN = getNetconfDeviceServices().getXmlNodeConverter()
                     .deserialize(getNetconfDeviceServices().getRootSchemaNode(), new StringReader(configString));
@@ -123,10 +123,10 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                 .currentSerializer().getRuntimeContext().getEffectiveModelContext();
         YangInstanceIdentifier path = retrieveElementYII(effectiveModelContext, configNN,
                 configElement, "//*[@*[local-name() = 'operation']]");
-        NormalizedNode<?, ?> data;
+        NormalizedNode data;
         if (path == null) {
-            Optional<DataContainerChild<?, ?>> optionalData =
-                ((AbstractCollection<DataContainerChild<?, ?>>) configNN.getValue()).stream().findFirst();
+            Optional<DataContainerChild> optionalData =
+                ((AbstractCollection<DataContainerChild>) configNN.getValue()).stream().findFirst();
             if (optionalData.isEmpty()) {
                 return CompletableFuture.completedFuture(new ResponseErrorMessage(
                     new NetconfDocumentedException(
@@ -138,7 +138,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             data = optionalData.get();
             path = YangInstanceIdentifier.builder().node(data.getNodeType()).build();
         } else {
-            Optional<NormalizedNode<?, ?>> optionalData =
+            Optional<NormalizedNode> optionalData =
                 NormalizedNodes.findNode(configNN, path);
             if (optionalData.isEmpty()) {
                 return CompletableFuture.completedFuture(new ResponseErrorMessage(
@@ -231,13 +231,13 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
         Preconditions.checkArgument(rootNormalizedPath != null, "Empty path received");
 
-        final NormalizedNode<?, ?> parentStructure = ImmutableNodes.fromInstanceId(effectiveModelContext,
+        final NormalizedNode parentStructure = ImmutableNodes.fromInstanceId(effectiveModelContext,
                 YangInstanceIdentifier.create(normalizedPathWithoutChildArgs));
         writeTx.merge(LogicalDatastoreType.CONFIGURATION, rootNormalizedPath, parentStructure);
     }
 
     private IllegalStateException createTxException(
-        final NormalizedNode<?, ?> data, final Exception exception, final String type) {
+        final NormalizedNode data, final Exception exception, final String type) {
         return new IllegalStateException("Unable to execute " + type + " operation with data:\n"
             + NormalizedNodes.toStringTree(data), exception);
     }
@@ -262,7 +262,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
     }
 
     protected static YangInstanceIdentifier retrieveElementYII(
-            final EffectiveModelContext effectiveModelContext, final NormalizedNode<?, ?> normalizedNode,
+            final EffectiveModelContext effectiveModelContext, final NormalizedNode normalizedNode,
             final Element deviceElement, final String xpathExpression) {
         final List<Node> nodes = RPCUtil.getNodes(deviceElement.getChildNodes());
         if (nodes.isEmpty()) {
@@ -292,7 +292,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
      * @return YangInstanceIdentifier a yang instance identifier
      */
     private static YangInstanceIdentifier getYangInstanceIdentifier(final List<QName> yangPath,
-            final NormalizedNode<?, ?> input, final EffectiveModelContext effectiveModelContext) {
+            final NormalizedNode input, final EffectiveModelContext effectiveModelContext) {
         DataSchemaContextNode<?> contextNode = DataSchemaContextTree.from(effectiveModelContext).getRoot();
         YangInstanceIdentifier targetIdentifier = YangInstanceIdentifier.builder().build();
         final Iterator<QName> iterator = yangPath.iterator();
@@ -306,7 +306,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                 contextNode = requireNonNull(contextNode.getChild(currentQname));
             }
 
-            final Optional<NormalizedNode<?, ?>> findNode =
+            final Optional<NormalizedNode> findNode =
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
             if (contextNode.isKeyedEntry() && findNode.isPresent()) {
                 final MapEntryNode next = ((MapNode) findNode.get()).getValue().iterator().next();
@@ -350,7 +350,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
     }
 
     private boolean dataExists(final YangInstanceIdentifier path, final Operation operationToExecute,
-            final NormalizedNode<?, ?> data) {
+            final NormalizedNode data) {
         try (DOMDataTreeReadTransaction readTx =
                      getNetconfDeviceServices().getDOMDataBroker().newReadOnlyTransaction()) {
             return readTx.exists(LogicalDatastoreType.CONFIGURATION, path)

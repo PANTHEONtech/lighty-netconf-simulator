@@ -51,7 +51,7 @@ public class CreateSubscriptionRequestProcessor extends BaseRequestProcessor {
     @SuppressWarnings("checkstyle:AvoidHidingCauseException")
     @Override
     protected Document wrapToFinalDocumentReply(
-        List<NormalizedNode<?, ?>> responseOutput) throws ParserConfigurationException {
+        List<NormalizedNode> responseOutput) throws ParserConfigurationException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -77,7 +77,7 @@ public class CreateSubscriptionRequestProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected String convertNormalizedNodeToXmlString(NormalizedNode<?, ?> normalizedNode)
+    protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
         throws SerializationException {
         throw new IllegalStateException("This method should not be called!");
     }

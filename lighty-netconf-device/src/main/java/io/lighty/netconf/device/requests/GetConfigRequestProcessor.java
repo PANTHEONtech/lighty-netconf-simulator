@@ -33,7 +33,7 @@ public class GetConfigRequestProcessor extends DatastoreOutputRequestProcessor {
     @Override
     public CompletableFuture<Response> execute(Element requestXml) {
         final CompletableFuture<Response> responseFuture = new CompletableFuture<>();
-        final List<NormalizedNode<?, ?>> allDataFromDatastore =
+        final List<NormalizedNode> allDataFromDatastore =
                 getAllDataFromDatastore(LogicalDatastoreType.CONFIGURATION);
         responseFuture.complete(new ResponseData(allDataFromDatastore));
         return responseFuture;

@@ -47,14 +47,14 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
 
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
-        //1. convert XML input into NormalizedNode<?, ?>
+        //1. convert XML input into NormalizedNode
         try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement);) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
-            final NormalizedNode<?, ?> deserializedNode =
+            final NormalizedNode deserializedNode =
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
-            //2. convert NormalizedNode<?, ?> into RPC input
+            //2. convert NormalizedNode into RPC input
             final I input = this.dataCodec.convertToBindingAwareRpc(
                     getRpcDefinition().getInput().getPath().asAbsolute(), (ContainerNode) deserializedNode);
 

@@ -48,12 +48,12 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
         try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement)) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
-            //1. convert XML input into NormalizedNode<?, ?>
+            //1. convert XML input into NormalizedNode
 
-            final NormalizedNode<?, ?> deserializedNode =
+            final NormalizedNode deserializedNode =
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
-            //2. convert NormalizedNode<?, ?> into RPC input
+            //2. convert NormalizedNode into RPC input
             final T input = dataCodec.convertToBindingAwareRpc(
                     getRpcDefinition().getInput().getPath().asAbsolute(), (ContainerNode) deserializedNode);
 

@@ -83,7 +83,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected Document wrapToFinalDocumentReply(final List<NormalizedNode<?, ?>> responseOutput)
+    protected Document wrapToFinalDocumentReply(final List<NormalizedNode> responseOutput)
             throws ParserConfigurationException {
         final DocumentBuilder builder = getDocumentBuilderFactory().newDocumentBuilder();
         final Document newDocument = builder.newDocument();
@@ -120,7 +120,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected String convertNormalizedNodeToXmlString(final NormalizedNode<?, ?> normalizedNode)
+    protected String convertNormalizedNodeToXmlString(final NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter().serializeRpc(this.actionProcessor.getActionDefinition()
                 .getOutput(),

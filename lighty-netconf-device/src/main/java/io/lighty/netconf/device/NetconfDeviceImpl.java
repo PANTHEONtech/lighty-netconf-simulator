@@ -108,7 +108,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
     private void initDatastore(LogicalDatastoreType datastoreType, InputStream initialData) {
         LOG.debug("Setting up initial state of {} datastore from XML", datastoreType);
         try (Reader reader = new InputStreamReader(initialData, Charset.defaultCharset())) {
-            NormalizedNode<?, ?> initialDataBI = netconfDeviceServices.getXmlNodeConverter()
+            NormalizedNode initialDataBI = netconfDeviceServices.getXmlNodeConverter()
                     .deserialize(netconfDeviceServices.getRootSchemaNode(), reader);
             DOMDataTreeWriteTransaction writeTx = netconfDeviceServices.getDOMDataBroker().newWriteOnlyTransaction();
             writeTx.put(datastoreType, YangInstanceIdentifier.empty(), initialDataBI);
