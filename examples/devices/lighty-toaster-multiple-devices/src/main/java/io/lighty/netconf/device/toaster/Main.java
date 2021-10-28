@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.Set;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import org.opendaylight.netconf.test.tool.TesttoolParameters;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.slf4j.Logger;
@@ -28,6 +29,9 @@ import org.slf4j.LoggerFactory;
 public final class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+    public static final int DEFAULT_PORT = 17830;
+    public static final int DEFAULT_DEVICE_COUNT = 1;
+    public static final int DEFAULT_POOL_SIZE = 8;
 
     private ShutdownHook shutdownHook;
 
@@ -39,7 +43,7 @@ public final class Main {
     @SuppressFBWarnings({"SLF4J_SIGN_ONLY_FORMAT", "OBL_UNSATISFIED_OBLIGATION"})
     public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore) {
         //1. Load parameters
-        final TesttoolParameters params = TesttoolParameters.parseArgs(args, getParser());
+        final TesttoolParameters params = parseArgs(args, getParser());
 
         LOG.info("Lighty-Toaster device started {}", params.startingPort);
         LOG.info("___________             __        ________              .__");
@@ -97,25 +101,38 @@ public final class Main {
         }
     }
 
+    static TesttoolParameters parseArgs(final String[] args, final ArgumentParser parser) {
+        final TesttoolParameters testtoolParams = new TesttoolParameters();
+        try {
+            parser.parseArgs(args, testtoolParams);
+        } catch (final ArgumentParserException e) {
+            LOG.warn("Exception while parsing example arguments. Using default values", e);
+            testtoolParams.startingPort = DEFAULT_PORT;
+            testtoolParams.deviceCount = DEFAULT_DEVICE_COUNT;
+            testtoolParams.threadPoolSize = DEFAULT_POOL_SIZE;
+        }
+        return testtoolParams;
+    }
+
     static ArgumentParser getParser() {
         final ArgumentParser parser = ArgumentParsers.newFor("netconf").build();
 
         parser.addArgument("--starting-port")
                 .type(Integer.class)
-                .setDefault(17830)
+                .setDefault(DEFAULT_PORT)
                 .help("First port for simulated device. Each other device will have previous+1 port number")
                 .dest("starting-port");
 
         parser.addArgument("--device-count")
                 .type(Integer.class)
-                .setDefault(1)
+                .setDefault(DEFAULT_DEVICE_COUNT)
                 .help("Number of simulated netconf devices to spin."
                         + " This is the number of actual ports which will be used for the devices.")
                 .dest("devices-count");
 
         parser.addArgument("--thread-pool-size")
                 .type(Integer.class)
-                .setDefault(8)
+                .setDefault(DEFAULT_POOL_SIZE)
                 .help("The number of threads to keep in the pool, "
                         + "when creating a device simulator, even if they are idle.")
                 .dest("thread-pool-size");
