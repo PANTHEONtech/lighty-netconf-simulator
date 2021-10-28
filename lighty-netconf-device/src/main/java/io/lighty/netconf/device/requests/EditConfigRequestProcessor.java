@@ -41,11 +41,11 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.common.api.TransactionCommitFailedException;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.netconf.api.DocumentedException.ErrorSeverity;
-import org.opendaylight.netconf.api.DocumentedException.ErrorTag;
-import org.opendaylight.netconf.api.DocumentedException.ErrorType;
 import org.opendaylight.netconf.api.NetconfDocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf.base._1._0.rev110601.copy.config.input.source.config.source.Config;
+import org.opendaylight.yangtools.yang.common.ErrorSeverity;
+import org.opendaylight.yangtools.yang.common.ErrorTag;
+import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -126,7 +126,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         NormalizedNode data;
         if (path == null) {
             Optional<DataContainerChild> optionalData =
-                ((AbstractCollection<DataContainerChild>) configNN.getValue()).stream().findFirst();
+                ((AbstractCollection<DataContainerChild>) configNN.body()).stream().findFirst();
             if (optionalData.isEmpty()) {
                 return CompletableFuture.completedFuture(new ResponseErrorMessage(
                     new NetconfDocumentedException(
@@ -136,7 +136,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                         ErrorSeverity.ERROR)));
             }
             data = optionalData.get();
-            path = YangInstanceIdentifier.builder().node(data.getNodeType()).build();
+            path = YangInstanceIdentifier.builder().node(data.getIdentifier().getNodeType()).build();
         } else {
             Optional<NormalizedNode> optionalData =
                 NormalizedNodes.findNode(configNN, path);
@@ -309,7 +309,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             final Optional<NormalizedNode> findNode =
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
             if (contextNode.isKeyedEntry() && findNode.isPresent()) {
-                final MapEntryNode next = ((MapNode) findNode.get()).getValue().iterator().next();
+                final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
                 final Map<QName, Object> keyValues = next.getIdentifier().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))

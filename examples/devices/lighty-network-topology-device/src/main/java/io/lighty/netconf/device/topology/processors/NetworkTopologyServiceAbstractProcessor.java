@@ -70,7 +70,7 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
 
             //5. create response
             final ResponseData responseData;
-            if (containerNode.getValue().isEmpty()) {
+            if (containerNode.body().isEmpty()) {
                 responseData = new ResponseData(Collections.emptyList());
             } else {
                 responseData = new ResponseData(Collections.singletonList(containerNode));

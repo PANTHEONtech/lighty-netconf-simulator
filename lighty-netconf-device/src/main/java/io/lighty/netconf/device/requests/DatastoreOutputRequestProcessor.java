@@ -53,7 +53,7 @@ public abstract class DatastoreOutputRequestProcessor extends BaseRequestProcess
 
             if (listData.isPresent()) {
                 ContainerNode containerNode = (ContainerNode) listData.get();
-                return new ArrayList<>(containerNode.getValue());
+                return new ArrayList<>(containerNode.body());
             }
         } catch (ExecutionException | TimeoutException e) {
             LOG.error("Exception thrown while getting data from datastore!", e);

@@ -153,10 +153,11 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
         for (NormalizedNode normalizedNode : responseOutput) {
             // in case of MapNode we need to wrap every MapEntryNode to MapNode and serialize separately
             if (normalizedNode instanceof MapNode) {
-                toConvert.addAll(((MapNode) normalizedNode).getValue().stream().map(mapEntryNode ->
+                toConvert.addAll(((MapNode) normalizedNode).body().stream().map(mapEntryNode ->
                         ImmutableMapNodeBuilder.create()
                                 .withNodeIdentifier(
-                                        YangInstanceIdentifier.NodeIdentifier.create(normalizedNode.getNodeType()))
+                                        YangInstanceIdentifier.NodeIdentifier.create(normalizedNode.getIdentifier()
+                                                .getNodeType()))
                                 .withChild(mapEntryNode)
                                 .build())
                         .collect(Collectors.toList()));

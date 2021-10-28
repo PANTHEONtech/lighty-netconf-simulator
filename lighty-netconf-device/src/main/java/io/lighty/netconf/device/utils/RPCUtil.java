@@ -91,15 +91,14 @@ public final class RPCUtil {
         if (listNormalizedNode.isEmpty()) {
             return normalizedNodes;
         }
-        DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> nextToCollection =
-                (DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>) listNormalizedNode.get();
-        Iterator iterator = ((Collection) nextToCollection.getValue()).iterator();
+        DataContainerChild nextToCollection = (DataContainerChild) listNormalizedNode.get();
+        Iterator iterator = ((Collection) nextToCollection.body()).iterator();
         while (iterator.hasNext()) {
             NormalizedNode fabricListEntry =
                     (NormalizedNode) iterator.next();
             NormalizedNode fabricListEntryInsideMapNode = ImmutableMapNodeBuilder.create()
                     .withNodeIdentifier(YangInstanceIdentifier.NodeIdentifier
-                            .create(listNormalizedNode.get().getNodeType()))
+                            .create(listNormalizedNode.get().getIdentifier().getNodeType()))
                     .withChild((MapEntryNode) fabricListEntry).build();
             normalizedNodes.add(fabricListEntryInsideMapNode);
         }
