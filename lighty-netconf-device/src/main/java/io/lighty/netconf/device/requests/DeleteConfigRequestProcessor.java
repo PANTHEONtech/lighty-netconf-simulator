@@ -10,10 +10,10 @@ package io.lighty.netconf.device.requests;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.utils.RPCUtil;
 import java.util.concurrent.CompletableFuture;
-import org.opendaylight.netconf.api.DocumentedException.ErrorSeverity;
-import org.opendaylight.netconf.api.DocumentedException.ErrorTag;
-import org.opendaylight.netconf.api.DocumentedException.ErrorType;
 import org.opendaylight.netconf.api.NetconfDocumentedException;
+import org.opendaylight.yangtools.yang.common.ErrorSeverity;
+import org.opendaylight.yangtools.yang.common.ErrorTag;
+import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.w3c.dom.Element;
 

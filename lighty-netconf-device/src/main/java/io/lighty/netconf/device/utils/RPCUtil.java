@@ -71,12 +71,10 @@ public final class RPCUtil {
 
     /**
      * Transform {@link Element} instance into {@link Reader}.
-     * @param requestXmlElement
-     *     Input {@link Element} instance.
-     * @return
-     * {@link Reader} instance containing input XML element;
-     * @throws TransformerException
-     *     In case transformation fails;
+     *
+     * @param requestXmlElement Input {@link Element} instance.
+     * @return {@link Reader} instance containing input XML element;
+     * @throws TransformerException In case transformation fails;
      */
     public static Reader createReaderFromElement(Element requestXmlElement) throws TransformerException {
         Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
@@ -87,21 +85,20 @@ public final class RPCUtil {
         return new StringReader(sw.toString());
     }
 
-    public static List<NormalizedNode<?, ?>> createNormalizedNodesForMapNodeEntries(
-        Optional<NormalizedNode<?, ?>> listNormalizedNode) {
-        List<NormalizedNode<?, ?>> normalizedNodes = new ArrayList<>();
+    public static List<NormalizedNode> createNormalizedNodesForMapNodeEntries(
+        Optional<NormalizedNode> listNormalizedNode) {
+        List<NormalizedNode> normalizedNodes = new ArrayList<>();
         if (listNormalizedNode.isEmpty()) {
             return normalizedNodes;
         }
-        DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?> nextToCollection =
-                (DataContainerChild<? extends YangInstanceIdentifier.PathArgument, ?>) listNormalizedNode.get();
-        Iterator iterator = ((Collection) nextToCollection.getValue()).iterator();
+        DataContainerChild nextToCollection = (DataContainerChild) listNormalizedNode.get();
+        Iterator iterator = ((Collection) nextToCollection.body()).iterator();
         while (iterator.hasNext()) {
-            NormalizedNode<?, ?> fabricListEntry =
-                    (NormalizedNode<?, ?>) iterator.next();
-            NormalizedNode<?, ?> fabricListEntryInsideMapNode = ImmutableMapNodeBuilder.create()
+            NormalizedNode fabricListEntry =
+                    (NormalizedNode) iterator.next();
+            NormalizedNode fabricListEntryInsideMapNode = ImmutableMapNodeBuilder.create()
                     .withNodeIdentifier(YangInstanceIdentifier.NodeIdentifier
-                            .create(listNormalizedNode.get().getNodeType()))
+                            .create(listNormalizedNode.get().getIdentifier().getNodeType()))
                     .withChild((MapEntryNode) fabricListEntry).build();
             normalizedNodes.add(fabricListEntryInsideMapNode);
         }

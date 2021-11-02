@@ -22,7 +22,7 @@ public class ResponseErrorMessage implements Response {
     }
 
     @Override
-    public List<NormalizedNode<?, ?>> getData() {
+    public List<NormalizedNode> getData() {
         return Collections.emptyList();
     }
 

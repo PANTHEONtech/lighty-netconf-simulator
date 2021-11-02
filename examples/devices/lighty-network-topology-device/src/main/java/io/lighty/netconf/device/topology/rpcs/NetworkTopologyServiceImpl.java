@@ -14,7 +14,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -113,28 +115,28 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                 final WriteTransaction writeTx =
                     NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
                 final TopologyId topologyId = input.getTopologyId();
-                final Collection<Node> node = input.nonnullNode().values();
+                final Collection<Node> nodeCollection = input.nonnullNode().values();
 
-                final List<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                    .rev131021.network.topology.topology.Node> finalListConfig =
-                        new ArrayList<>();
-                final List<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                    .rev131021.network.topology.topology.Node> finalListOper =
-                        new ArrayList<>();
-                for (final Node n : node) {
+                final Map<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network
+                        .topology.topology.NodeKey, org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network
+                        .topology.rev131021.network.topology.topology.Node> nodeConfigMap = new HashMap<>();
+                final Map<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network
+                        .topology.topology.NodeKey, org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network
+                        .topology.rev131021.network.topology.topology.Node> nodeOperMap = new HashMap<>();
+                for (final Node node : nodeCollection) {
 
-                    NetconfNode nn = new NetconfNodeBuilder()
-                            .setHost(n.getHost())
-                            .setPort(n.getPort())
-                            .setCredentials(n.getCredentials())
-                            .setKeepaliveDelay(n.getKeepaliveDelay())
-                            .setSchemaless(n.isSchemaless())
-                            .setTcpOnly(n.isTcpOnly())
+                    NetconfNode netconfNode = new NetconfNodeBuilder()
+                            .setHost(node.getHost())
+                            .setPort(node.getPort())
+                            .setCredentials(node.getCredentials())
+                            .setKeepaliveDelay(node.getKeepaliveDelay())
+                            .setSchemaless(node.getSchemaless())
+                            .setTcpOnly(node.getTcpOnly())
                             .build();
 
                     final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                         .rev131021.network.topology.topology.Node nConfig =
-                            createNetworkTopologyNode(n, nn);
+                            createNetworkTopologyNode(node, netconfNode);
 
                     final List<AvailableCapability> availableCapabilities = new ArrayList<>();
                     for (final Module m : NetworkTopologyServiceImpl.this.effectiveModelContext.getModules()) {
@@ -145,24 +147,24 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                                     m.getName())).build();
                         availableCapabilities.add(ac);
                     }
-                    nn = new NetconfNodeBuilder()
+                    netconfNode = new NetconfNodeBuilder()
                             .setConnectionStatus(NetconfNodeConnectionStatus.ConnectionStatus.Connected)
                             .setUnavailableCapabilities(new UnavailableCapabilitiesBuilder().build())
                             .setAvailableCapabilities(new AvailableCapabilitiesBuilder()
                                     .setAvailableCapability(availableCapabilities).build())
-                            .setHost(n.getHost())
-                            .setPort(n.getPort())
+                            .setHost(node.getHost())
+                            .setPort(node.getPort())
                             .build();
                     final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                         .rev131021.network.topology.topology.Node nOper =
-                            createNetworkTopologyNode(n, nn);
-                    finalListConfig.add(nConfig);
-                    finalListOper.add(nOper);
+                            createNetworkTopologyNode(node, netconfNode);
+                    nodeConfigMap.put(nConfig.key() ,nConfig);
+                    nodeOperMap.put(nOper.key() ,nOper);
                 }
 
                 Topology topology = new TopologyBuilder()
                         .setTopologyId(topologyId)
-                        .setNode(finalListConfig)
+                        .setNode(nodeConfigMap)
                         .build();
                 final InstanceIdentifier<Topology> tii =
                         InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
@@ -170,7 +172,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                 writeTx.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
                 topology = new TopologyBuilder()
                         .setTopologyId(topologyId)
-                        .setNode(finalListOper)
+                        .setNode(nodeOperMap)
                         .build();
                 writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
                 writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -317,25 +319,27 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                                     .build();
                     final Optional<Topology> readTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
                             .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-                    final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                            .rev180320.topology.data.Topology> finalTopology =
-                            new ArrayList<>();
+                    final Map<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                            .rev180320.topology.data.TopologyKey, org.opendaylight.yang.gen.v1.urn.tech.pantheon
+                            .netconfdevice.network.topology.rpcs.rev180320.topology.data.Topology> finalTopology
+                            = new HashMap<>();
                     if (readTopology.isPresent()) {
                         final Topology t = readTopology.get();
-                        final List<Node> finalList = new ArrayList<>();
+                        final Map<NodeKey, Node> finalNodeMap = new HashMap<>();
                         if (t.getNode() != null) {
                             for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                                     .rev131021.network.topology.topology.Node node : t.nonnullNode().values()) {
                                 final NodeKey nk2 = new NodeKey(node.getNodeId());
                                 final Node nb = buildNode(nk2, node);
-                                finalList.add(nb);
+                                finalNodeMap.put(nb.key(), nb);
                             }
                         }
-                        finalTopology.add(new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice
+                        final TopologyKey topologyKey = new TopologyKey(t.getTopologyId());
+                        finalTopology.put(topologyKey, new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice
                                 .network.topology.rpcs.rev180320.topology.data.TopologyBuilder()
                                 .setTopologyId(new TopologyId(t.getTopologyId()))
-                                .withKey(new TopologyKey(t.getTopologyId()))
-                                .setNode(finalList)
+                                .withKey(topologyKey)
+                                .setNode(finalNodeMap)
                                 .build());
                     }
                     final GetTopologyByIdOutput getTopologyByIdOutput = new GetTopologyByIdOutputBuilder().setTopology(
@@ -385,7 +389,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                 try (ReadTransaction readTx =
                              NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction()) {
                     LogicalDatastoreType datastoreType;
-                    if (input.isIsConfig()) {
+                    if (input.getIsConfig()) {
                         datastoreType = LogicalDatastoreType.CONFIGURATION;
                     } else {
                         datastoreType = LogicalDatastoreType.OPERATIONAL;
@@ -409,7 +413,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                     if (nodeOptional.isPresent()) {
                         final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                                 .rev131021.network.topology.topology.Node node = nodeOptional.get();
-                        final List<Node> finalList = new ArrayList<>();
+                        final Map<NodeKey, Node> finalNodeMap = new HashMap<>();
                         final NodeKey nk2 = new NodeKey(node.getNodeId());
                         final NodeBuilder build = new NodeBuilder()
                                 .withKey(nk2);
@@ -419,20 +423,20 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                             build.setHost(augmentation.getHost())
                                     .setPort(augmentation.getPort())
                                     .setCredentials(augmentation.getCredentials())
-                                    .setTcpOnly(augmentation.isTcpOnly())
+                                    .setTcpOnly(augmentation.getTcpOnly())
                                     .setConnectionStatus(augmentation.getConnectionStatus())
                                     .setUnavailableCapabilities(augmentation.getUnavailableCapabilities())
                                     .setAvailableCapabilities(augmentation.getAvailableCapabilities());
-                            if (input.isIsConfig()) {
-                                build.setSchemaless(augmentation.isSchemaless());
+                            if (input.getIsConfig()) {
+                                build.setSchemaless(augmentation.getSchemaless());
                             }
                         }
 
                         final Node nb = build.build();
-                        finalList.add(nb);
+                        finalNodeMap.put(nb.key(), nb);
 
                         final GetNodeFromTopologyByIdOutput nodeFromTopologyByIdOutput =
-                                new GetNodeFromTopologyByIdOutputBuilder().setNode(finalList).build();
+                                new GetNodeFromTopologyByIdOutputBuilder().setNode(finalNodeMap).build();
                         final RpcResult<GetNodeFromTopologyByIdOutput> rpcResult = RpcResultBuilder.success(
                                 nodeFromTopologyByIdOutput).build();
                         result.set(rpcResult);
@@ -473,17 +477,18 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                                 new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
                                         .rev180320.topology.data.TopologyBuilder();
                         final Collection<Topology> topologyList = networkTopology.get().nonnullTopology().values();
-                        final List<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                                .rev180320.topology.data.Topology> topologyListFinal =
-                                new ArrayList<>();
+                        final Map<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
+                                .rev180320.topology.data.TopologyKey, org.opendaylight.yang.gen.v1.urn.tech.pantheon
+                                .netconfdevice.network.topology.rpcs.rev180320.topology.data.Topology> topologyMapFinal
+                                = new HashMap<>();
                         for (final Topology t : topologyList) {
-                            final List<Node> nodeList = new ArrayList<>();
+                            final Map<NodeKey, Node> nodeMap = new HashMap<>();
                             if (t.getNode() != null) {
                                 for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                                         .rev131021.network.topology.topology.Node n : t.nonnullNode().values()) {
                                     final NodeKey nk = new NodeKey(n.getNodeId());
                                     final Node nb = buildNode(nk, n);
-                                    nodeList.add(nb);
+                                    nodeMap.put(nb.key(), nb);
                                 }
                             }
 
@@ -491,13 +496,13 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                                     .rev180320.topology.data.Topology tp =
                                     topologyBuilder.withKey(new TopologyKey(t.getTopologyId()))
                                             .setTopologyId(t.getTopologyId())
-                                            .setNode(nodeList)
+                                            .setNode(nodeMap)
                                             .build();
-                            topologyListFinal.add(tp);
+                            topologyMapFinal.put(tp.key(), tp);
                         }
 
                         final GetTopologiesOutput getTopologiesOutput = new GetTopologiesOutputBuilder()
-                                .setNetworkTopology(new NetworkTopologyBuilder().setTopology(topologyListFinal)
+                                .setNetworkTopology(new NetworkTopologyBuilder().setTopology(topologyMapFinal)
                                         .build()).build();
                         final RpcResult<GetTopologiesOutput> rpcResult = RpcResultBuilder.success(getTopologiesOutput)
                                 .build();
@@ -574,8 +579,8 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                 build.setHost(augmentation.getHost())
                     .setPort(augmentation.getPort())
                     .setCredentials(augmentation.getCredentials())
-                    .setTcpOnly(augmentation.isTcpOnly())
-                    .setSchemaless(augmentation.isSchemaless());
+                    .setTcpOnly(augmentation.getTcpOnly())
+                    .setSchemaless(augmentation.getSchemaless());
             }
         }
         return build.build();

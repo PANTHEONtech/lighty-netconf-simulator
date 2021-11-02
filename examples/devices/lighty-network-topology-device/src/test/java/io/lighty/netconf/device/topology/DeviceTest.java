@@ -141,8 +141,14 @@ public class DeviceTest {
 
             final NodeList topologies = getConfigDataResponse.getDocument().getElementsByTagName("topology");
             assertEquals(topologies.getLength(), 2);
-            assertEquals(getTopologyID(topologies.item(0)), "test-config-topology");
-            assertEquals(getTopologyID(topologies.item(1)), "test-config-topology-merge");
+            if (getTopologyID(topologies.item(0)).equals("test-config-topology")) {
+                assertEquals(getTopologyID(topologies.item(0)), "test-config-topology");
+                assertEquals(getTopologyID(topologies.item(1)), "test-config-topology-merge");
+            } else {
+                assertEquals(getTopologyID(topologies.item(1)), "test-config-topology");
+                assertEquals(getTopologyID(topologies.item(0)), "test-config-topology-merge");
+            }
+
             final NodeList nodes = getConfigDataResponse.getDocument().getElementsByTagName("node");
             assertEquals(nodes.getLength(), 1);
 

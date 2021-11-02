@@ -18,7 +18,7 @@ public interface Response {
      *
      * @return data
      */
-    List<NormalizedNode<? ,?>> getData();
+    List<NormalizedNode> getData();
 
     /**
      * Specific Error returned according to unsuccessful requests.

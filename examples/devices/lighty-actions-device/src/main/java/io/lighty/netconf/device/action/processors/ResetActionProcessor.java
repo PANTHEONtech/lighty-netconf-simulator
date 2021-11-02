@@ -11,9 +11,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.lighty.codecs.DataCodec;
-import io.lighty.codecs.XmlNodeConverter;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
@@ -24,9 +23,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
+import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.netconf.api.DocumentedException;
-import org.opendaylight.netconf.api.xml.MissingNameSpaceException;
 import org.opendaylight.netconf.api.xml.XmlElement;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.Server;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.ServerKey;
@@ -51,15 +51,15 @@ public class ResetActionProcessor extends ActionServiceDeviceProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResetActionProcessor.class);
 
-    @SuppressWarnings("rawtypes")
-    private final DataCodec dataCodec;
+    private final CurrentAdapterSerializer adapterSerializer;
     private ActionDefinition actionDefinition;
     private final Reset resetAction;
 
     @SuppressWarnings("rawtypes")
     public ResetActionProcessor(final Reset resetAction, final BindingDOMCodecServices codecServices) {
         this.resetAction = resetAction;
-        this.dataCodec = new DataCodec(codecServices);
+        final ConstantAdapterContext constantAdapterContext = new ConstantAdapterContext(codecServices);
+        this.adapterSerializer = constantAdapterContext.currentSerializer();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked", "checkstyle:IllegalCatch"})
@@ -75,7 +75,7 @@ public class ResetActionProcessor extends ActionServiceDeviceProcessor {
             final Reader readerFromElement = RPCUtil.createReaderFromElement(actionElement);
             final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter.deserialize(this.actionDefinition
                     .getInput(), readerFromElement);
-            final Input input = this.dataCodec.getCodec().fromNormalizedNodeActionInput(Reset.class, deserializedNode);
+            final Input input = this.adapterSerializer.fromNormalizedNodeActionInput(Reset.class, deserializedNode);
             final String key = findNameElement(xmlElement);
             Preconditions.checkNotNull(key);
             final Class listItem = Server.class;
@@ -90,9 +90,9 @@ public class ResetActionProcessor extends ActionServiceDeviceProcessor {
 
                 @Override
                 public void onSuccess(final RpcResult<Output> result) {
-                    final NormalizedNode<?, ?> domOutput = ResetActionProcessor.this.dataCodec.getCodec()
+                    final NormalizedNode domOutput = ResetActionProcessor.this.adapterSerializer
                             .toNormalizedNodeActionOutput(Reset.class, result.getResult());
-                    final List<NormalizedNode<?, ?>> list = new ArrayList<>();
+                    final List<NormalizedNode> list = new ArrayList<>();
                     list.add(domOutput);
                     completableFuture.complete(new ResponseData(list));
                 }
@@ -107,8 +107,7 @@ public class ResetActionProcessor extends ActionServiceDeviceProcessor {
         }
     }
 
-    private String findNameElement(final XmlElement xmlElement) throws DocumentedException,
-        MissingNameSpaceException {
+    private String findNameElement(final XmlElement xmlElement) throws DocumentedException {
         final NodeList elementsByTagName = xmlElement.getDomElement().getOwnerDocument().getElementsByTagName("name");
         final Node item = elementsByTagName.item(0);
         return item.getFirstChild().getNodeValue();

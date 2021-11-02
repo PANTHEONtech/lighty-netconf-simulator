@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.action.actions.ResetAction;
 import io.lighty.netconf.device.action.actions.StartAction;
@@ -83,7 +83,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected Document wrapToFinalDocumentReply(final List<NormalizedNode<?, ?>> responseOutput)
+    protected Document wrapToFinalDocumentReply(final List<NormalizedNode> responseOutput)
             throws ParserConfigurationException {
         final DocumentBuilder builder = getDocumentBuilderFactory().newDocumentBuilder();
         final Document newDocument = builder.newDocument();
@@ -120,7 +120,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     }
 
     @Override
-    protected String convertNormalizedNodeToXmlString(final NormalizedNode<?, ?> normalizedNode)
+    protected String convertNormalizedNodeToXmlString(final NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter().serializeRpc(this.actionProcessor.getActionDefinition()
                 .getOutput(),

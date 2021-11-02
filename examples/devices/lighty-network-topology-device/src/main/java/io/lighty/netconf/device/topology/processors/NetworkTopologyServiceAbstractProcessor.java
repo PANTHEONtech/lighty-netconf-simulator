@@ -7,9 +7,8 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
-import io.lighty.codecs.DataCodec;
-import io.lighty.codecs.XmlNodeConverter;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
@@ -22,11 +21,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import javax.xml.transform.TransformerException;
+import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -35,12 +37,14 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
     extends RpcOutputRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyServiceAbstractProcessor.class);
-    private DataCodec<T> dataCodec;
+    private CurrentAdapterSerializer adapterSerializer;
 
     @Override
     public void init(final NetconfDeviceServices netconfDeviceServices) {
         super.init(netconfDeviceServices);
-        dataCodec = new DataCodec<>(netconfDeviceServices.getAdapterContext().currentSerializer());
+        final ConstantAdapterContext constantAdapterContext
+                = new ConstantAdapterContext(netconfDeviceServices.getAdapterContext().currentSerializer());
+        this.adapterSerializer = constantAdapterContext.currentSerializer();
     }
 
     @Override
@@ -48,25 +52,25 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
         try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement)) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
-            //1. convert XML input into NormalizedNode<?, ?>
+            //1. convert XML input into NormalizedNode
 
-            final NormalizedNode<?, ?> deserializedNode =
+            final NormalizedNode deserializedNode =
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
-            //2. convert NormalizedNode<?, ?> into RPC input
-            final T input = dataCodec.convertToBindingAwareRpc(
-                    getRpcDefinition().getInput().getPath().asAbsolute(), (ContainerNode) deserializedNode);
+            //2. convert NormalizedNode into RPC input
+            final T input = convertToBindingAwareRpc(getRpcDefinition().getInput().getPath().asAbsolute(),
+                    (ContainerNode) deserializedNode);
 
             //3. invoke RPC
             final RpcResult<O> rpcResult = execMethod(input);
             final DataContainer result = rpcResult.getResult();
 
             //4. convert RPC output to ContainerNode
-            final ContainerNode containerNode = dataCodec.convertToBindingIndependentRpc(result);
+            final ContainerNode containerNode = this.adapterSerializer.toNormalizedNodeRpcData(result);
 
             //5. create response
             final ResponseData responseData;
-            if (containerNode.getValue().isEmpty()) {
+            if (containerNode.body().isEmpty()) {
                 responseData = new ResponseData(Collections.emptyList());
             } else {
                 responseData = new ResponseData(Collections.singletonList(containerNode));
@@ -85,4 +89,9 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
 
     protected abstract RpcResult<O> execMethod(T input)
             throws ExecutionException, InterruptedException, TimeoutException;
+
+    @SuppressWarnings("unchecked")
+    public T convertToBindingAwareRpc(final Absolute absolute, final ContainerNode rpcData) {
+        return (T) this.adapterSerializer.fromNormalizedNodeRpcData(absolute, rpcData);
+    }
 }

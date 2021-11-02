@@ -10,7 +10,7 @@ package io.lighty.netconf.device;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import io.lighty.codecs.XmlNodeConverter;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
 import java.util.Collection;
@@ -42,8 +42,8 @@ import org.opendaylight.yangtools.yang.data.util.DataSchemaContextTree;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContextListener;
 import org.opendaylight.yangtools.yang.model.api.SchemaNode;
-import org.opendaylight.yangtools.yang.parser.impl.YangParserFactoryImpl;
-import org.opendaylight.yangtools.yang.xpath.impl.AntlrXPathParserFactory;
+import org.opendaylight.yangtools.yang.parser.api.YangParserFactory;
+import org.opendaylight.yangtools.yang.parser.impl.DefaultYangParserFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +153,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
     }
 
     private AdapterContext createAdapterContext(Collection<YangModuleInfo> moduleInfos) {
-        final YangParserFactoryImpl yangParserFactory = new YangParserFactoryImpl(new AntlrXPathParserFactory());
+        final YangParserFactory yangParserFactory = new DefaultYangParserFactory();
         ModuleInfoSnapshotResolver snapshotResolver
                 = new ModuleInfoSnapshotResolver("netconf-simulator", yangParserFactory);
         snapshotResolver.registerModuleInfos(moduleInfos);

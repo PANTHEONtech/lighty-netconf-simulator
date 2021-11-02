@@ -7,9 +7,8 @@
  */
 package io.lighty.netconf.device.toaster.processors;
 
-import io.lighty.codecs.DataCodec;
-import io.lighty.codecs.XmlNodeConverter;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
@@ -25,10 +24,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.xml.transform.TransformerException;
+import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
+import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -37,33 +39,35 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
         RpcOutputRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceAbstractProcessor.class);
-    private DataCodec<I> dataCodec;
+    private CurrentAdapterSerializer adapterSerializer;
 
     @Override
     public void init(final NetconfDeviceServices netconfDeviceServices) {
         super.init(netconfDeviceServices);
-        this.dataCodec = new DataCodec<>(netconfDeviceServices.getAdapterContext().currentSerializer());
+        final ConstantAdapterContext constantAdapterContext
+                = new ConstantAdapterContext(netconfDeviceServices.getAdapterContext().currentSerializer());
+        this.adapterSerializer = constantAdapterContext.currentSerializer();
     }
 
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
-        //1. convert XML input into NormalizedNode<?, ?>
+        //1. convert XML input into NormalizedNode
         try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement);) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
-            final NormalizedNode<?, ?> deserializedNode =
+            final NormalizedNode deserializedNode =
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
-            //2. convert NormalizedNode<?, ?> into RPC input
-            final I input = this.dataCodec.convertToBindingAwareRpc(
-                    getRpcDefinition().getInput().getPath().asAbsolute(), (ContainerNode) deserializedNode);
+            //2. convert NormalizedNode into RPC input
+            final I input = convertToBindingAwareRpc(getRpcDefinition().getInput().getPath().asAbsolute(),
+                    (ContainerNode) deserializedNode);
 
             //3. invoke RPC and wait for completion
             final Future<RpcResult<O>> invokeRpc = execMethod(input);
             final RpcResult<O> rpcResult = invokeRpc.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
             //4. convert RPC output to ContainerNode
-            final ContainerNode data = this.dataCodec.convertToBindingIndependentRpc(rpcResult.getResult());
+            final ContainerNode data = this.adapterSerializer.toNormalizedNodeRpcData(rpcResult.getResult());
 
             //5. create response
             return CompletableFuture.completedFuture(new ResponseData(Collections.singletonList(data)));
@@ -80,4 +84,8 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
 
     protected abstract Future<RpcResult<O>> execMethod(I input);
 
+    @SuppressWarnings("unchecked")
+    public I convertToBindingAwareRpc(final Absolute absolute, final ContainerNode rpcData) {
+        return (I) this.adapterSerializer.fromNormalizedNodeRpcData(absolute, rpcData);
+    }
 }

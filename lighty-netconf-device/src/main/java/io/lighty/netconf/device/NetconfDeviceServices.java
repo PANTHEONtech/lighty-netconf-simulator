@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device;
 
-import io.lighty.codecs.XmlNodeConverter;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;

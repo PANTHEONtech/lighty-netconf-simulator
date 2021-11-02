@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device.requests;
 
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.utils.RPCUtil;
 import java.util.ArrayList;
@@ -35,19 +35,19 @@ public abstract class OkOutputRequestProcessor extends BaseRequestProcessor {
     protected abstract CompletableFuture<Response> executeOkRequest(Element requestXmlElement);
 
     @Override
-    protected List<Node> convertOutputToXmlNodes(List<NormalizedNode<?, ?>> responseOutput, DocumentBuilder builder,
+    protected List<Node> convertOutputToXmlNodes(List<NormalizedNode> responseOutput, DocumentBuilder builder,
             Document document) {
         return Collections.singletonList(RPCUtil.createOkNode(document));
     }
 
     @Override
-    protected String convertNormalizedNodeToXmlString(NormalizedNode<?, ?> normalizedNode)
+    protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException {
         throw new IllegalStateException("This method should not be called!");
     }
 
     @Override
-    protected Document wrapToFinalDocumentReply(List<NormalizedNode<?, ?>> responseOutput)
+    protected Document wrapToFinalDocumentReply(List<NormalizedNode> responseOutput)
             throws ParserConfigurationException {
         // convert normalized nodes to xml nodes
         DocumentBuilder builder = getDocumentBuilderFactory().newDocumentBuilder();

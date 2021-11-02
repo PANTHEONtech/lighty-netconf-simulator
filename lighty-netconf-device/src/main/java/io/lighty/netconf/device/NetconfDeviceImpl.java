@@ -8,7 +8,7 @@
 package io.lighty.netconf.device;
 
 import com.google.common.util.concurrent.FluentFuture;
-import io.lighty.codecs.api.SerializationException;
+import io.lighty.codecs.util.SerializationException;
 import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.RpcHandlerImpl;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
@@ -108,7 +108,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
     private void initDatastore(LogicalDatastoreType datastoreType, InputStream initialData) {
         LOG.debug("Setting up initial state of {} datastore from XML", datastoreType);
         try (Reader reader = new InputStreamReader(initialData, Charset.defaultCharset())) {
-            NormalizedNode<?, ?> initialDataBI = netconfDeviceServices.getXmlNodeConverter()
+            NormalizedNode initialDataBI = netconfDeviceServices.getXmlNodeConverter()
                     .deserialize(netconfDeviceServices.getRootSchemaNode(), reader);
             DOMDataTreeWriteTransaction writeTx = netconfDeviceServices.getDOMDataBroker().newWriteOnlyTransaction();
             writeTx.put(datastoreType, YangInstanceIdentifier.empty(), initialDataBI);
