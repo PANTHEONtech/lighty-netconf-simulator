@@ -59,8 +59,7 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
                     xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
 
             //2. convert NormalizedNode into RPC input
-            final I input = convertToBindingAwareRpc(getRpcDefinition().getInput().getPath().asAbsolute(),
-                    (ContainerNode) deserializedNode);
+            final I input = convertToBindingAwareRpc(getRpcDefInputAbsolutePath(), (ContainerNode) deserializedNode);
 
             //3. invoke RPC and wait for completion
             final Future<RpcResult<O>> invokeRpc = execMethod(input);
