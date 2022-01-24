@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.RpcDefinition;
@@ -61,10 +60,7 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
     }
 
     public Absolute getRpcDefInputAbsolutePath() {
-        final ArrayList<QName> qnames = new ArrayList<>();
-        qnames.add(this.rpcDefinition.getQName());
-        qnames.add(this.rpcDefinition.getInput().getQName());
-        return Absolute.of(qnames);
+        return Absolute.of(this.rpcDefinition.getQName(), this.rpcDefinition.getInput().getQName());
     }
 
     @Override
