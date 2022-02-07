@@ -59,8 +59,8 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
         return rpcDefinition;
     }
 
-    public Absolute getRpcDefInputAbsolutePath() {
-        return Absolute.of(this.rpcDefinition.getQName(), this.rpcDefinition.getInput().getQName());
+    protected Absolute getRpcDefInputAbsolutePath() {
+        return Absolute.of(rpcDefinition.getQName(), rpcDefinition.getInput().getQName());
     }
 
     @Override
