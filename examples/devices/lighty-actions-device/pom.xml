@@ -32,14 +32,6 @@
             <artifactId>lighty-example-data-center-model</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.lighty.netconf.device</groupId>
             <artifactId>lighty-netconf-device</artifactId>
         </dependency>
