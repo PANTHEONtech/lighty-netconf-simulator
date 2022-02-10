@@ -94,6 +94,17 @@
                 <artifactId>xmlunit-assertj</artifactId>
                 <version>2.7.0</version>
             </dependency>
+            <!--  TODO: Remove org.slf4j dependencies when lighty log4j vulnerability will be resolved in release-->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.35</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-reload4j</artifactId>
+                <version>1.7.35</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
