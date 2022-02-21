@@ -8,7 +8,7 @@
 package io.lighty.netconf.device;
 
 import com.google.common.util.concurrent.FluentFuture;
-import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.RpcHandlerImpl;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
@@ -115,7 +115,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
             writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             final String dataTreeString = NormalizedNodes.toStringTree(initialDataBI);
             LOG.trace("Initial {} datastore data: {}", datastoreType, dataTreeString);
-        } catch (SerializationException | IOException | ExecutionException | TimeoutException e) {
+        } catch (DeserializationException | IOException | ExecutionException | TimeoutException e) {
             throw new IllegalStateException(
                     String.format("Unable to set initial state of %s datastore from XML!", datastoreType), e);
         } catch (InterruptedException e) {

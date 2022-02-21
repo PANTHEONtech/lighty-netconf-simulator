@@ -7,8 +7,8 @@
  */
 package io.lighty.netconf.device.toaster.processors;
 
-import io.lighty.codecs.util.SerializationException;
 import io.lighty.codecs.util.XmlNodeConverter;
+import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
@@ -71,7 +71,7 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
 
             //5. create response
             return CompletableFuture.completedFuture(new ResponseData(Collections.singletonList(data)));
-        } catch (final ExecutionException | SerializationException | TransformerException
+        } catch (final ExecutionException | DeserializationException | TransformerException
                 | TimeoutException | IOException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);

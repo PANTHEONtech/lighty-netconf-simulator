@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device.requests.notification;
 
-import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.requests.BaseRequestProcessor;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;

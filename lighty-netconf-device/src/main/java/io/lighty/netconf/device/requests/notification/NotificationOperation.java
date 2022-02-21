@@ -8,8 +8,8 @@
 package io.lighty.netconf.device.requests.notification;
 
 import io.lighty.codecs.util.ConverterUtils;
-import io.lighty.codecs.util.SerializationException;
 import io.lighty.codecs.util.XmlNodeConverter;
+import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.utils.RPCUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
