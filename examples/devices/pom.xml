@@ -13,7 +13,7 @@
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>devices-aggregator</artifactId>
-    <version>14.3.1-SNAPSHOT</version>
+    <version>14.4.0</version>
     <packaging>pom</packaging>
 
     <modules>
