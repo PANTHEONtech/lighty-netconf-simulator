@@ -52,5 +52,16 @@
         </dependencies>
     </dependencyManagement>
 
+    <!--  TODO: Remove org.slf4j dependencies when lighty log4j vulnerability will be resolved in release-->
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-reload4j</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>
