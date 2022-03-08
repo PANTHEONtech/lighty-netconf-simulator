@@ -11,7 +11,7 @@
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-bom</artifactId>
-    <version>14.3.1-SNAPSHOT</version>
+    <version>14.4.0</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -26,42 +26,42 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-network-topology-device-model</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-data-center-model</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-netconf-device</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-actions-device</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-device</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-network-topology-device</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-multiple-devices</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-notifications-model</artifactId>
-                <version>14.3.1-SNAPSHOT</version>
+                <version>14.4.0</version>
             </dependency>
 
             <dependency>
@@ -93,17 +93,6 @@
                 <groupId>org.xmlunit</groupId>
                 <artifactId>xmlunit-assertj</artifactId>
                 <version>2.7.0</version>
-            </dependency>
-            <!--  TODO: Remove org.slf4j dependencies when lighty log4j vulnerability will be resolved in release-->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>1.7.35</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-reload4j</artifactId>
-                <version>1.7.35</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
