@@ -8,7 +8,7 @@
 package io.lighty.netconf.device.requests;
 
 import io.lighty.codecs.util.ConverterUtils;
-import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.utils.RPCUtil;
 import java.util.ArrayList;

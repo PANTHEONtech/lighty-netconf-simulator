@@ -7,8 +7,8 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
-import io.lighty.codecs.util.SerializationException;
 import io.lighty.codecs.util.XmlNodeConverter;
+import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
@@ -75,7 +75,7 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
                 responseData = new ResponseData(Collections.singletonList(containerNode));
             }
             return CompletableFuture.completedFuture(responseData);
-        } catch (final ExecutionException | SerializationException | TransformerException | TimeoutException
+        } catch (final ExecutionException | DeserializationException | TransformerException | TimeoutException
                 | IOException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);

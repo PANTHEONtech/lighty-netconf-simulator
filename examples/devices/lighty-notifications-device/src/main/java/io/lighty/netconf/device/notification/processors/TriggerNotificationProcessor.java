@@ -7,8 +7,8 @@
  */
 package io.lighty.netconf.device.notification.processors;
 
-import io.lighty.codecs.util.SerializationException;
 import io.lighty.codecs.util.XmlNodeConverter;
+import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
 import io.lighty.netconf.device.response.Response;
@@ -79,7 +79,7 @@ public class TriggerNotificationProcessor extends RpcOutputRequestProcessor {
                         String.format("Expecting TriggerDataNotificationInput inside RPCDefinition, found: [%s]",
                                 dataObject.getClass().toString())));
             }
-        } catch (final TransformerException | SerializationException | IOException ex) {
+        } catch (final TransformerException | DeserializationException | IOException ex) {
             LOG.error("Could not trigger notification, {}", ex.getMessage());
             return CompletableFuture.failedFuture(ex);
         }

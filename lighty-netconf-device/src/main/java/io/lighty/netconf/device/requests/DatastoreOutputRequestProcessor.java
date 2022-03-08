@@ -8,7 +8,7 @@
 package io.lighty.netconf.device.requests;
 
 import com.google.common.util.concurrent.FluentFuture;
-import io.lighty.codecs.util.SerializationException;
+import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.utils.RPCUtil;
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.ArrayList;

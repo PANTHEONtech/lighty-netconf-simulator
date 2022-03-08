@@ -10,8 +10,8 @@ package io.lighty.netconf.device.action.processors;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import io.lighty.codecs.util.SerializationException;
 import io.lighty.codecs.util.XmlNodeConverter;
+import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
@@ -86,7 +86,7 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
                 }
             }, Executors.newSingleThreadExecutor());
             return completableFuture;
-        } catch (final TransformerException | DocumentedException | SerializationException e) {
+        } catch (final TransformerException | DocumentedException | DeserializationException e) {
             throw new RuntimeException(e);
         }
     }
