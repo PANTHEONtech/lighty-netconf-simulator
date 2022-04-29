@@ -15,9 +15,11 @@ import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -550,14 +552,14 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
     }
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
-    private List<TopologyId> prepareGetTopologyIds() throws ExecutionException, InterruptedException, TimeoutException {
+    private Set<TopologyId> prepareGetTopologyIds() throws ExecutionException, InterruptedException, TimeoutException {
         try (ReadTransaction readTx = this.dataBrokerService.newReadOnlyTransaction()) {
             final InstanceIdentifier<NetworkTopology> ntii =
                     InstanceIdentifier.builder(NetworkTopology.class)
                             .build();
             final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, ntii)
                     .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-            final List<TopologyId> topologyIds = new ArrayList<>();
+            final Set<TopologyId> topologyIds = new HashSet<>();
             if (networkTopology.isPresent()) {
                 for (final Topology topology : networkTopology.get().nonnullTopology().values()) {
                     topologyIds.add(topology.getTopologyId());

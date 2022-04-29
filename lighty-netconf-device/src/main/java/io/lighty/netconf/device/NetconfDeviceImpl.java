@@ -182,7 +182,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
             .setFormat(Yang.class)
             .setIdentifier(module.getName())
             .setVersion(module.getRevision().map(Revision::toString).orElse(""))
-            .setLocation(Collections.singletonList(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
+            .setLocation(Collections.singleton(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
             .build();
     }
 

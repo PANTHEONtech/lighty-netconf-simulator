@@ -24,7 +24,7 @@ public class StartAction implements Start {
     public FluentFuture<RpcResult<Output>> invoke(final InstanceIdentifier<Device> path, final Input input) {
         final String startAt = input.getStartAt();
         return FluentFutures.immediateFluentFuture(RpcResultBuilder.success(new OutputBuilder().setStartFinishedAt(
-                startAt)).build());
+                startAt).build()).build());
     }
 }
 

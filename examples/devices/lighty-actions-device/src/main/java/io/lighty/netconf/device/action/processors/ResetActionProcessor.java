@@ -83,8 +83,10 @@ public class ResetActionProcessor extends ActionServiceDeviceProcessor {
             Preconditions.checkNotNull(key);
             final Class listItem = Server.class;
             final Identifier listKey = new ServerKey(key);
-            final KeyedInstanceIdentifier<Server, ServerKey> keydIID = (KeyedInstanceIdentifier<Server, ServerKey>)
-                    InstanceIdentifier.builder(listItem, listKey).build();
+            final InstanceIdentifier instanceIdentifier = InstanceIdentifier.builder(listItem, listKey).build();
+            Preconditions.checkArgument(instanceIdentifier instanceof KeyedInstanceIdentifier);
+            final KeyedInstanceIdentifier<Server, ServerKey> keydIID
+                    = (KeyedInstanceIdentifier<Server, ServerKey>) instanceIdentifier;
 
             final ListenableFuture<RpcResult<Output>> outputFuture = this.resetAction.invoke(keydIID, input);
             final CompletableFuture<Response> completableFuture = new CompletableFuture<>();

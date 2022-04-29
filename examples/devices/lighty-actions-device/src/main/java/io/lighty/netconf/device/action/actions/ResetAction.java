@@ -26,7 +26,7 @@ public class ResetAction implements Reset {
             final Input input) {
         final String resetAt = input.getResetAt();
         return FluentFutures.immediateFluentFuture(RpcResultBuilder.success(new OutputBuilder().setResetFinishedAt(
-                resetAt)).build());
+                resetAt).build()).build());
     }
 }
 

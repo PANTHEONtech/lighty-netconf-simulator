@@ -55,8 +55,9 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
         try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement);) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
-            final NormalizedNode deserializedNode =
-                    xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
+            final NormalizedNode deserializedNode = xmlNodeConverter.deserialize(
+                    Absolute.of(getRpcDefinition().getQName(), getRpcDefinition().getInput().getQName()),
+                    readerFromElement);
 
             //2. convert NormalizedNode into RPC input
             final I input = convertToBindingAwareRpc(getRpcDefInputAbsolutePath(), (ContainerNode) deserializedNode);
