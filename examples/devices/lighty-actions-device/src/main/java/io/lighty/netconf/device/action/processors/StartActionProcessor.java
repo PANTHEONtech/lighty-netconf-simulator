@@ -18,6 +18,7 @@ import io.lighty.netconf.device.utils.RPCUtil;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
@@ -35,6 +36,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.ActionDefinition;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -45,6 +47,7 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
 
     private final CurrentAdapterSerializer adapterSerializer;
     private ActionDefinition actionDefinition;
+    private Absolute actionPath;
     private final Start startAction;
 
     public StartActionProcessor(final Start startAction, final BindingDOMCodecServices codecServices) {
@@ -56,16 +59,18 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement,
-            final ActionDefinition paramActionDefinition) {
-        this.actionDefinition = paramActionDefinition;
+            final Entry<Absolute, ActionDefinition> actionEntry) {
+        this.actionDefinition = actionEntry.getValue();
+        this.actionPath = actionEntry.getKey();
         final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
         try {
             final XmlElement xmlElement = XmlElement.fromDomElement(requestXmlElement);
-            final Element actionElement = findInputElement(xmlElement, this.actionDefinition.getQName());
+            final Element actionElement = findInputElement(xmlElement, actionDefinition.getQName());
             final Reader readerFromElement = RPCUtil.createReaderFromElement(actionElement);
-            final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter.deserialize(this.actionDefinition
-                    .getInput(), readerFromElement);
+            final Absolute actionInput = getActionInput(this.actionPath, this.actionDefinition);
+            final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter
+                    .deserialize(actionInput, readerFromElement);
             final Input input = this.adapterSerializer.fromNormalizedNodeActionInput(Start.class, deserializedNode);
             final ListenableFuture<RpcResult<Output>> outputFuture = this.startAction.invoke(InstanceIdentifier.create(
                     Device.class), input);
@@ -94,6 +99,11 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
     @Override
     protected ActionDefinition getActionDefinition() {
         return this.actionDefinition;
+    }
+
+    @Override
+    protected Absolute getActionPath() {
+        return this.actionPath;
     }
 }
 
