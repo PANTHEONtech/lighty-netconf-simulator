@@ -76,7 +76,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         this.datastores = createDatastores();
         this.domNotificationRouter = DOMNotificationRouter.create(16);
         this.domDataBroker = createDOMDataBroker();
-        this.dataBroker = createDataBroker();
+        this.dataBroker = new BindingDOMDataBrokerAdapter(this.adapterContext, this.domDataBroker);
         this.notificationService = new BindingDOMNotificationServiceAdapter(this.adapterContext,
                 this.domNotificationRouter);
         this.xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
@@ -126,10 +126,6 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
 
     private ListeningExecutorService getDataTreeChangeListenerExecutor() {
         return MoreExecutors.newDirectExecutorService();
-    }
-
-    private DataBroker createDataBroker() {
-        return new BindingDOMDataBrokerAdapter(this.adapterContext, getDOMDataBroker());
     }
 
     private Map<LogicalDatastoreType, DOMStore> createDatastores() {
