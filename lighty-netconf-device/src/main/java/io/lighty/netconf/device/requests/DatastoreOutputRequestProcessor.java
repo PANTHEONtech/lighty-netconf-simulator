@@ -40,7 +40,7 @@ public abstract class DatastoreOutputRequestProcessor extends BaseRequestProcess
     protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter()
-                .serializeData(getNetconfDeviceServices().getRootSchemaNode(), normalizedNode).toString();
+                .serializeData(getNetconfDeviceServices().getRootInference(), normalizedNode).toString();
     }
 
     protected List<NormalizedNode> getAllDataFromDatastore(LogicalDatastoreType datastoreType) {
