@@ -19,7 +19,7 @@
 
     <groupId>io.lighty.netconf.device</groupId>
     <artifactId>lighty-netconf-device</artifactId>
-    <version>15.2.1-SNAPSHOT</version>
+    <version>16.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
