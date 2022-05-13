@@ -38,6 +38,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.NotificationDefinition;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -77,7 +78,8 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
 
             final Writer writer;
             try {
-                writer = xmlNodeConverter.serializeRpc(notificationDefinition.get(), containerNode);
+                writer = xmlNodeConverter.serializeRpc(Absolute.of(notificationDefinition.get().getQName()),
+                        containerNode);
                 try (InputStream is = new ByteArrayInputStream(writer.toString().getBytes(StandardCharsets.UTF_8))) {
                     final DocumentBuilder builder = UntrustedXML.newDocumentBuilder();
                     final Document notification = builder.parse(is);

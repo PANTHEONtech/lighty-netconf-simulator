@@ -13,7 +13,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationService;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.yangtools.yang.model.api.SchemaNode;
+import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack.Inference;
 
 /**
  * This API provides properly initialized services from NETCONF device instance.
@@ -24,7 +24,7 @@ public interface NetconfDeviceServices {
 
     DOMDataBroker getDOMDataBroker();
 
-    SchemaNode getRootSchemaNode();
+    Inference getRootInference();
 
     AdapterContext getAdapterContext();
 

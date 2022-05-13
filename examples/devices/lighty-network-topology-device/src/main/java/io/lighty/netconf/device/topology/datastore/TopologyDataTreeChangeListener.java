@@ -8,7 +8,6 @@
 package io.lighty.netconf.device.topology.datastore;
 
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -94,7 +93,7 @@ final class TopologyDataTreeChangeListener implements DataTreeChangeListener<Net
         }
         if (ids.iterator().hasNext()) {
             notificationPublishService.publish(new TopologyDeletedBuilder()
-                    .setTopologyIds(new ArrayList<>(ids))
+                    .setTopologyIds(new HashSet<>(ids))
                     .build(), TopologyDeleted.QNAME);
         }
     }

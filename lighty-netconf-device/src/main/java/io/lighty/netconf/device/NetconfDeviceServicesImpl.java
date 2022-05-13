@@ -38,10 +38,10 @@ import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
 import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStoreConfigProperties;
 import org.opendaylight.yangtools.util.ListenerRegistry;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
-import org.opendaylight.yangtools.yang.data.util.DataSchemaContextTree;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContextListener;
-import org.opendaylight.yangtools.yang.model.api.SchemaNode;
+import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack;
+import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack.Inference;
 import org.opendaylight.yangtools.yang.parser.api.YangParserFactory;
 import org.opendaylight.yangtools.yang.parser.impl.DefaultYangParserFactory;
 import org.slf4j.Logger;
@@ -76,7 +76,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         this.datastores = createDatastores();
         this.domNotificationRouter = DOMNotificationRouter.create(16);
         this.domDataBroker = createDOMDataBroker();
-        this.dataBroker = createDataBroker();
+        this.dataBroker = new BindingDOMDataBrokerAdapter(this.adapterContext, this.domDataBroker);
         this.notificationService = new BindingDOMNotificationServiceAdapter(this.adapterContext,
                 this.domNotificationRouter);
         this.xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
@@ -95,8 +95,8 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
     }
 
     @Override
-    public SchemaNode getRootSchemaNode() {
-        return DataSchemaContextTree.from(effectiveModelContext).getRoot().getDataSchemaNode();
+    public Inference getRootInference() {
+        return SchemaInferenceStack.of(effectiveModelContext).toInference();
     }
 
     @Override
@@ -126,10 +126,6 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
 
     private ListeningExecutorService getDataTreeChangeListenerExecutor() {
         return MoreExecutors.newDirectExecutorService();
-    }
-
-    private DataBroker createDataBroker() {
-        return new BindingDOMDataBrokerAdapter(this.adapterContext, getDOMDataBroker());
     }
 
     private Map<LogicalDatastoreType, DOMStore> createDatastores() {

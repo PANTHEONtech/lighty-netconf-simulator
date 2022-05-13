@@ -55,7 +55,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
+import org.opendaylight.yangtools.yang.data.tree.api.SchemaValidationFailedException;
 import org.opendaylight.yangtools.yang.data.util.DataSchemaContextNode;
 import org.opendaylight.yangtools.yang.data.util.DataSchemaContextTree;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
@@ -109,7 +109,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         NormalizedNode configNN;
         try {
             configNN = getNetconfDeviceServices().getXmlNodeConverter()
-                    .deserialize(getNetconfDeviceServices().getRootSchemaNode(), new StringReader(configString));
+                    .deserialize(getNetconfDeviceServices().getRootInference(), new StringReader(configString));
         } catch (final DeserializationException e) {
             return CompletableFuture.completedFuture(new ResponseErrorMessage(
                 new NetconfDocumentedException(

@@ -28,6 +28,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -64,8 +65,9 @@ public class TriggerNotificationProcessor extends RpcOutputRequestProcessor {
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
         try (Reader readerFromElement = RPCUtil.createReaderFromElement(requestXmlElement)) {
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
-            final NormalizedNode deserializedNode
-                    = xmlNodeConverter.deserialize(getRpcDefinition().getInput(), readerFromElement);
+            final NormalizedNode deserializedNode = xmlNodeConverter.deserialize(
+                    Absolute.of(getRpcDefinition().getQName(), getRpcDefinition().getInput().getQName()),
+                    readerFromElement);
             final DataObject dataObject = this.adapterSerializer
                     .fromNormalizedNodeRpcData(getRpcDefInputAbsolutePath(), (ContainerNode) deserializedNode);
             if (dataObject instanceof TriggerDataNotificationInput) {

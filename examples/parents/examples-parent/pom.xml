@@ -14,13 +14,13 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-app-parent</artifactId>
-        <version>15.2.0</version>
+        <version>16.0.0</version>
         <relativePath/>
     </parent>
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-parent</artifactId>
-    <version>15.2.1-SNAPSHOT</version>
+    <version>16.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>examples-bom</artifactId>
-                <version>15.2.1-SNAPSHOT</version>
+                <version>16.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

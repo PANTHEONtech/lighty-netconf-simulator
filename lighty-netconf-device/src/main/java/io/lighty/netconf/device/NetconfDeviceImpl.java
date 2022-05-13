@@ -109,7 +109,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
         LOG.debug("Setting up initial state of {} datastore from XML", datastoreType);
         try (Reader reader = new InputStreamReader(initialData, Charset.defaultCharset())) {
             NormalizedNode initialDataBI = netconfDeviceServices.getXmlNodeConverter()
-                    .deserialize(netconfDeviceServices.getRootSchemaNode(), reader);
+                    .deserialize(netconfDeviceServices.getRootInference(), reader);
             DOMDataTreeWriteTransaction writeTx = netconfDeviceServices.getDOMDataBroker().newWriteOnlyTransaction();
             writeTx.put(datastoreType, YangInstanceIdentifier.empty(), initialDataBI);
             writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -182,7 +182,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
             .setFormat(Yang.class)
             .setIdentifier(module.getName())
             .setVersion(module.getRevision().map(Revision::toString).orElse(""))
-            .setLocation(Collections.singletonList(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
+            .setLocation(Collections.singleton(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
             .build();
     }
 

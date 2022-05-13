@@ -52,7 +52,8 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
     protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter()
-                .serializeRpc(rpcDefinition.getOutput(), normalizedNode).toString();
+                .serializeRpc(Absolute.of(rpcDefinition.getQName(), rpcDefinition.getOutput().getQName()),
+                        normalizedNode).toString();
     }
 
     public RpcDefinition getRpcDefinition() {
