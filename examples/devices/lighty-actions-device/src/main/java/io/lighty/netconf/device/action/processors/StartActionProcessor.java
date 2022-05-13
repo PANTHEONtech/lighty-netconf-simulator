@@ -18,7 +18,6 @@ import io.lighty.netconf.device.utils.RPCUtil;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
@@ -41,34 +40,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-public class StartActionProcessor extends ActionServiceDeviceProcessor {
+public final class StartActionProcessor extends ActionServiceDeviceProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(StartActionProcessor.class);
 
-    private final CurrentAdapterSerializer adapterSerializer;
-    private ActionDefinition actionDefinition;
-    private Absolute actionPath;
     private final Start startAction;
+    private final Absolute path;
+    private final ActionDefinition definition;
+    private final CurrentAdapterSerializer adapterSerializer;
 
-    public StartActionProcessor(final Start startAction, final BindingDOMCodecServices codecServices) {
+    public StartActionProcessor(final Start startAction, final Absolute path, final ActionDefinition definition,
+            final BindingDOMCodecServices codecServices) {
         this.startAction = startAction;
-        final ConstantAdapterContext constantAdapterContext = new ConstantAdapterContext(codecServices);
-        this.adapterSerializer = constantAdapterContext.currentSerializer();
+        this.path = path;
+        this.definition = definition;
+        this.adapterSerializer = new ConstantAdapterContext(codecServices).currentSerializer();
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected CompletableFuture<Response> execute(final Element requestXmlElement,
-            final Entry<Absolute, ActionDefinition> actionEntry) {
-        this.actionDefinition = actionEntry.getValue();
-        this.actionPath = actionEntry.getKey();
+    protected CompletableFuture<Response> execute(final Element requestXmlElement) {
         final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
-
         try {
             final XmlElement xmlElement = XmlElement.fromDomElement(requestXmlElement);
-            final Element actionElement = findInputElement(xmlElement, actionDefinition.getQName());
+            final Element actionElement = findInputElement(xmlElement, this.definition.getQName());
             final Reader readerFromElement = RPCUtil.createReaderFromElement(actionElement);
-            final Absolute actionInput = getActionInput(this.actionPath, this.actionDefinition);
+            final Absolute actionInput = getActionInput(this.path, this.definition);
             final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter
                     .deserialize(actionInput, readerFromElement);
             final Input input = this.adapterSerializer.fromNormalizedNodeActionInput(Start.class, deserializedNode);
@@ -98,12 +95,11 @@ public class StartActionProcessor extends ActionServiceDeviceProcessor {
 
     @Override
     protected ActionDefinition getActionDefinition() {
-        return this.actionDefinition;
+        return this.definition;
     }
 
     @Override
     protected Absolute getActionPath() {
-        return this.actionPath;
+        return this.path;
     }
 }
-

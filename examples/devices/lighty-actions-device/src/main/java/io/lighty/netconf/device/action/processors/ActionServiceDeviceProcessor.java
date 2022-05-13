@@ -31,6 +31,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.netconf.api.DocumentedException;
 import org.opendaylight.netconf.api.xml.XmlElement;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.Start;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.Reset;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.ActionDefinition;
@@ -71,18 +72,21 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
         final XmlElement fromDomElement = XmlElement.fromDomElement(requestXmlElement);
         final Optional<Entry<Absolute, ActionDefinition>> actionEntry = findActionInElement(fromDomElement);
 
-        if (actionEntry.isPresent() && actionEntry.get().getValue().getQName().equals(Start.QNAME)) {
-            this.actionProcessor = new StartActionProcessor(new StartAction(), this.adapterContext.currentSerializer());
-        } else {
-            this.actionProcessor = new ResetActionProcessor(new ResetAction(), this.adapterContext.currentSerializer());
-        }
-        this.actionProcessor.init(getNetconfDeviceServices());
-        return this.actionProcessor.execute(requestXmlElement, actionEntry.get());
-    }
+        Preconditions.checkState(actionEntry.isPresent(), "Action is not present on the device.");
 
-    protected CompletableFuture<Response> execute(final Element requestXmlElement,
-            final Entry<Absolute, ActionDefinition> actionEntry) {
-        return null;
+        if (actionEntry.get().getValue().getQName().equals(Start.QNAME)) {
+            this.actionProcessor = new StartActionProcessor(new StartAction(), actionEntry.get().getKey(),
+                    actionEntry.get().getValue(), this.adapterContext.currentSerializer());
+        }
+        if (actionEntry.get().getValue().getQName().equals(Reset.QNAME)) {
+            this.actionProcessor = new ResetActionProcessor(new ResetAction(), actionEntry.get().getKey(),
+                    actionEntry.get().getValue(), this.adapterContext.currentSerializer());
+        }
+
+        Preconditions.checkState(this.actionProcessor != null, "Action is not implemented on the device.");
+
+        this.actionProcessor.init(getNetconfDeviceServices());
+        return this.actionProcessor.execute(requestXmlElement);
     }
 
     @Override
@@ -130,13 +134,13 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
         return getNetconfDeviceServices().getXmlNodeConverter().serializeRpc(actionOutput, normalizedNode).toString();
     }
 
-    protected Absolute getActionInput(final Absolute path, final ActionDefinition action) {
+    protected static Absolute getActionInput(final Absolute path, final ActionDefinition action) {
         final var inputPath = new ArrayList<>(path.getNodeIdentifiers());
         inputPath.add(action.getInput().getQName());
         return Absolute.of(inputPath);
     }
 
-    protected Absolute getActionOutput(final Absolute path, final ActionDefinition action) {
+    protected static Absolute getActionOutput(final Absolute path, final ActionDefinition action) {
         final var outputPath = new ArrayList<>(path.getNodeIdentifiers());
         outputPath.add(action.getOutput().getQName());
         return Absolute.of(outputPath);
