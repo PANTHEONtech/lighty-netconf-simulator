@@ -33,10 +33,6 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
-            <artifactId>ietf-netconf-notifications</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.netconf</groupId>
             <artifactId>netconf-testtool</artifactId>
             <exclusions>
                 <exclusion>
