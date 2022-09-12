@@ -179,7 +179,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
     private Schema createSchemaFromModule(ModuleLike module) {
         return new SchemaBuilder()
             .setNamespace(new Uri(module.getNamespace().toString()))
-            .setFormat(Yang.class)
+            .setFormat(Yang.VALUE)
             .setIdentifier(module.getName())
             .setVersion(module.getRevision().map(Revision::toString).orElse(""))
             .setLocation(Collections.singleton(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
