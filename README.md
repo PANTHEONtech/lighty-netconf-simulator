@@ -11,7 +11,7 @@ you can create your own device. This device can be built with the use of builder
 adding custom YANG models, custom request processors & more.
 
 ## Build & Run
-* Build the project with Java 11:
+* Build the project with Java 17:
 ```
 mvn clean install
 ```
