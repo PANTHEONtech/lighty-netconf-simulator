@@ -35,7 +35,7 @@ import org.opendaylight.netconf.test.tool.NetconfDeviceSimulator;
 import org.opendaylight.netconf.test.tool.config.Configuration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.NetconfState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.Yang;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.SchemaFormat;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.Schemas;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.SchemasBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.schemas.Schema;
@@ -179,7 +179,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
     private Schema createSchemaFromModule(ModuleLike module) {
         return new SchemaBuilder()
             .setNamespace(new Uri(module.getNamespace().toString()))
-            .setFormat(Yang.class)
+            .setFormat(SchemaFormat.VALUE)
             .setIdentifier(module.getName())
             .setVersion(module.getRevision().map(Revision::toString).orElse(""))
             .setLocation(Collections.singleton(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
