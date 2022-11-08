@@ -12,7 +12,7 @@
     <groupId>io.lighty.netconf.device.examples.parents</groupId>
     <artifactId>parents-aggregator</artifactId>
     <packaging>pom</packaging>
-    <version>17.0.1</version>
+    <version>17.0.2-SNAPSHOT</version>
 
     <modules>
         <module>examples-parent</module>
