@@ -193,6 +193,34 @@ public class DeviceTest {
         }
     }
 
+    @Test
+    public void testCapabilitiesFormat() throws IOException, URISyntaxException, SAXException, InterruptedException,
+            ExecutionException, TimeoutException {
+        final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
+
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener))
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
+
+            final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
+            for (int i = 0; i < schema.getLength(); i++) {
+                if (schema.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                    final Element element = (Element) schema.item(i);
+                    final String schemaFormat = element.getElementsByTagName("format")
+                            .item(0).getFirstChild().getTextContent();
+                    final String location = element.getElementsByTagName("location")
+                            .item(0).getFirstChild().getTextContent();
+                    final String namespace = element.getElementsByTagName("namespace")
+                            .item(0).getFirstChild().getTextContent();
+                    assertEquals(schemaFormat, "yang");
+                    assertEquals(location, "NETCONF");
+                    assertNotNull(namespace);
+                }
+            }
+        }
+    }
+
     private NetconfMessage sendRequestToDevice(String requestFileName,
                                                SimpleNetconfClientSessionListener sessionListener)
             throws SAXException, IOException, URISyntaxException,
