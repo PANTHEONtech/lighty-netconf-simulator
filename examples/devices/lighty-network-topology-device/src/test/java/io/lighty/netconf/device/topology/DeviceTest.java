@@ -115,6 +115,7 @@ public class DeviceTest {
                     if ("network-topology".equals(schemaName)
                             && "urn:TBD:params:xml:ns:yang:network-topology".equals(schemaNameSpace)) {
                         networkTopologySchemaContained = true;
+                        break;
                     }
                 }
             }

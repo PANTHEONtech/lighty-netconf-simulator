@@ -110,6 +110,7 @@ public class ActionDeviceTest {
                     if ("example-data-center".equals(schemaName)
                             && "urn:example:data-center".equals(schemaNameSpace)) {
                         exampleDataCenterSchemaContained = true;
+                        break;
                     }
                 }
             }

@@ -113,6 +113,7 @@ public class NotificationTest {
                     if ("lighty-test-notifications".equals(schemaName)
                             && "yang:lighty:test:notifications".equals(schemaNameSpace)) {
                         notificationSchemaContained = true;
+                        break;
                     }
                 }
             }
