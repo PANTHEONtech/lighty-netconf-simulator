@@ -124,6 +124,7 @@ public class DeviceTest {
                     if ("toaster".equals(schemaName)
                             && "http://netconfcentral.org/ns/toaster".equals(schemaNameSpace)) {
                         toasterSchemaContained = true;
+                        break;
                     }
                 }
             }
