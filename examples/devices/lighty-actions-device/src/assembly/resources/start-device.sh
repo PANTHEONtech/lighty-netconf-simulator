@@ -6,7 +6,7 @@
 #
 # When run without a parameter a default port 17830 will be used.
 
-CLASSPATH=lighty-action-device-17.2.0.jar
+CLASSPATH=lighty-action-device-17.3.0-SNAPSHOT.jar
 
 for jar in `ls -1 lib/`;
 do
