@@ -28,8 +28,8 @@ import org.opendaylight.netconf.api.DocumentedException;
 import org.opendaylight.netconf.api.xml.XmlElement;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.Device;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.Start;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.start.Input;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.start.Output;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartInput;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartOutput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -66,16 +66,16 @@ public final class StartActionProcessor extends ActionServiceDeviceProcessor {
             final Element actionElement = findInputElement(xmlElement, this.definition.getQName());
             final Reader readerFromElement = RPCUtil.createReaderFromElement(actionElement);
             final Absolute actionInput = getActionInput(this.path, this.definition);
-            final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter
-                    .deserialize(actionInput, readerFromElement);
-            final Input input = this.adapterSerializer.fromNormalizedNodeActionInput(Start.class, deserializedNode);
-            final ListenableFuture<RpcResult<Output>> outputFuture = this.startAction.invoke(InstanceIdentifier.create(
-                    Device.class), input);
+            final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter.deserialize(actionInput,
+                    readerFromElement);
+            final StartInput input = this.adapterSerializer.fromNormalizedNodeActionInput(Start.class,
+                    deserializedNode);
+            final ListenableFuture<RpcResult<StartOutput>> outputFuture = this.startAction
+                    .invoke(InstanceIdentifier.create(Device.class), input);
             final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
-            Futures.addCallback(outputFuture, new FutureCallback<RpcResult<Output>>() {
-
+            Futures.addCallback(outputFuture, new FutureCallback<>() {
                 @Override
-                public void onSuccess(final RpcResult<Output> result) {
+                public void onSuccess(final RpcResult<StartOutput> result) {
                     final NormalizedNode domOutput = StartActionProcessor.this.adapterSerializer
                             .toNormalizedNodeActionOutput(Start.class, result.getResult());
                     final List<NormalizedNode> list = new ArrayList<>();

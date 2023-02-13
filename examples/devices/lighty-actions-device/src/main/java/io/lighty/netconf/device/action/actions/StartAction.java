@@ -10,9 +10,9 @@ package io.lighty.netconf.device.action.actions;
 import com.google.common.util.concurrent.FluentFuture;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.Device;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.Start;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.start.Input;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.start.Output;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.start.OutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartInput;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartOutput;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartOutputBuilder;
 import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -21,9 +21,9 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 public class StartAction implements Start {
 
     @Override
-    public FluentFuture<RpcResult<Output>> invoke(final InstanceIdentifier<Device> path, final Input input) {
+    public FluentFuture<RpcResult<StartOutput>> invoke(final InstanceIdentifier<Device> path, final StartInput input) {
         final String startAt = input.getStartAt();
-        return FluentFutures.immediateFluentFuture(RpcResultBuilder.success(new OutputBuilder().setStartFinishedAt(
+        return FluentFutures.immediateFluentFuture(RpcResultBuilder.success(new StartOutputBuilder().setStartFinishedAt(
                 startAt).build()).build());
     }
 }

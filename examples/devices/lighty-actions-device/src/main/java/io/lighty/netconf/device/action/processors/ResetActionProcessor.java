@@ -30,8 +30,8 @@ import org.opendaylight.netconf.api.xml.XmlElement;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.Server;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.ServerKey;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.Reset;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.reset.Input;
-import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.reset.Output;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.ResetInput;
+import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.ResetOutput;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -74,7 +74,8 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
             final Absolute actionInput = getActionInput(this.path, this.definition);
             final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter
                     .deserialize(actionInput, readerFromElement);
-            final Input input = this.adapterSerializer.fromNormalizedNodeActionInput(Reset.class, deserializedNode);
+            final ResetInput input = this.adapterSerializer.fromNormalizedNodeActionInput(Reset.class,
+                    deserializedNode);
             final String key = findNameElement(xmlElement);
             Preconditions.checkNotNull(key);
             final Class listItem = Server.class;
@@ -84,12 +85,12 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
             final KeyedInstanceIdentifier<Server, ServerKey> keydIID
                     = (KeyedInstanceIdentifier<Server, ServerKey>) instanceIdentifier;
 
-            final ListenableFuture<RpcResult<Output>> outputFuture = this.resetAction.invoke(keydIID, input);
+            final ListenableFuture<RpcResult<ResetOutput>> outputFuture = this.resetAction.invoke(keydIID, input);
             final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
-            Futures.addCallback(outputFuture, new FutureCallback<RpcResult<Output>>() {
+            Futures.addCallback(outputFuture, new FutureCallback<RpcResult<ResetOutput>>() {
 
                 @Override
-                public void onSuccess(final RpcResult<Output> result) {
+                public void onSuccess(final RpcResult<ResetOutput> result) {
                     final NormalizedNode domOutput = ResetActionProcessor.this.adapterSerializer
                             .toNormalizedNodeActionOutput(Reset.class, result.getResult());
                     final List<NormalizedNode> list = new ArrayList<>();
