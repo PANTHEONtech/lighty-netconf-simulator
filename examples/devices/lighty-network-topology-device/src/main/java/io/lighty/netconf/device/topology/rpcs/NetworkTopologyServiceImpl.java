@@ -114,8 +114,10 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<AddNodeIntoTopologyOutput>>() {
             @Override
             public RpcResult<AddNodeIntoTopologyOutput> call() throws Exception {
-                final WriteTransaction writeTx =
-                    NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
+                final WriteTransaction writeTxConfig =
+                        NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
+                final WriteTransaction writeTxOper =
+                        NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
                 final TopologyId topologyId = input.getTopologyId();
                 final Collection<Node> nodeCollection = input.nonnullNode().values();
 
@@ -150,7 +152,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                         availableCapabilities.add(ac);
                     }
                     netconfNode = new NetconfNodeBuilder()
-                            .setConnectionStatus(NetconfNodeConnectionStatus.ConnectionStatus.Connected)
+                            .setConnectionStatus(ConnectionStatus.Connected)
                             .setUnavailableCapabilities(new UnavailableCapabilitiesBuilder().build())
                             .setAvailableCapabilities(new AvailableCapabilitiesBuilder()
                                     .setAvailableCapability(availableCapabilities).build())
@@ -171,13 +173,14 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                 final InstanceIdentifier<Topology> tii =
                         InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                                 topology.key()).build();
-                writeTx.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
+                writeTxConfig.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
                 topology = new TopologyBuilder()
                         .setTopologyId(topologyId)
                         .setNode(nodeOperMap)
                         .build();
-                writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
-                writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxOper.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
+                writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
                 final AddNodeIntoTopologyOutput addNodeIntoTopologyOutput = new AddNodeIntoTopologyOutputBuilder()
                         .build();
@@ -199,15 +202,18 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<CreateTopologyOutput>>() {
             @Override
             public RpcResult<CreateTopologyOutput> call() throws Exception {
-                final WriteTransaction writeTx =
+                final WriteTransaction writeTxOper =
                     NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
+                final WriteTransaction writeTxConfig =
+                        NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
                 final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
                 final InstanceIdentifier<Topology> tii =
                         InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                                 topology.key()).build();
-                writeTx.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
-                writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
-                writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxConfig.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
+                writeTxOper.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
+                writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 final CreateTopologyOutput topologyOutput = new CreateTopologyOutputBuilder().build();
 
                 final RpcResult<CreateTopologyOutput> rpcResult = RpcResultBuilder.success(topologyOutput).build();
@@ -545,10 +551,12 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private void removeFromDatastore(final InstanceIdentifier<?> instanceIdentifier)
             throws ExecutionException, InterruptedException, TimeoutException {
-        final WriteTransaction writeTx = this.dataBrokerService.newWriteOnlyTransaction();
-        writeTx.delete(LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
-        writeTx.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        final WriteTransaction writeTxConfig = this.dataBrokerService.newWriteOnlyTransaction();
+        final WriteTransaction writeTxOper = this.dataBrokerService.newWriteOnlyTransaction();
+        writeTxConfig.delete(LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        writeTxOper.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+        writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
