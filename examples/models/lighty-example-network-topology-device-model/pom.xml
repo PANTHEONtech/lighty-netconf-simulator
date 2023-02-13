@@ -24,6 +24,10 @@
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>sal-netconf-connector</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.netconf</groupId>
+            <artifactId>netconf-topology</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
