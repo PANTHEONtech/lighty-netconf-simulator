@@ -85,6 +85,7 @@ public final class StartActionProcessor extends ActionServiceDeviceProcessor {
 
                 @Override
                 public void onFailure(final Throwable throwable) {
+                    LOG.error("{} action cannot be invoked.", startAction, throwable);
                 }
             }, Executors.newSingleThreadExecutor());
             return completableFuture;
