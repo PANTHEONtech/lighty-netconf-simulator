@@ -30,13 +30,13 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.NetconfNode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.NetconfNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.NetconfNodeConnectionStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.netconf.node.connection.status.AvailableCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.netconf.node.connection.status.UnavailableCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.netconf.node.connection.status.available.capabilities.AvailableCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev150114.netconf.node.connection.status.available.capabilities.AvailableCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev221225.ConnectionOper.ConnectionStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev221225.connection.oper.AvailableCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev221225.connection.oper.UnavailableCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev221225.connection.oper.available.capabilities.AvailableCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev221225.connection.oper.available.capabilities.AvailableCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev221225.NetconfNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev221225.NetconfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -114,8 +114,10 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<AddNodeIntoTopologyOutput>>() {
             @Override
             public RpcResult<AddNodeIntoTopologyOutput> call() throws Exception {
-                final WriteTransaction writeTx =
-                    NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
+                final WriteTransaction writeTxConfig =
+                        NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
+                final WriteTransaction writeTxOper =
+                        NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
                 final TopologyId topologyId = input.getTopologyId();
                 final Collection<Node> nodeCollection = input.nonnullNode().values();
 
@@ -150,7 +152,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                         availableCapabilities.add(ac);
                     }
                     netconfNode = new NetconfNodeBuilder()
-                            .setConnectionStatus(NetconfNodeConnectionStatus.ConnectionStatus.Connected)
+                            .setConnectionStatus(ConnectionStatus.Connected)
                             .setUnavailableCapabilities(new UnavailableCapabilitiesBuilder().build())
                             .setAvailableCapabilities(new AvailableCapabilitiesBuilder()
                                     .setAvailableCapability(availableCapabilities).build())
@@ -171,13 +173,14 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                 final InstanceIdentifier<Topology> tii =
                         InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                                 topology.key()).build();
-                writeTx.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
+                writeTxConfig.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
                 topology = new TopologyBuilder()
                         .setTopologyId(topologyId)
                         .setNode(nodeOperMap)
                         .build();
-                writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
-                writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxOper.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
+                writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
                 final AddNodeIntoTopologyOutput addNodeIntoTopologyOutput = new AddNodeIntoTopologyOutputBuilder()
                         .build();
@@ -199,15 +202,18 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.executor.submit(new Callable<RpcResult<CreateTopologyOutput>>() {
             @Override
             public RpcResult<CreateTopologyOutput> call() throws Exception {
-                final WriteTransaction writeTx =
+                final WriteTransaction writeTxOper =
                     NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
+                final WriteTransaction writeTxConfig =
+                        NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
                 final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
                 final InstanceIdentifier<Topology> tii =
                         InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                                 topology.key()).build();
-                writeTx.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
-                writeTx.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
-                writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxConfig.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
+                writeTxOper.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
+                writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+                writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 final CreateTopologyOutput topologyOutput = new CreateTopologyOutputBuilder().build();
 
                 final RpcResult<CreateTopologyOutput> rpcResult = RpcResultBuilder.success(topologyOutput).build();
@@ -545,10 +551,12 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private void removeFromDatastore(final InstanceIdentifier<?> instanceIdentifier)
             throws ExecutionException, InterruptedException, TimeoutException {
-        final WriteTransaction writeTx = this.dataBrokerService.newWriteOnlyTransaction();
-        writeTx.delete(LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
-        writeTx.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        final WriteTransaction writeTxConfig = this.dataBrokerService.newWriteOnlyTransaction();
+        final WriteTransaction writeTxOper = this.dataBrokerService.newWriteOnlyTransaction();
+        writeTxConfig.delete(LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        writeTxOper.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+        writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
