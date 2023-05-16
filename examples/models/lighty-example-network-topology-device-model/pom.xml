@@ -13,6 +13,7 @@
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-binding-parent</artifactId>
         <version>18.1.0</version>
+        <relativePath/>
     </parent>
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
