@@ -15,6 +15,7 @@
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-parent</artifactId>
         <version>18.0.0</version>
+        <relativePath/>
     </parent>
 
     <groupId>io.lighty.netconf.device</groupId>
