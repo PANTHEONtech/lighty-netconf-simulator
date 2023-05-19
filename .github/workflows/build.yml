@@ -40,7 +40,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Maven install + Test
         if: ${{ env.SONAR_TOKEN == 0 }}
-        run: mvn clean install -B -V -Psource-quality
+        run: mvn clean install -B -V -Psource-quality -X
       - name: Maven install + Test + SonarCloud
         if: ${{ env.SONAR_TOKEN != 0 }}
         run: mvn clean install org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
