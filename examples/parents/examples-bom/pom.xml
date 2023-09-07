@@ -11,7 +11,7 @@
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-bom</artifactId>
-    <version>18.2.0</version>
+    <version>18.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -26,42 +26,42 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-network-topology-device-model</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-data-center-model</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-netconf-device</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-actions-device</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-device</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-network-topology-device</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-multiple-devices</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-notifications-model</artifactId>
-                <version>18.2.0</version>
+                <version>18.3.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>
