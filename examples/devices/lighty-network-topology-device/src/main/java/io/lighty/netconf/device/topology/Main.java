@@ -62,7 +62,7 @@ public final class Main {
         Set<YangModuleInfo> modules = ModelUtils.getModelsFromClasspath(
                 ModuleId.from("urn:tech.pantheon.netconfdevice.network.topology.rpcs",
                     "network-topology-rpcs",
-                    "2018-03-20"),
+                    "2023-09-27"),
                 ModuleId.from("urn:opendaylight:netconf-node-topology",
                     "netconf-node-topology",
                     "2015-01-14"));
