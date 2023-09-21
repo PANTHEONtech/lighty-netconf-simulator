@@ -9,10 +9,10 @@ package io.lighty.netconf.device.requests.notification;
 
 import java.util.Set;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
-import org.opendaylight.netconf.api.capability.Capability;
-import org.opendaylight.netconf.impl.SessionIdProvider;
-import org.opendaylight.netconf.mapping.api.NetconfOperationService;
+import org.opendaylight.netconf.server.api.monitoring.Capability;
+import org.opendaylight.netconf.server.api.operations.NetconfOperationService;
 import org.opendaylight.netconf.test.tool.operations.OperationsCreator;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf.base._1._0.rev110601.SessionIdType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.QName;
 
@@ -32,9 +32,9 @@ public class NotificationPublishServiceImpl implements OperationsCreator, Notifi
 
     @Override
     public NetconfOperationService getNetconfOperationService(final Set<Capability> capabilities,
-            final SessionIdProvider idProvider, final String netconfSessionIdForReporting) {
+            final SessionIdType idType) {
         this.notificationOperation = new NotificationOperation(this.adapterContext);
-        return new NotificationService(this.notificationOperation, idProvider);
+        return new NotificationService(this.notificationOperation, idType);
     }
 
     public void setAdapterContext(final AdapterContext adapterContext) {

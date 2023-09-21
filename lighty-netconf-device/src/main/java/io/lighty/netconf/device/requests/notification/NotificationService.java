@@ -10,9 +10,8 @@ package io.lighty.netconf.device.requests.notification;
 import com.google.common.collect.Sets;
 import java.util.Optional;
 import java.util.Set;
-import org.opendaylight.netconf.impl.SessionIdProvider;
-import org.opendaylight.netconf.mapping.api.NetconfOperation;
-import org.opendaylight.netconf.mapping.api.NetconfOperationService;
+import org.opendaylight.netconf.server.api.operations.NetconfOperation;
+import org.opendaylight.netconf.server.api.operations.NetconfOperationService;
 import org.opendaylight.netconf.test.tool.rpc.DataList;
 import org.opendaylight.netconf.test.tool.rpc.SimulatedCommit;
 import org.opendaylight.netconf.test.tool.rpc.SimulatedCreateSubscription;
@@ -22,33 +21,32 @@ import org.opendaylight.netconf.test.tool.rpc.SimulatedGet;
 import org.opendaylight.netconf.test.tool.rpc.SimulatedGetConfig;
 import org.opendaylight.netconf.test.tool.rpc.SimulatedLock;
 import org.opendaylight.netconf.test.tool.rpc.SimulatedUnLock;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf.base._1._0.rev110601.SessionIdType;
 
 public class NotificationService implements NetconfOperationService {
 
     private final NetconfOperation netconfOperation;
-    private final long currentSessionId;
+    private final SessionIdType sessionIdType;
 
-    NotificationService(final NetconfOperation netconfOperation, SessionIdProvider idProvider) {
+    NotificationService(final NetconfOperation netconfOperation, final SessionIdType idType) {
         this.netconfOperation = netconfOperation;
-        this.currentSessionId = idProvider.getCurrentSessionId();
+        this.sessionIdType = idType;
     }
 
     @Override
     public Set<NetconfOperation> getNetconfOperations() {
         final DataList storage = new DataList();
-        final SimulatedGet sGet = new SimulatedGet(String.valueOf(currentSessionId), storage);
-        final SimulatedEditConfig sEditConfig = new SimulatedEditConfig(String.valueOf(currentSessionId), storage);
-        final SimulatedGetConfig sGetConfig = new SimulatedGetConfig(
-                String.valueOf(currentSessionId), storage, Optional.empty());
-        final SimulatedCommit sCommit = new SimulatedCommit(String.valueOf(currentSessionId));
-        final SimulatedLock sLock = new SimulatedLock(String.valueOf(currentSessionId));
-        final SimulatedUnLock sUnlock = new SimulatedUnLock(String.valueOf(currentSessionId));
-        final SimulatedCreateSubscription sCreateSubs = new SimulatedCreateSubscription(
-                String.valueOf(currentSessionId), Optional.empty());
-        final SimulatedDiscardChanges sDiscardChanges = new SimulatedDiscardChanges(
-                String.valueOf(currentSessionId));
-        return Sets.newHashSet(
-                sGet, sGetConfig, sEditConfig, sCommit, sLock, sUnlock, sCreateSubs, sDiscardChanges, netconfOperation);
+        final SimulatedGet sGet = new SimulatedGet(sessionIdType, storage);
+        final SimulatedEditConfig sEditConfig = new SimulatedEditConfig(sessionIdType, storage);
+        final SimulatedGetConfig sGetConfig = new SimulatedGetConfig(sessionIdType, storage, Optional.empty());
+        final SimulatedCommit sCommit = new SimulatedCommit(sessionIdType);
+        final SimulatedLock sLock = new SimulatedLock(sessionIdType);
+        final SimulatedUnLock sUnlock = new SimulatedUnLock(sessionIdType);
+        final SimulatedCreateSubscription sCreateSubs = new SimulatedCreateSubscription(sessionIdType,
+            Optional.empty());
+        final SimulatedDiscardChanges sDiscardChanges = new SimulatedDiscardChanges(sessionIdType);
+        return Sets.newHashSet(sGet, sGetConfig, sEditConfig, sCommit, sLock, sUnlock, sCreateSubs, sDiscardChanges,
+            netconfOperation);
     }
 
     @Override
