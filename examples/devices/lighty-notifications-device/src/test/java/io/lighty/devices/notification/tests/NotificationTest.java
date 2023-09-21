@@ -14,7 +14,6 @@ import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,7 +38,6 @@ import org.opendaylight.netconf.client.NetconfClientSessionListener;
 import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
-import org.opendaylight.netconf.nettyutil.NeverReconnectStrategy;
 import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -79,8 +77,7 @@ public class NotificationTest {
         return NetconfClientConfigurationBuilder.create()
                 .withAddress(new InetSocketAddress("localhost", DEVICE_SIMULATOR_PORT))
                 .withSessionListener(sessionListener)
-                .withReconnectStrategy(new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE,
-                        NetconfClientConfigurationBuilder.DEFAULT_CONNECTION_TIMEOUT_MILLIS))
+                .withConnectionTimeoutMillis(NetconfClientConfigurationBuilder.DEFAULT_CONNECTION_TIMEOUT_MILLIS)
                 .withProtocol(NetconfClientConfiguration.NetconfClientProtocol.SSH)
                 .withAuthHandler(new LoginPasswordHandler(USER, PASS))
                 .build();
