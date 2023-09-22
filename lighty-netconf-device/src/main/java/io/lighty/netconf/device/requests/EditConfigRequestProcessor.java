@@ -315,13 +315,13 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                 final Map<QName, Object> keyValues = next.getIdentifier().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
-                        .nodeWithKey(contextNode.getIdentifier().getNodeType(), keyValues).build();
+                        .nodeWithKey(contextNode.pathStep().getNodeType(), keyValues).build();
             } else {
                 if (contextNode.pathStep() != null) {
-                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getIdentifier())
+                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
                         .node(contextNode.pathStep());
                 } else {
-                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getIdentifier())
+                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
                         .node(currentQname);
                 }
             }
