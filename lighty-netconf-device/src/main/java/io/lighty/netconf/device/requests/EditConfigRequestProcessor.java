@@ -301,7 +301,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             final QName currentQname = parseQname(effectiveModelContext, iterator.next());
             contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
 
-            while (contextNode.isMixin()) {
+            while (contextNode instanceof PathMixin) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
                         .node(contextNode.pathStep());
                 contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
