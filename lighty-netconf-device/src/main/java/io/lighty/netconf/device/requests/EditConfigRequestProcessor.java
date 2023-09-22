@@ -303,21 +303,27 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
             while (contextNode.isMixin()) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
-                        .node(contextNode.getIdentifier());
+                        .node(contextNode.pathStep());
                 contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
             }
 
             final Optional<NormalizedNode> findNode =
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
-            if (contextNode.isKeyedEntry() && findNode.isPresent()) {
+            if (contextNode.pathStep() != null && findNode.isPresent()
+                && findNode.get().getClass().isInstance(MapNode.class)) {
                 final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
                 final Map<QName, Object> keyValues = next.getIdentifier().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
                         .nodeWithKey(contextNode.getIdentifier().getNodeType(), keyValues).build();
             } else {
-                targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
-                        .node(contextNode.getIdentifier());
+                if (contextNode.pathStep() != null) {
+                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getIdentifier())
+                        .node(contextNode.pathStep());
+                } else {
+                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getIdentifier())
+                        .node(currentQname);
+                }
             }
         }
         return targetIdentifier;
