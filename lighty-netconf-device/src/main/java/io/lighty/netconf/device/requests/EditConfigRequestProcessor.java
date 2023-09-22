@@ -294,17 +294,17 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
      */
     private static YangInstanceIdentifier getYangInstanceIdentifier(final List<QName> yangPath,
             final NormalizedNode input, final EffectiveModelContext effectiveModelContext) {
-        var contextNode = DataSchemaContextTree.from(effectiveModelContext).getRoot();
+        DataSchemaContext contextNode = DataSchemaContextTree.from(effectiveModelContext).getRoot();
         YangInstanceIdentifier targetIdentifier = YangInstanceIdentifier.builder().build();
         final Iterator<QName> iterator = yangPath.iterator();
         while (iterator.hasNext()) {
             final QName currentQname = parseQname(effectiveModelContext, iterator.next());
-            contextNode = requireNonNull(contextNode.getChild(currentQname));
+            contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
 
             while (contextNode.isMixin()) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
                         .node(contextNode.getIdentifier());
-                contextNode = requireNonNull(contextNode.getChild(currentQname));
+                contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
             }
 
             final Optional<NormalizedNode> findNode =
