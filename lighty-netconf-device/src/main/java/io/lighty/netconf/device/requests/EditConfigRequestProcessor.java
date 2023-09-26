@@ -309,21 +309,15 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
             final Optional<NormalizedNode> findNode =
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
-            if (contextNode.pathStep() != null && findNode.isPresent()
-                && findNode.get().getClass().isInstance(MapNode.class)) {
+            if (contextNode.pathStep() == null && findNode.isPresent()) {
                 final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
                 final Map<QName, Object> keyValues = next.getIdentifier().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
-                        .nodeWithKey(contextNode.pathStep().getNodeType(), keyValues).build();
+                        .nodeWithKey(contextNode.dataSchemaNode().getQName(), keyValues).build();
             } else {
-                if (contextNode.pathStep() != null) {
-                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
-                        .node(contextNode.pathStep());
-                } else {
-                    targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
-                        .node(currentQname);
-                }
+                targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
+                        .node(contextNode.getPathStep());
             }
         }
         return targetIdentifier;
