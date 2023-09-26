@@ -65,7 +65,7 @@ public final class Main {
                     "2023-09-27"),
                 ModuleId.from("urn:opendaylight:netconf-node-topology",
                     "netconf-node-topology",
-                    "2015-01-14"));
+                    "2022-12-25"));
 
         //2. Initialize DataStores
         InputStream initialOperationalData = null;
