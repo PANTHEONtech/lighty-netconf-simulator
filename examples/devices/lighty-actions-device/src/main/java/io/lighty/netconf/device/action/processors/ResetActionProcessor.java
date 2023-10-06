@@ -32,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.ServerKey;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.Reset;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.ResetInput;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.ResetOutput;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Key;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -79,9 +79,8 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
             final String key = findNameElement(xmlElement);
             Preconditions.checkNotNull(key);
             final Class listItem = Server.class;
-            final Identifier listKey = new ServerKey(key);
+            final Key listKey = new ServerKey(key);
             final InstanceIdentifier instanceIdentifier = InstanceIdentifier.builder(listItem, listKey).build();
-            Preconditions.checkArgument(instanceIdentifier instanceof KeyedInstanceIdentifier);
             final KeyedInstanceIdentifier<Server, ServerKey> keydIID
                     = (KeyedInstanceIdentifier<Server, ServerKey>) instanceIdentifier;
 

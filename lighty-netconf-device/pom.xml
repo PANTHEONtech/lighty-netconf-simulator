@@ -14,7 +14,7 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-parent</artifactId>
-        <version>18.0.0</version>
+        <version>19.0.0</version>
         <relativePath/>
     </parent>
 
@@ -35,6 +35,10 @@
         <dependency>
             <groupId>org.opendaylight.netconf.model</groupId>
             <artifactId>rfc8639</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-dom-codec</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>

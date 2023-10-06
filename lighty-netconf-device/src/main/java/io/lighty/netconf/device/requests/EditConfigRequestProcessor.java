@@ -56,7 +56,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.SchemaValidationFailedException;
-import org.opendaylight.yangtools.yang.data.util.DataSchemaContextNode;
+import org.opendaylight.yangtools.yang.data.util.DataSchemaContext;
+import org.opendaylight.yangtools.yang.data.util.DataSchemaContext.PathMixin;
 import org.opendaylight.yangtools.yang.data.util.DataSchemaContextTree;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.Module;
@@ -293,30 +294,30 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
      */
     private static YangInstanceIdentifier getYangInstanceIdentifier(final List<QName> yangPath,
             final NormalizedNode input, final EffectiveModelContext effectiveModelContext) {
-        DataSchemaContextNode<?> contextNode = DataSchemaContextTree.from(effectiveModelContext).getRoot();
+        DataSchemaContext contextNode = DataSchemaContextTree.from(effectiveModelContext).getRoot();
         YangInstanceIdentifier targetIdentifier = YangInstanceIdentifier.builder().build();
         final Iterator<QName> iterator = yangPath.iterator();
         while (iterator.hasNext()) {
             final QName currentQname = parseQname(effectiveModelContext, iterator.next());
-            contextNode = requireNonNull(contextNode.getChild(currentQname));
+            contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
 
-            while (contextNode.isMixin()) {
+            while (contextNode instanceof PathMixin) {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
-                        .node(contextNode.getIdentifier());
-                contextNode = requireNonNull(contextNode.getChild(currentQname));
+                        .node(contextNode.pathStep());
+                contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
             }
 
             final Optional<NormalizedNode> findNode =
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
-            if (contextNode.isKeyedEntry() && findNode.isPresent()) {
+            if (contextNode.pathStep() == null && findNode.isPresent()) {
                 final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
                 final Map<QName, Object> keyValues = next.getIdentifier().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
-                        .nodeWithKey(contextNode.getIdentifier().getNodeType(), keyValues).build();
+                        .nodeWithKey(contextNode.dataSchemaNode().getQName(), keyValues).build();
             } else {
                 targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
-                        .node(contextNode.getIdentifier());
+                        .node(contextNode.getPathStep());
             }
         }
         return targetIdentifier;
