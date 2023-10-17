@@ -6,7 +6,7 @@
 #
 # When run without a parameter a default port 17830 will be used.
 
-CLASSPATH=lighty-notifications-device-17.4.0.jar
+CLASSPATH=lighty-notifications-device-17.5.0-SNAPSHOT.jar
 
 for jar in `ls -1 lib/`;
 do
