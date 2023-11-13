@@ -9,9 +9,9 @@ package io.lighty.netconf.device.topology;
 
 import static io.lighty.netconf.device.topology.TestUtils.xmlFileToInputStream;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
-import static org.xmlunit.assertj.XmlAssert.assertThat;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -42,6 +42,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.ElementSelectors;
 
 public class DeviceTest {
 
@@ -233,9 +237,14 @@ public class DeviceTest {
 
     private void assertResponseIsIdentical(final NetconfMessage response, final InputStream comparedResponse) {
         assertNotNull(response);
-        assertThat(response.getDocument())
-                .and(comparedResponse)
-                .ignoreWhitespace()
-                .areIdentical();
+        final var actual = Input.fromString(response.toString()).build();
+        final var expected = Input.fromStream(comparedResponse).build();
+
+        final var diff = DiffBuilder.compare(actual).withTest(expected)
+            .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byName))
+            .checkForIdentical()
+            .ignoreWhitespace()
+            .build();
+        assertFalse(diff.hasDifferences(), "XML identical " + diff);
     }
 }
