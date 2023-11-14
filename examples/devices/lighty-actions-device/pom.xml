@@ -46,16 +46,6 @@
         <artifactId>junit-jupiter-engine</artifactId>
         <scope>test</scope>
     </dependency>
-    <dependency>
-        <groupId>org.xmlunit</groupId>
-        <artifactId>xmlunit-matchers</artifactId>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.xmlunit</groupId>
-        <artifactId>xmlunit-assertj</artifactId>
-        <scope>test</scope>
-    </dependency>
     </dependencies>
 
 </project>
