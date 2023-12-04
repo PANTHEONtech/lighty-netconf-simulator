@@ -6,7 +6,7 @@
 #
 # When run without a parameter a default port 17830 will be used.
 
-CLASSPATH=lighty-network-topology-device-19.1.0.jar
+CLASSPATH=lighty-network-topology-device-19.2.0-SNAPSHOT.jar
 
 for jar in `ls -1 lib/`;
 do
