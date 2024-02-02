@@ -10,6 +10,7 @@ package io.lighty.netconf.device.action.processors;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.action.actions.ResetAction;
@@ -48,6 +49,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+@SuppressFBWarnings("UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR")
 public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionServiceDeviceProcessor.class);
