@@ -30,50 +30,50 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev231024.ConnectionOper.ConnectionStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev231024.connection.oper.AvailableCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev231024.connection.oper.UnavailableCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev231024.connection.oper.available.capabilities.AvailableCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev231024.connection.oper.available.capabilities.AvailableCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240118.ConnectionOper.ConnectionStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240118.connection.oper.AvailableCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240118.connection.oper.UnavailableCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240118.connection.oper.available.capabilities.AvailableCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240118.connection.oper.available.capabilities.AvailableCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev221225.NetconfNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev221225.NetconfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.AddNodeIntoTopologyInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.AddNodeIntoTopologyOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.AddNodeIntoTopologyOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.CreateTopologyInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.CreateTopologyOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.CreateTopologyOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetNodeFromTopologyByIdInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetNodeFromTopologyByIdOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetNodeFromTopologyByIdOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologiesInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologiesOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologiesOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyByIdInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyByIdOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyByIdOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyIdsInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyIdsOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyIdsOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.NetworkTopologyRpcsService;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveAllTopologiesInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveAllTopologiesOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveAllTopologiesOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveNodeFromTopologyInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveNodeFromTopologyOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveNodeFromTopologyOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveTopologyInput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveTopologyOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveTopologyOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.get.topologies.output.NetworkTopologyBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.node.data.Node;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.node.data.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.node.data.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.topology.data.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.AddNodeIntoTopologyInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.AddNodeIntoTopologyOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.AddNodeIntoTopologyOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.CreateTopologyInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.CreateTopologyOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.CreateTopologyOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetNodeFromTopologyByIdInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetNodeFromTopologyByIdOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetNodeFromTopologyByIdOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologiesInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologiesOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologiesOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologyByIdInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologyByIdOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologyByIdOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologyIdsInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologyIdsOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.GetTopologyIdsOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.NetworkTopologyRpcsService;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveAllTopologiesInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveAllTopologiesOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveAllTopologiesOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveNodeFromTopologyInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveNodeFromTopologyOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveNodeFromTopologyOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveTopologyInput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveTopologyOutput;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.RemoveTopologyOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.get.topologies.output.NetworkTopologyBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.node.data.Node;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.node.data.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.node.data.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev240202.topology.data.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Revision;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -328,8 +328,8 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                     final Optional<Topology> readTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
                             .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                     final Map<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                            .rev230927.topology.data.TopologyKey, org.opendaylight.yang.gen.v1.urn.tech.pantheon
-                            .netconfdevice.network.topology.rpcs.rev230927.topology.data.Topology> finalTopology
+                            .rev240202.topology.data.TopologyKey, org.opendaylight.yang.gen.v1.urn.tech.pantheon
+                            .netconfdevice.network.topology.rpcs.rev240202.topology.data.Topology> finalTopology
                             = new HashMap<>();
                     if (readTopology.isPresent()) {
                         final Topology t = readTopology.get();
@@ -344,7 +344,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                         }
                         final TopologyKey topologyKey = new TopologyKey(t.getTopologyId());
                         finalTopology.put(topologyKey, new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice
-                                .network.topology.rpcs.rev230927.topology.data.TopologyBuilder()
+                                .network.topology.rpcs.rev240202.topology.data.TopologyBuilder()
                                 .setTopologyId(new TopologyId(t.getTopologyId()))
                                 .withKey(topologyKey)
                                 .setNode(finalNodeMap)
@@ -481,13 +481,13 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                             .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                     if (networkTopology.isPresent()) {
                         final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                                .rev230927.topology.data.TopologyBuilder topologyBuilder =
+                                .rev240202.topology.data.TopologyBuilder topologyBuilder =
                                 new org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                                        .rev230927.topology.data.TopologyBuilder();
+                                        .rev240202.topology.data.TopologyBuilder();
                         final Collection<Topology> topologyList = networkTopology.get().nonnullTopology().values();
                         final Map<org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                                .rev230927.topology.data.TopologyKey, org.opendaylight.yang.gen.v1.urn.tech.pantheon
-                                .netconfdevice.network.topology.rpcs.rev230927.topology.data.Topology> topologyMapFinal
+                                .rev240202.topology.data.TopologyKey, org.opendaylight.yang.gen.v1.urn.tech.pantheon
+                                .netconfdevice.network.topology.rpcs.rev240202.topology.data.Topology> topologyMapFinal
                                 = new HashMap<>();
                         for (final Topology t : topologyList) {
                             final Map<NodeKey, Node> nodeMap = new HashMap<>();
@@ -501,7 +501,7 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
                             }
 
                             final org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs
-                                    .rev230927.topology.data.Topology tp =
+                                    .rev240202.topology.data.Topology tp =
                                     topologyBuilder.withKey(new TopologyKey(t.getTopologyId()))
                                             .setTopologyId(t.getTopologyId())
                                             .setNode(nodeMap)
