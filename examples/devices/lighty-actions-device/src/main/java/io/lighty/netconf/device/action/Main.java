@@ -20,7 +20,7 @@ public class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     public static final Set<YangModuleInfo> ACTION_MODEL_PATHS = ImmutableSet.of(
-            org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.$YangModuleInfoImpl.getInstance());
+            org.opendaylight.yang.svc.v1.urn.example.data.center.rev180807.YangModuleInfoImpl.getInstance());
 
     private ShutdownHook shutdownHook;
 

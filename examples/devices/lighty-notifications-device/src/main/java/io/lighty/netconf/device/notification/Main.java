@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
     private static final Set<YangModuleInfo> NOTIFICATION_MODEL_PATHS = ImmutableSet.of(
-            org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.$YangModuleInfoImpl.getInstance()
+            org.opendaylight.yang.svc.v1.yang.lighty.test.notifications.rev180820.YangModuleInfoImpl.getInstance()
     );
 
     private ShutdownHook shutdownHook;
