@@ -197,7 +197,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
 
     private ImmutableMap<Absolute, ActionDefinition> getAction() {
         final var builder = ImmutableMap.<Absolute, ActionDefinition>builder();
-        final var context = adapterContext.currentSerializer().getRuntimeContext().getEffectiveModelContext();
+        final var context = adapterContext.currentSerializer().getRuntimeContext().modelContext();
         final var qnames = new ArrayDeque<QName>();
         for (final DataSchemaNode dataSchemaNode : context.getChildNodes()) {
             if (dataSchemaNode instanceof ActionNodeContainer) {

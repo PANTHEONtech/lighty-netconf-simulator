@@ -121,7 +121,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         }
 
         EffectiveModelContext effectiveModelContext = getNetconfDeviceServices().getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         YangInstanceIdentifier path = retrieveElementYII(effectiveModelContext, configNN,
                 configElement, "//*[@*[local-name() = 'operation']]");
         NormalizedNode data;
@@ -209,7 +209,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
     private void ensureParentsByMerge(final YangInstanceIdentifier path, final DOMDataTreeWriteTransaction writeTx) {
         final EffectiveModelContext effectiveModelContext = getNetconfDeviceServices().getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         final List<PathArgument> normalizedPathWithoutChildArgs = new ArrayList<>();
         YangInstanceIdentifier rootNormalizedPath = null;
 

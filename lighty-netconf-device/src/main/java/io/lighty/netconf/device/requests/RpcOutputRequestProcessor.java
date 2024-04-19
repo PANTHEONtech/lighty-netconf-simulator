@@ -38,7 +38,7 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
     public void init(NetconfDeviceServices netconfDeviceServices) {
         super.init(netconfDeviceServices);
         EffectiveModelContext schemaContext = getNetconfDeviceServices().getAdapterContext().currentSerializer()
-                .getRuntimeContext().getEffectiveModelContext();
+                .getRuntimeContext().modelContext();
         Optional<? extends RpcDefinition> rpcDefinitionOptional =
             ConverterUtils.loadRpc(schemaContext, getIdentifier());
         if (rpcDefinitionOptional.isPresent()) {
