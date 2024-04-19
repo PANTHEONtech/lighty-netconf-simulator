@@ -11,13 +11,11 @@ import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,14 +30,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.api.xml.XmlUtil;
-import org.opendaylight.netconf.client.NetconfClientDispatcher;
-import org.opendaylight.netconf.client.NetconfClientDispatcherImpl;
+import org.opendaylight.netconf.client.NetconfClientFactory;
+import org.opendaylight.netconf.client.NetconfClientFactoryImpl;
 import org.opendaylight.netconf.client.NetconfClientSession;
 import org.opendaylight.netconf.client.NetconfClientSessionListener;
 import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration.NetconfClientProtocol;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
+import org.opendaylight.netconf.common.impl.DefaultNetconfTimer;
 import org.opendaylight.netconf.nettyutil.AbstractNetconfSession;
 import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
 import org.w3c.dom.Element;
@@ -66,15 +65,16 @@ public class DeviceTest {
     private static NioEventLoopGroup nettyGroup;
 
     @BeforeAll
-    public static void setUpClass() throws InterruptedException, ExecutionException, TimeoutException {
+    public static void setUpClass() throws InterruptedException, ExecutionException,
+        TimeoutException, UnsupportedConfigurationException {
         deviceSimulator = new Main();
         deviceSimulator.start(new String[]{"--starting-port",
                         String.valueOf(DEVICE_STARTING_PORT), "--thread-pool-size",
                         String.valueOf(THREAD_POOL_SIZE), "--device-count", String.valueOf(DEVICE_COUNT)},
                 true, false);
-        nettyGroup = new NioEventLoopGroup(THREAD_POOL_SIZE, new DefaultThreadFactory(NetconfClientDispatcher.class));
-        NetconfClientDispatcherImpl dispatcher =
-                new NetconfClientDispatcherImpl(nettyGroup, nettyGroup, new HashedWheelTimer());
+        nettyGroup = new NioEventLoopGroup(THREAD_POOL_SIZE, new DefaultThreadFactory(NetconfClientFactory.class));
+        NetconfClientFactory dispatcher =
+                new NetconfClientFactoryImpl(new DefaultNetconfTimer());
         for (int port = DEVICE_STARTING_PORT; port < DEVICE_STARTING_PORT + DEVICE_COUNT; port++) {
             final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
             NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener, port))

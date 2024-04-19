@@ -12,13 +12,11 @@ import static org.testng.Assert.assertTrue;
 import io.lighty.netconf.device.notification.Main;
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
@@ -31,8 +29,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.api.xml.XmlUtil;
-import org.opendaylight.netconf.client.NetconfClientDispatcher;
-import org.opendaylight.netconf.client.NetconfClientDispatcherImpl;
+import org.opendaylight.netconf.client.NetconfClientFactory;
+import org.opendaylight.netconf.client.NetconfClientFactoryImpl;
 import org.opendaylight.netconf.client.NetconfClientSession;
 import org.opendaylight.netconf.client.NetconfClientSessionListener;
 import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
@@ -57,14 +55,14 @@ public class NotificationTest {
     private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
-    private static NetconfClientDispatcherImpl dispatcher;
+    private static NetconfClientFactory dispatcher;
 
     @BeforeAll
     public static void setupClass() {
         deviceSimulator = new Main();
+        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientFactory.class));
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false);
-        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientDispatcher.class));
-        dispatcher = new NetconfClientDispatcherImpl(nettyGroup, nettyGroup, new HashedWheelTimer());
+        dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
 
     @AfterAll
@@ -90,7 +88,7 @@ public class NotificationTest {
 
     @Test
     public void getNotificationSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
-            ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
@@ -120,7 +118,7 @@ public class NotificationTest {
 
     @Test
     public void triggerNotificationRpcTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
-            ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException, UnsupportedConfigurationException {
 
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final NotificationNetconfSessionListener sessionListener =
