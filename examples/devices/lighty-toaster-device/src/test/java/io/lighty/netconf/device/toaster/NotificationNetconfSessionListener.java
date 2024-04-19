@@ -8,7 +8,7 @@
 package io.lighty.netconf.device.toaster;
 
 import java.util.concurrent.CountDownLatch;
-import org.opendaylight.netconf.api.NetconfMessage;
+import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.client.NetconfClientSession;
 import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 
