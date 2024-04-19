@@ -98,7 +98,7 @@ public final class RPCUtil {
                     (NormalizedNode) iterator.next();
             NormalizedNode fabricListEntryInsideMapNode = ImmutableNodes.newSystemMapBuilder()
                     .withNodeIdentifier(YangInstanceIdentifier.NodeIdentifier
-                            .create(listNormalizedNode.get().getIdentifier().getNodeType()))
+                            .create(listNormalizedNode.get().name().getNodeType()))
                     .withChild((MapEntryNode) fabricListEntry).build();
             normalizedNodes.add(fabricListEntryInsideMapNode);
         }
