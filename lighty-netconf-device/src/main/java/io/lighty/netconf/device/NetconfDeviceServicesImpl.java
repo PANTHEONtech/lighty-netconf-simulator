@@ -70,7 +70,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
 
         this.notificationPublishService = creator;
         this.datastores = createDatastores();
-        this.domNotificationRouter = DOMNotificationRouter.create(16);
+        this.domNotificationRouter = new DOMNotificationRouter(16);
         this.domDataBroker = createDOMDataBroker();
         this.dataBroker = new BindingDOMDataBrokerAdapter(this.adapterContext, this.domDataBroker);
         this.notificationService = new BindingDOMNotificationServiceAdapter(this.adapterContext,
