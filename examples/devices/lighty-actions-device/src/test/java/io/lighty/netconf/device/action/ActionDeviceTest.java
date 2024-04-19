@@ -12,13 +12,11 @@ import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
@@ -30,14 +28,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.api.xml.XmlUtil;
-import org.opendaylight.netconf.client.NetconfClientDispatcher;
-import org.opendaylight.netconf.client.NetconfClientDispatcherImpl;
+import org.opendaylight.netconf.client.NetconfClientFactory;
+import org.opendaylight.netconf.client.NetconfClientFactoryImpl;
 import org.opendaylight.netconf.client.NetconfClientSession;
 import org.opendaylight.netconf.client.NetconfClientSessionListener;
 import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
-import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
+import org.opendaylight.netconf.common.impl.DefaultNetconfTimer;
+import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -58,14 +57,14 @@ public class ActionDeviceTest {
 
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
-    private static NetconfClientDispatcherImpl dispatcher;
+    private static NetconfClientFactoryImpl dispatcher;
 
     @BeforeAll
     public static void setUpClass() {
         deviceSimulator = new Main();
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false);
-        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientDispatcher.class));
-        dispatcher = new NetconfClientDispatcherImpl(nettyGroup, nettyGroup, new HashedWheelTimer());
+        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientFactory.class));
+        dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
 
     @AfterAll
@@ -76,17 +75,17 @@ public class ActionDeviceTest {
 
     private static NetconfClientConfiguration createSHHConfig(final NetconfClientSessionListener sessionListener) {
         return NetconfClientConfigurationBuilder.create()
-                .withAddress(new InetSocketAddress("localhost", DEVICE_SIMULATOR_PORT))
+                // FIXME .withAddress(new InetSocketAddress("localhost", DEVICE_SIMULATOR_PORT))
                 .withSessionListener(sessionListener)
                 .withConnectionTimeoutMillis(NetconfClientConfigurationBuilder.DEFAULT_CONNECTION_TIMEOUT_MILLIS)
                 .withProtocol(NetconfClientConfiguration.NetconfClientProtocol.SSH)
-                .withAuthHandler(new LoginPasswordHandler(USER, PASS))
+                // FIXME .withAuthHandler(new LoginPasswordHandler(USER, PASS))
                 .build();
     }
 
     @Test
     public void getSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
-            ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
@@ -117,7 +116,7 @@ public class ActionDeviceTest {
 
     @Test
     public void actionsTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
-            ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session =
                 dispatcher.createClient(createSHHConfig(sessionListener))
