@@ -36,10 +36,8 @@ import org.opendaylight.mdsal.dom.broker.SerializedDOMDataBroker;
 import org.opendaylight.mdsal.dom.spi.store.DOMStore;
 import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
 import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStoreConfigProperties;
-import org.opendaylight.yangtools.util.ListenerRegistry;
 import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
-import org.opendaylight.yangtools.yang.model.api.EffectiveModelContextListener;
 import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack;
 import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack.Inference;
 import org.opendaylight.yangtools.yang.parser.api.YangParserFactory;
@@ -60,13 +58,11 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
     private final NotificationService notificationService;
     private final NotificationPublishServiceImpl notificationPublishService;
     private final XmlNodeConverter xmlNodeConverter;
-    private final ListenerRegistry<EffectiveModelContextListener> listeners;
 
     public NetconfDeviceServicesImpl(
         final Collection<YangModuleInfo> moduleInfos, final NotificationPublishServiceImpl creator) {
         this.adapterContext = createAdapterContext(moduleInfos);
         this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().getEffectiveModelContext();
-        this.listeners = ListenerRegistry.create();
 
         if (creator != null) {
             creator.setAdapterContext(this.adapterContext);
@@ -80,8 +76,6 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         this.notificationService = new BindingDOMNotificationServiceAdapter(this.adapterContext,
                 this.domNotificationRouter);
         this.xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
-
-        listeners.streamListeners().forEach(listener -> listener.onModelContextUpdated(effectiveModelContext));
     }
 
     @Override
@@ -138,13 +132,11 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         final InMemoryDOMDataStore store = new InMemoryDOMDataStore("CFG", LogicalDatastoreType.CONFIGURATION,
                 getDataTreeChangeListenerExecutor(),
                 InMemoryDOMDataStoreConfigProperties.DEFAULT_MAX_DATA_CHANGE_LISTENER_QUEUE_SIZE, false);
-        this.listeners.register(store);
         return store;
     }
 
     private DOMStore createOperationalDatastore() {
         final InMemoryDOMDataStore store = new InMemoryDOMDataStore("OPER", getDataTreeChangeListenerExecutor());
-        this.listeners.register(store);
         return store;
     }
 
