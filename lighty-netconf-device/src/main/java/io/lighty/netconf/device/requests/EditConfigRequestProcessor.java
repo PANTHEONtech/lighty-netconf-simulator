@@ -137,7 +137,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                         ErrorSeverity.ERROR)));
             }
             data = optionalData.get();
-            path = YangInstanceIdentifier.builder().node(data.getIdentifier().getNodeType()).build();
+            path = YangInstanceIdentifier.builder().node(data.name().getNodeType()).build();
         } else {
             Optional<NormalizedNode> optionalData =
                 NormalizedNodes.findNode(configNN, path);
@@ -311,7 +311,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
             if (contextNode.pathStep() == null && findNode.isPresent()) {
                 final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
-                final Map<QName, Object> keyValues = next.getIdentifier().asMap();
+                final Map<QName, Object> keyValues = next.name().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
                         .nodeWithKey(contextNode.dataSchemaNode().getQName(), keyValues).build();

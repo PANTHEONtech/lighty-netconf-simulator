@@ -156,7 +156,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
                 toConvert.addAll(((MapNode) normalizedNode).body().stream().map(mapEntryNode ->
                         ImmutableNodes.newSystemMapBuilder()
                                 .withNodeIdentifier(
-                                        YangInstanceIdentifier.NodeIdentifier.create(normalizedNode.getIdentifier()
+                                        YangInstanceIdentifier.NodeIdentifier.create(normalizedNode.name()
                                                 .getNodeType()))
                                 .withChild(mapEntryNode)
                                 .build())
