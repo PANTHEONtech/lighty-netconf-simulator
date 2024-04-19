@@ -31,7 +31,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -154,7 +154,7 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
             // in case of MapNode we need to wrap every MapEntryNode to MapNode and serialize separately
             if (normalizedNode instanceof MapNode) {
                 toConvert.addAll(((MapNode) normalizedNode).body().stream().map(mapEntryNode ->
-                        ImmutableMapNodeBuilder.create()
+                        ImmutableNodes.newSystemMapBuilder()
                                 .withNodeIdentifier(
                                         YangInstanceIdentifier.NodeIdentifier.create(normalizedNode.getIdentifier()
                                                 .getNodeType()))
