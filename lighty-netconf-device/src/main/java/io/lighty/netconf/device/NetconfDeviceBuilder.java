@@ -132,8 +132,8 @@ public class NetconfDeviceBuilder {
         // based on the notification capability alone, but it turned it's still needed.
         //  Created issue for it https://jira.opendaylight.org/browse/NETCONF-754 so keep checking on it.
         YangModuleInfo netconfNotificationModel =
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.netconf
-                        .notification._1._0.rev080714.$YangModuleInfoImpl.getInstance();
+                org.opendaylight.yang.svc.v1.urn.ietf.params.xml.ns.netconf
+                        .notification._1._0.rev080714.YangModuleInfoImpl.getInstance();
         this.moduleInfos.add(netconfNotificationModel);
         this.withRequestProcessor(new CreateSubscriptionRequestProcessor());
         this.creator = new NotificationPublishServiceImpl();
@@ -178,8 +178,8 @@ public class NetconfDeviceBuilder {
         this.configurationBuilder.setCapabilities(this.allCapabilities);
         if (netconfMonitoringEnabled) {
             YangModuleInfo netconfMonitoringModule =
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring
-                    .rev101004.$YangModuleInfoImpl.getInstance();
+                org.opendaylight.yang.svc.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring
+                    .rev101004.YangModuleInfoImpl.getInstance();
             this.moduleInfos.add(netconfMonitoringModule);
         }
         this.configurationBuilder.setGetDefaultYangResources(Collections.emptySet());
