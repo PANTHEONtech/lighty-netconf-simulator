@@ -110,7 +110,7 @@ public final class Main {
         networkTopologyService.setDataBrokerService(
                 netconfDevice.getNetconfDeviceServices().getDataBroker());
         EffectiveModelContext effectiveModelContext = netconfDevice.getNetconfDeviceServices().getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         networkTopologyService.setEffectiveModelContext(effectiveModelContext);
 
         //5. Register shutdown hook

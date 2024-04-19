@@ -59,7 +59,7 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
 
     public NotificationOperation(final AdapterContext adapterContext) {
         this.adapterContext = adapterContext;
-        this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().getEffectiveModelContext();
+        this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().modelContext();
     }
 
     public void sendMessage(final Notification notificationMessage, final QName quName) {

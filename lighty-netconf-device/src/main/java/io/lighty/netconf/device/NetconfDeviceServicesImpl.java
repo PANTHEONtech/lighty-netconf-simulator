@@ -62,7 +62,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
     public NetconfDeviceServicesImpl(
         final Collection<YangModuleInfo> moduleInfos, final NotificationPublishServiceImpl creator) {
         this.adapterContext = createAdapterContext(moduleInfos);
-        this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().getEffectiveModelContext();
+        this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().modelContext();
 
         if (creator != null) {
             creator.setAdapterContext(this.adapterContext);
@@ -149,7 +149,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
 
         final BindingRuntimeGenerator bindingRuntimeGenerator = new DefaultBindingRuntimeGenerator();
         final BindingRuntimeTypes bindingRuntimeTypes = bindingRuntimeGenerator
-                .generateTypeMapping(moduleInfoSnapshot.getEffectiveModelContext());
+                .generateTypeMapping(moduleInfoSnapshot.modelContext());
         final DefaultBindingRuntimeContext bindingRuntimeContext
                 = new DefaultBindingRuntimeContext(bindingRuntimeTypes, moduleInfoSnapshot);
 
