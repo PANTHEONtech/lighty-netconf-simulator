@@ -74,7 +74,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         this.domDataBroker = createDOMDataBroker();
         this.dataBroker = new BindingDOMDataBrokerAdapter(this.adapterContext, this.domDataBroker);
         this.notificationService = new BindingDOMNotificationServiceAdapter(this.adapterContext,
-                this.domNotificationRouter);
+                this.domNotificationRouter.notificationService());
         this.xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
     }
 
