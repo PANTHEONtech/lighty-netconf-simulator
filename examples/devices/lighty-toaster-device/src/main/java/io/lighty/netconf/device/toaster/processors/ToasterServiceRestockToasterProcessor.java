@@ -7,10 +7,11 @@
  */
 package io.lighty.netconf.device.toaster.processors;
 
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture;
+import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToaster;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToasterInput;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToasterOutput;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -18,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("checkstyle:MemberName")
 public class ToasterServiceRestockToasterProcessor extends ToasterServiceAbstractProcessor<RestockToasterInput,
-        RestockToasterOutput> {
+        RestockToasterOutput> implements RestockToaster {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceRestockToasterProcessor.class);
 
-    private final ToasterService toasterService;
+    private final ToasterServiceImpl toasterService;
     private final QName qName = QName.create("http://netconfcentral.org/ns/toaster", "restock-toaster");
 
-    public ToasterServiceRestockToasterProcessor(final ToasterService toasterService) {
+    public ToasterServiceRestockToasterProcessor(final ToasterServiceImpl toasterService) {
         this.toasterService = toasterService;
     }
 
@@ -35,9 +36,9 @@ public class ToasterServiceRestockToasterProcessor extends ToasterServiceAbstrac
     }
 
     @Override
-    protected Future<RpcResult<RestockToasterOutput>> execMethod(final RestockToasterInput input) {
+    public ListenableFuture<RpcResult<RestockToasterOutput>> invoke(final RestockToasterInput input) {
         LOG.info("execute RPC: restock-toaster");
-        return this.toasterService.restockToaster(input);
+        return toasterService.restockToaster(input);
     }
 
 }
