@@ -25,13 +25,12 @@ import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.RestockToasterOutputBuilder;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterRestocked;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterRestockedBuilder;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ToasterServiceImpl implements ToasterService, AutoCloseable {
+public class ToasterServiceImpl implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceImpl.class);
 
@@ -42,7 +41,6 @@ public class ToasterServiceImpl implements ToasterService, AutoCloseable {
         this.executor = Executors.newFixedThreadPool(1);
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<MakeToastOutput>> makeToast(final MakeToastInput makeToastInput) {
         LOG.info("makeToast {} {}", makeToastInput.getToasterDoneness(), makeToastInput.getToasterToastType());
@@ -59,7 +57,6 @@ public class ToasterServiceImpl implements ToasterService, AutoCloseable {
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<CancelToastOutput>> cancelToast(final CancelToastInput input) {
         LOG.info("cancelToast");
@@ -76,7 +73,6 @@ public class ToasterServiceImpl implements ToasterService, AutoCloseable {
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<RestockToasterOutput>> restockToaster(final RestockToasterInput input) {
         LOG.info("restockToaster {}", input.getAmountOfBreadToStock());

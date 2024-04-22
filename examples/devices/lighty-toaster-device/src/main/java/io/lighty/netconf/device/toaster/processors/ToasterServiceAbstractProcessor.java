@@ -7,6 +7,7 @@
  */
 package io.lighty.netconf.device.toaster.processors;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
@@ -20,13 +21,13 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.xml.transform.TransformerException;
 import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.RpcInput;
+import org.opendaylight.yangtools.yang.binding.RpcOutput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -35,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O extends DataObject> extends
+public abstract class ToasterServiceAbstractProcessor<I extends RpcInput, O extends RpcOutput> extends
         RpcOutputRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceAbstractProcessor.class);
@@ -63,7 +64,7 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
             final I input = convertToBindingAwareRpc(getRpcDefInputAbsolutePath(), (ContainerNode) deserializedNode);
 
             //3. invoke RPC and wait for completion
-            final Future<RpcResult<O>> invokeRpc = execMethod(input);
+            final ListenableFuture<RpcResult<O>> invokeRpc = invoke(input);
             final RpcResult<O> rpcResult = invokeRpc.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
             //4. convert RPC output to ContainerNode
@@ -82,7 +83,7 @@ public abstract class ToasterServiceAbstractProcessor<I extends DataObject, O ex
         }
     }
 
-    protected abstract Future<RpcResult<O>> execMethod(I input);
+    protected abstract ListenableFuture<RpcResult<O>> invoke(I input);
 
     @SuppressWarnings("unchecked")
     public I convertToBindingAwareRpc(final Absolute absolute, final ContainerNode rpcData) {
