@@ -7,6 +7,7 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.codecs.util.exception.DeserializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
@@ -14,16 +15,17 @@ import io.lighty.netconf.device.requests.RpcOutputRequestProcessor;
 import io.lighty.netconf.device.response.Response;
 import io.lighty.netconf.device.response.ResponseData;
 import io.lighty.netconf.device.utils.RPCUtil;
+import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.xml.transform.TransformerException;
 import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -62,11 +64,11 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
             final T input = convertToBindingAwareRpc(getRpcDefInputAbsolutePath(), (ContainerNode) deserializedNode);
 
             //3. invoke RPC
-            final RpcResult<O> rpcResult = execMethod(input);
-            final DataContainer result = rpcResult.getResult();
+            final ListenableFuture<RpcResult<O>> invokeRpc = invoke(input);
+            final RpcResult<O> rpcResult = invokeRpc.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
             //4. convert RPC output to ContainerNode
-            final ContainerNode containerNode = this.adapterSerializer.toNormalizedNodeRpcData(result);
+            final ContainerNode containerNode = this.adapterSerializer.toNormalizedNodeRpcData(rpcResult.getResult());
 
             //5. create response
             final ResponseData responseData;
@@ -76,8 +78,8 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
                 responseData = new ResponseData(Collections.singletonList(containerNode));
             }
             return CompletableFuture.completedFuture(responseData);
-        } catch (final ExecutionException | DeserializationException | TransformerException | TimeoutException
-                | IOException e) {
+        } catch (final ExecutionException | DeserializationException | TransformerException |
+                TimeoutException | IOException e) {
             LOG.error("Error while executing RPC", e);
             return CompletableFuture.failedFuture(e);
         } catch (final InterruptedException e) {
@@ -87,8 +89,7 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
         }
     }
 
-    protected abstract RpcResult<O> execMethod(T input)
-            throws ExecutionException, InterruptedException, TimeoutException;
+    protected abstract ListenableFuture<RpcResult<O>>invoke(T input);
 
     @SuppressWarnings("unchecked")
     public T convertToBindingAwareRpc(final Absolute absolute, final ContainerNode rpcData) {
