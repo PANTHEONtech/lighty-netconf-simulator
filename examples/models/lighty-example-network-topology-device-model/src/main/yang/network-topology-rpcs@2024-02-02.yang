@@ -35,6 +35,7 @@ module network-topology-rpcs {
           key "node-id";
           uses nt:node-attributes;
           uses nnt:netconf-node-fields;
+          uses ond:credentials;
           uses ond:connection-oper;
           must "boolean(../underlay-topology[*]/node[./supporting-nodes/node-ref])";
               // This constraint is meant to ensure that a referenced node is in fact
