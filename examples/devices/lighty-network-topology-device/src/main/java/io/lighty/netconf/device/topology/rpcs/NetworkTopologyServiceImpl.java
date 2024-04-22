@@ -59,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topo
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyIdsInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyIdsOutput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.GetTopologyIdsOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.NetworkTopologyRpcsService;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveAllTopologiesInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveAllTopologiesOutput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveAllTopologiesOutputBuilder;
@@ -83,7 +82,7 @@ import org.opendaylight.yangtools.yang.model.api.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsService, AutoCloseable {
+public final class NetworkTopologyServiceImpl implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyServiceImpl.class);
 
@@ -104,7 +103,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         this.dataBrokerService = dataBrokerService;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<AddNodeIntoTopologyOutput>> addNodeIntoTopology(
             final AddNodeIntoTopologyInput input) {
@@ -193,7 +191,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<CreateTopologyOutput>> createTopology(final CreateTopologyInput input) {
         Preconditions.checkNotNull(this.dataBrokerService);
@@ -224,7 +221,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<RemoveTopologyOutput>> removeTopology(final RemoveTopologyInput input) {
         Preconditions.checkNotNull(this.dataBrokerService);
@@ -249,7 +245,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<RemoveNodeFromTopologyOutput>> removeNodeFromTopology(
             final RemoveNodeFromTopologyInput input) {
@@ -284,7 +279,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<RemoveAllTopologiesOutput>> removeAllTopologies(
             final RemoveAllTopologiesInput input) {
@@ -308,7 +302,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<GetTopologyByIdOutput>> getTopologyById(final GetTopologyByIdInput input) {
         Preconditions.checkNotNull(this.dataBrokerService);
@@ -364,7 +357,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<GetTopologyIdsOutput>> getTopologyIds(final GetTopologyIdsInput input) {
         Preconditions.checkNotNull(this.dataBrokerService);
@@ -384,7 +376,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<GetNodeFromTopologyByIdOutput>> getNodeFromTopologyById(
             final GetNodeFromTopologyByIdInput input) {
@@ -463,7 +454,6 @@ public final class NetworkTopologyServiceImpl implements NetworkTopologyRpcsServ
         return result;
     }
 
-    @Override
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public ListenableFuture<RpcResult<GetTopologiesOutput>> getTopologies(final GetTopologiesInput input) {
         Preconditions.checkNotNull(this.dataBrokerService);

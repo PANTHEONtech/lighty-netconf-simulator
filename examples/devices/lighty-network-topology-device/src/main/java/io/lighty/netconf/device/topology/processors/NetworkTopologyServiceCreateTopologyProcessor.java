@@ -7,13 +7,11 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
-import io.lighty.netconf.device.utils.TimeoutUtil;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.google.common.util.concurrent.ListenableFuture;
+import io.lighty.netconf.device.topology.rpcs.NetworkTopologyServiceImpl;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.CreateTopology;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.CreateTopologyInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.CreateTopologyOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.NetworkTopologyRpcsService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -21,15 +19,15 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("checkstyle:MemberName")
 public class NetworkTopologyServiceCreateTopologyProcessor extends
-    NetworkTopologyServiceAbstractProcessor<CreateTopologyInput, CreateTopologyOutput> {
-
+        NetworkTopologyServiceAbstractProcessor<CreateTopologyInput, CreateTopologyOutput>
+        implements CreateTopology {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyServiceCreateTopologyProcessor.class);
 
-    private final NetworkTopologyRpcsService networkTopologyRpcsService;
+    private final NetworkTopologyServiceImpl networkTopologyRpcsService;
     private final QName qName = QName.create("urn:tech.pantheon.netconfdevice.network.topology.rpcs",
         "create-topology");
 
-    public NetworkTopologyServiceCreateTopologyProcessor(final NetworkTopologyRpcsService networkTopologyRpcsService) {
+    public NetworkTopologyServiceCreateTopologyProcessor(final NetworkTopologyServiceImpl networkTopologyRpcsService) {
         this.networkTopologyRpcsService = networkTopologyRpcsService;
     }
 
@@ -39,10 +37,7 @@ public class NetworkTopologyServiceCreateTopologyProcessor extends
     }
 
     @Override
-    protected RpcResult<CreateTopologyOutput> execMethod(final CreateTopologyInput input)
-            throws ExecutionException, InterruptedException, TimeoutException {
-        final RpcResult<CreateTopologyOutput> voidRpcResult = this.networkTopologyRpcsService.createTopology(input)
-                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        return voidRpcResult;
+    public ListenableFuture<RpcResult<CreateTopologyOutput>> invoke(final CreateTopologyInput input) {
+        return networkTopologyRpcsService.createTopology(input);
     }
 }
