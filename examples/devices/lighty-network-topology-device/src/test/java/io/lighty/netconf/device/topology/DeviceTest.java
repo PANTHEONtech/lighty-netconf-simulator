@@ -35,7 +35,18 @@ import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration.NetconfClientProtocol;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
-import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
+import org.opendaylight.netconf.common.impl.DefaultNetconfTimer;
+import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.crypto.types.rev240208.password.grouping.password.type.CleartextPasswordBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Host;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.client.rev240208.netconf.client.initiate.stack.grouping.transport.ssh.ssh.SshClientParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.client.rev240208.netconf.client.initiate.stack.grouping.transport.ssh.ssh.TcpClientParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ssh.client.rev240208.ssh.client.grouping.ClientIdentityBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ssh.client.rev240208.ssh.client.grouping.client.identity.PasswordBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -84,12 +95,22 @@ public class DeviceTest {
 
     private static NetconfClientConfiguration createSHHConfig(final NetconfClientSessionListener sessionListener) {
         return NetconfClientConfigurationBuilder.create()
-                .withAddress(new InetSocketAddress("localhost", DEVICE_SIMULATOR_PORT))
+            .withTcpParameters(new TcpClientParametersBuilder()
+                .setRemoteAddress(new Host(new IpAddress(Ipv4Address.getDefaultInstance("127.0.0.1"))))
+                .setRemotePort(new PortNumber(Uint16.valueOf(DEVICE_SIMULATOR_PORT))).build())
                 .withSessionListener(sessionListener)
                 .withConnectionTimeoutMillis(NetconfClientConfigurationBuilder.DEFAULT_CONNECTION_TIMEOUT_MILLIS)
                 .withProtocol(NetconfClientProtocol.SSH)
-                .withAuthHandler(new LoginPasswordHandler(USER, PASS))
-                .build();
+            .withSshParameters(new SshClientParametersBuilder().setClientIdentity(new ClientIdentityBuilder()
+                    .setUsername(USER)
+                    .setPassword(new PasswordBuilder()
+                        .setPasswordType(new CleartextPasswordBuilder()
+                            .setCleartextPassword(PASS)
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build();
     }
 
     @Test
