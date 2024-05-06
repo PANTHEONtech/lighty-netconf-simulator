@@ -8,8 +8,8 @@
 package io.lighty.netconf.device.topology.datastore;
 
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -35,7 +35,7 @@ final class TopologyDataTreeChangeListener implements DataTreeChangeListener<Net
     }
 
     @Override
-    public void onDataTreeChanged(@NonNull Collection<DataTreeModification<NetworkTopology>> changes) {
+    public void onDataTreeChanged(@NonNull List<DataTreeModification<NetworkTopology>> changes) {
         changes.stream().forEach(change -> {
             DataObjectModification.ModificationType modificationType = change.getRootNode().getModificationType();
             Set<TopologyId> ids = new HashSet<>();
