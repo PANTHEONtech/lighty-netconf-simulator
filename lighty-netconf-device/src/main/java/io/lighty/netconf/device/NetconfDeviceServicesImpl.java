@@ -132,11 +132,13 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         final InMemoryDOMDataStore store = new InMemoryDOMDataStore("CFG", LogicalDatastoreType.CONFIGURATION,
                 getDataTreeChangeListenerExecutor(),
                 InMemoryDOMDataStoreConfigProperties.DEFAULT_MAX_DATA_CHANGE_LISTENER_QUEUE_SIZE, false);
+        store.onModelContextUpdated(effectiveModelContext);
         return store;
     }
 
     private DOMStore createOperationalDatastore() {
         final InMemoryDOMDataStore store = new InMemoryDOMDataStore("OPER", getDataTreeChangeListenerExecutor());
+        store.onModelContextUpdated(effectiveModelContext);
         return store;
     }
 
