@@ -7,24 +7,26 @@
  */
 package io.lighty.netconf.device.toaster.processors;
 
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture;
+import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.MakeToast;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.MakeToastInput;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.MakeToastOutput;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("checkstyle:MemberName")
-public class ToasterServiceMakeToastProcessor extends ToasterServiceAbstractProcessor<MakeToastInput, MakeToastOutput> {
+public class ToasterServiceMakeToastProcessor extends ToasterServiceAbstractProcessor<MakeToastInput, MakeToastOutput>
+        implements MakeToast {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceMakeToastProcessor.class);
 
-    private final ToasterService toasterService;
+    private final ToasterServiceImpl toasterService;
     private final QName qName = QName.create("http://netconfcentral.org/ns/toaster", "make-toast");
 
-    public ToasterServiceMakeToastProcessor(final ToasterService toasterService) {
+    public ToasterServiceMakeToastProcessor(final ToasterServiceImpl toasterService) {
         this.toasterService = toasterService;
     }
 
@@ -34,9 +36,9 @@ public class ToasterServiceMakeToastProcessor extends ToasterServiceAbstractProc
     }
 
     @Override
-    protected Future<RpcResult<MakeToastOutput>> execMethod(final MakeToastInput input) {
+    public ListenableFuture<RpcResult<MakeToastOutput>> invoke(final MakeToastInput input) {
         LOG.info("execute RPC: make-toast");
-        return this.toasterService.makeToast(input);
+        return toasterService.makeToast(input);
     }
 
 }

@@ -15,11 +15,9 @@ import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -27,17 +25,28 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.opendaylight.netconf.api.NetconfMessage;
+import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.api.xml.XmlUtil;
-import org.opendaylight.netconf.client.NetconfClientDispatcher;
-import org.opendaylight.netconf.client.NetconfClientDispatcherImpl;
+import org.opendaylight.netconf.client.NetconfClientFactory;
+import org.opendaylight.netconf.client.NetconfClientFactoryImpl;
 import org.opendaylight.netconf.client.NetconfClientSession;
 import org.opendaylight.netconf.client.NetconfClientSessionListener;
 import org.opendaylight.netconf.client.SimpleNetconfClientSessionListener;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfiguration.NetconfClientProtocol;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
-import org.opendaylight.netconf.nettyutil.handler.ssh.authentication.LoginPasswordHandler;
+import org.opendaylight.netconf.common.impl.DefaultNetconfTimer;
+import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.crypto.types.rev240208.password.grouping.password.type.CleartextPasswordBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Host;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.client.rev240208.netconf.client.initiate.stack.grouping.transport.ssh.ssh.SshClientParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.client.rev240208.netconf.client.initiate.stack.grouping.transport.ssh.ssh.TcpClientParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ssh.client.rev240208.ssh.client.grouping.ClientIdentityBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.ssh.client.rev240208.ssh.client.grouping.client.identity.PasswordBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -66,7 +75,7 @@ public class DeviceTest {
     private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static Main deviceSimulator;
     private static NioEventLoopGroup nettyGroup;
-    private static NetconfClientDispatcherImpl dispatcher;
+    private static NetconfClientFactory dispatcher;
 
 
     @BeforeAll
@@ -74,8 +83,8 @@ public class DeviceTest {
         deviceSimulator = new Main();
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false, false);
 
-        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientDispatcher.class));
-        dispatcher = new NetconfClientDispatcherImpl(nettyGroup, nettyGroup, new HashedWheelTimer());
+        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientFactory.class));
+        dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
 
     @AfterAll
@@ -86,17 +95,27 @@ public class DeviceTest {
 
     private static NetconfClientConfiguration createSHHConfig(final NetconfClientSessionListener sessionListener) {
         return NetconfClientConfigurationBuilder.create()
-                .withAddress(new InetSocketAddress("localhost", DEVICE_SIMULATOR_PORT))
+            .withTcpParameters(new TcpClientParametersBuilder()
+                .setRemoteAddress(new Host(new IpAddress(Ipv4Address.getDefaultInstance("127.0.0.1"))))
+                .setRemotePort(new PortNumber(Uint16.valueOf(DEVICE_SIMULATOR_PORT))).build())
                 .withSessionListener(sessionListener)
                 .withConnectionTimeoutMillis(NetconfClientConfigurationBuilder.DEFAULT_CONNECTION_TIMEOUT_MILLIS)
                 .withProtocol(NetconfClientProtocol.SSH)
-                .withAuthHandler(new LoginPasswordHandler(USER, PASS))
-                .build();
+            .withSshParameters(new SshClientParametersBuilder().setClientIdentity(new ClientIdentityBuilder()
+                    .setUsername(USER)
+                    .setPassword(new PasswordBuilder()
+                        .setPasswordType(new CleartextPasswordBuilder()
+                            .setCleartextPassword(PASS)
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build();
     }
 
     @Test
     public void getSchemaTest() throws IOException, URISyntaxException, SAXException, InterruptedException,
-            ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
@@ -126,7 +145,7 @@ public class DeviceTest {
 
     @Test
     public void deviceConfigOperationsTest() throws InterruptedException, ExecutionException,
-            IOException, TimeoutException, URISyntaxException, SAXException {
+            IOException, TimeoutException, URISyntaxException, SAXException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session =
                 dispatcher.createClient(createSHHConfig(sessionListener))
@@ -176,7 +195,7 @@ public class DeviceTest {
 
     @Test
     public void deviceRpcTest() throws ExecutionException, InterruptedException, IOException, URISyntaxException,
-            SAXException, TimeoutException {
+            SAXException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session =
                 dispatcher.createClient(createSHHConfig(sessionListener))
@@ -197,7 +216,7 @@ public class DeviceTest {
 
     @Test
     public void testCapabilitiesFormat() throws IOException, URISyntaxException, SAXException, InterruptedException,
-            ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =

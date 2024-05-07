@@ -65,7 +65,7 @@ public final class Main {
                     "2023-09-27"),
                 ModuleId.from("urn:opendaylight:netconf-node-topology",
                     "netconf-node-topology",
-                    "2022-12-25"));
+                    "2023-11-21"));
 
         //2. Initialize DataStores
         InputStream initialOperationalData = null;
@@ -110,7 +110,7 @@ public final class Main {
         networkTopologyService.setDataBrokerService(
                 netconfDevice.getNetconfDeviceServices().getDataBroker());
         EffectiveModelContext effectiveModelContext = netconfDevice.getNetconfDeviceServices().getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         networkTopologyService.setEffectiveModelContext(effectiveModelContext);
 
         //5. Register shutdown hook

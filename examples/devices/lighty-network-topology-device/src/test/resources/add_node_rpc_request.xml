@@ -5,8 +5,10 @@
             <node-id>test-nettopo-node</node-id>
             <host>127.0.0.1</host>
             <port>17835</port>
-            <username>admin</username>
-            <password>admin</password>
+            <login-password-unencrypted>
+                <username>admin</username>
+                <password>admin</password>
+            </login-password-unencrypted>
             <tcp-only>false</tcp-only>
             <keepalive-delay>0</keepalive-delay>
             <schemaless>false</schemaless>

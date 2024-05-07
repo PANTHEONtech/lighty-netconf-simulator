@@ -34,7 +34,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -96,9 +96,9 @@ public final class RPCUtil {
         while (iterator.hasNext()) {
             NormalizedNode fabricListEntry =
                     (NormalizedNode) iterator.next();
-            NormalizedNode fabricListEntryInsideMapNode = ImmutableMapNodeBuilder.create()
+            NormalizedNode fabricListEntryInsideMapNode = ImmutableNodes.newSystemMapBuilder()
                     .withNodeIdentifier(YangInstanceIdentifier.NodeIdentifier
-                            .create(listNormalizedNode.get().getIdentifier().getNodeType()))
+                            .create(listNormalizedNode.get().name().getNodeType()))
                     .withChild((MapEntryNode) fabricListEntry).build();
             normalizedNodes.add(fabricListEntryInsideMapNode);
         }

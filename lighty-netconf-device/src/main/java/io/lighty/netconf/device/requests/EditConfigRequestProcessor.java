@@ -121,7 +121,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         }
 
         EffectiveModelContext effectiveModelContext = getNetconfDeviceServices().getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         YangInstanceIdentifier path = retrieveElementYII(effectiveModelContext, configNN,
                 configElement, "//*[@*[local-name() = 'operation']]");
         NormalizedNode data;
@@ -137,7 +137,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                         ErrorSeverity.ERROR)));
             }
             data = optionalData.get();
-            path = YangInstanceIdentifier.builder().node(data.getIdentifier().getNodeType()).build();
+            path = YangInstanceIdentifier.builder().node(data.name().getNodeType()).build();
         } else {
             Optional<NormalizedNode> optionalData =
                 NormalizedNodes.findNode(configNN, path);
@@ -209,7 +209,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
 
     private void ensureParentsByMerge(final YangInstanceIdentifier path, final DOMDataTreeWriteTransaction writeTx) {
         final EffectiveModelContext effectiveModelContext = getNetconfDeviceServices().getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         final List<PathArgument> normalizedPathWithoutChildArgs = new ArrayList<>();
         YangInstanceIdentifier rootNormalizedPath = null;
 
@@ -311,7 +311,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                     NormalizedNodes.findNode(input, targetIdentifier.getPathArguments());
             if (contextNode.pathStep() == null && findNode.isPresent()) {
                 final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
-                final Map<QName, Object> keyValues = next.getIdentifier().asMap();
+                final Map<QName, Object> keyValues = next.name().asMap();
                 targetIdentifier = YangInstanceIdentifier
                         .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
                         .nodeWithKey(contextNode.dataSchemaNode().getQName(), keyValues).build();

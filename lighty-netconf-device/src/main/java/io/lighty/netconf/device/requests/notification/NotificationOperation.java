@@ -27,8 +27,8 @@ import java.util.Optional;
 import javax.xml.parsers.DocumentBuilder;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.netconf.api.DocumentedException;
-import org.opendaylight.netconf.api.NetconfMessage;
 import org.opendaylight.netconf.api.NetconfSession;
+import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.server.api.operations.HandlingPriority;
 import org.opendaylight.netconf.server.api.operations.NetconfOperationChainedExecution;
 import org.opendaylight.netconf.server.api.operations.SessionAwareNetconfOperation;
@@ -59,7 +59,7 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
 
     public NotificationOperation(final AdapterContext adapterContext) {
         this.adapterContext = adapterContext;
-        this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().getEffectiveModelContext();
+        this.effectiveModelContext = adapterContext.currentSerializer().getRuntimeContext().modelContext();
     }
 
     public void sendMessage(final Notification notificationMessage, final QName quName) {
@@ -148,7 +148,7 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
                         .getTextContent().split(":")[1];
             }
         }
-        return HandlingPriority.getHandlingPriority(0);
+        return new HandlingPriority(0);
     }
 
     @Override

@@ -7,10 +7,11 @@
  */
 package io.lighty.netconf.device.toaster.processors;
 
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture;
+import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
+import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.CancelToast;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.CancelToastInput;
 import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.CancelToastOutput;
-import org.opendaylight.yang.gen.v1.http.netconfcentral.org.ns.toaster.rev091120.ToasterService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -18,14 +19,14 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("checkstyle:MemberName")
 public class ToasterServiceCancelToastProcessor extends ToasterServiceAbstractProcessor<CancelToastInput,
-        CancelToastOutput> {
+        CancelToastOutput> implements CancelToast {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToasterServiceCancelToastProcessor.class);
 
-    private final ToasterService toasterService;
+    private final ToasterServiceImpl toasterService;
     private final QName qName = QName.create("http://netconfcentral.org/ns/toaster", "cancel-toast");
 
-    public ToasterServiceCancelToastProcessor(final ToasterService toasterService) {
+    public ToasterServiceCancelToastProcessor(final ToasterServiceImpl toasterService) {
         this.toasterService = toasterService;
     }
 
@@ -35,9 +36,9 @@ public class ToasterServiceCancelToastProcessor extends ToasterServiceAbstractPr
     }
 
     @Override
-    protected Future<RpcResult<CancelToastOutput>> execMethod(final CancelToastInput input) {
+    public ListenableFuture<RpcResult<CancelToastOutput>> invoke(final CancelToastInput input) {
         LOG.info("execute RPC: cancel-toast");
-        return this.toasterService.cancelToast(input);
+        return toasterService.cancelToast(input);
     }
 
 }

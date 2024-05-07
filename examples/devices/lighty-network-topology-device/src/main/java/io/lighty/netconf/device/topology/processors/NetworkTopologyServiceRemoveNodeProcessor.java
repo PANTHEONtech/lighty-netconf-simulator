@@ -7,11 +7,9 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
-import io.lighty.netconf.device.utils.TimeoutUtil;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.NetworkTopologyRpcsService;
+import com.google.common.util.concurrent.ListenableFuture;
+import io.lighty.netconf.device.topology.rpcs.NetworkTopologyServiceImpl;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveNodeFromTopology;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveNodeFromTopologyInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.RemoveNodeFromTopologyOutput;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -21,15 +19,15 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("checkstyle:MemberName")
 public class NetworkTopologyServiceRemoveNodeProcessor extends
-    NetworkTopologyServiceAbstractProcessor<RemoveNodeFromTopologyInput, RemoveNodeFromTopologyOutput> {
-
+        NetworkTopologyServiceAbstractProcessor<RemoveNodeFromTopologyInput, RemoveNodeFromTopologyOutput>
+        implements RemoveNodeFromTopology {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyServiceRemoveNodeProcessor.class);
 
-    private final NetworkTopologyRpcsService networkTopologyRpcsService;
+    private final NetworkTopologyServiceImpl networkTopologyRpcsService;
     private final QName qName = QName.create("urn:tech.pantheon.netconfdevice.network.topology.rpcs",
         "remove-node-from-topology");
 
-    public NetworkTopologyServiceRemoveNodeProcessor(final NetworkTopologyRpcsService networkTopologyRpcsService) {
+    public NetworkTopologyServiceRemoveNodeProcessor(final NetworkTopologyServiceImpl networkTopologyRpcsService) {
         this.networkTopologyRpcsService = networkTopologyRpcsService;
     }
 
@@ -39,10 +37,7 @@ public class NetworkTopologyServiceRemoveNodeProcessor extends
     }
 
     @Override
-    protected RpcResult<RemoveNodeFromTopologyOutput> execMethod(final RemoveNodeFromTopologyInput input)
-            throws ExecutionException, InterruptedException, TimeoutException {
-        final RpcResult<RemoveNodeFromTopologyOutput> voidRpcResult = this.networkTopologyRpcsService
-                .removeNodeFromTopology(input).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        return voidRpcResult;
+    public ListenableFuture<RpcResult<RemoveNodeFromTopologyOutput>> invoke(final RemoveNodeFromTopologyInput input) {
+        return networkTopologyRpcsService.removeNodeFromTopology(input);
     }
 }

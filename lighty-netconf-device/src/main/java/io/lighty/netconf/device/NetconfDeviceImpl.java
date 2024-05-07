@@ -149,7 +149,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
         HashMap<SchemaKey, Schema> mapSchemas = new HashMap<>();
         EffectiveModelContext modelContext =
             netconfDeviceServices.getAdapterContext()
-                .currentSerializer().getRuntimeContext().getEffectiveModelContext();
+                .currentSerializer().getRuntimeContext().modelContext();
         Queue<Collection<? extends ModuleLike>> queueModulesCollections = new LinkedList<>();
         queueModulesCollections.add(modelContext.getModules());
         while (!queueModulesCollections.isEmpty()) {

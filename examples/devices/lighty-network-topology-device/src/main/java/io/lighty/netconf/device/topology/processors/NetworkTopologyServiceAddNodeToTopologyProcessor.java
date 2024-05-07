@@ -7,13 +7,11 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
-import io.lighty.netconf.device.utils.TimeoutUtil;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.google.common.util.concurrent.ListenableFuture;
+import io.lighty.netconf.device.topology.rpcs.NetworkTopologyServiceImpl;
+import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.AddNodeIntoTopology;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.AddNodeIntoTopologyInput;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.AddNodeIntoTopologyOutput;
-import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.NetworkTopologyRpcsService;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -21,16 +19,16 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("checkstyle:MemberName")
 public class NetworkTopologyServiceAddNodeToTopologyProcessor extends
-    NetworkTopologyServiceAbstractProcessor<AddNodeIntoTopologyInput, AddNodeIntoTopologyOutput> {
-
+        NetworkTopologyServiceAbstractProcessor<AddNodeIntoTopologyInput, AddNodeIntoTopologyOutput>
+        implements AddNodeIntoTopology {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkTopologyServiceAddNodeToTopologyProcessor.class);
 
-    private final NetworkTopologyRpcsService networkTopologyRpcsService;
+    private final NetworkTopologyServiceImpl networkTopologyRpcsService;
     private final QName qName = QName.create("urn:tech.pantheon.netconfdevice.network.topology.rpcs",
         "add-node-into-topology");
 
     public NetworkTopologyServiceAddNodeToTopologyProcessor(
-        final NetworkTopologyRpcsService networkTopologyRpcsService) {
+        final NetworkTopologyServiceImpl networkTopologyRpcsService) {
         this.networkTopologyRpcsService = networkTopologyRpcsService;
     }
 
@@ -41,10 +39,7 @@ public class NetworkTopologyServiceAddNodeToTopologyProcessor extends
 
 
     @Override
-    protected RpcResult<AddNodeIntoTopologyOutput> execMethod(final AddNodeIntoTopologyInput input)
-            throws ExecutionException, InterruptedException, TimeoutException {
-        final RpcResult<AddNodeIntoTopologyOutput> voidRpcResult = this.networkTopologyRpcsService.addNodeIntoTopology(
-                input).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-        return voidRpcResult;
+    public ListenableFuture<RpcResult<AddNodeIntoTopologyOutput>> invoke(final AddNodeIntoTopologyInput input) {
+        return networkTopologyRpcsService.addNodeIntoTopology(input);
     }
 }
