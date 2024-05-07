@@ -13,7 +13,7 @@ Build root project - for more details check: [README](../../../README.md)
 `--starting-port STARTING-PORT` (Default 17380) First port for simulated device. Each other device will use incremented port number.    
 `--thread-pool-size THREAD-POOL-SIZE` (Default 8) The number of threads to keep in the pool, when creating a device simulator, even if they are idle.    
 ```
-java -jar lighty-toaster-multiple-devices-20.0.0-SNAPSHOT.jar --starting-port 20000 --device-count 200 --thread-pool-size 200
+java -jar lighty-toaster-multiple-devices-20.0.0.jar --starting-port 20000 --device-count 200 --thread-pool-size 200
 ```
 
 ### Connect to device via SSH
