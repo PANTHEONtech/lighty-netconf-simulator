@@ -50,7 +50,7 @@ sending client's model capabilities in `hello-message`:
 <hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
     <capabilities>
         <capability>urn:ietf:params:netconf:base:1.0</capability>
-        <capability>urn:tech.pantheon.netconfdevice.network.topology.rpcs?module=network-topology-rpcs;revision=2018-03-20</capability>
+        <capability>urn:tech.pantheon.netconfdevice.network.topology.rpcs?module=network-topology-rpcs;revision=2024-05-09</capability>
     </capabilities>
 </hello>
 ]]>]]>
@@ -291,7 +291,7 @@ appropriate error response:
 
 ### Network Topology Model
 
-YANG model used by the device is `network-topology-rpcs@2018-03-20.yang`, which also uses
+YANG model used by the device is `network-topology-rpcs@2024-05-09.yang`, which also uses
 `netconf-node-topology@2015-01-14.yang` and `network-topology@2013-10-21.yang`.
 In YANG model, there are defined groupings for `node-data` and `topology-data`,
 which will be referenced further.

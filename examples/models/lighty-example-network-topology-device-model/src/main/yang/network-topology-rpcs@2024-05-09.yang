@@ -6,14 +6,18 @@ module network-topology-rpcs {
     prefix "ntr";
 
     import network-topology { prefix "nt"; revision-date 2013-10-21; }
-    import netconf-node-topology { prefix "nnt"; revision-date 2022-12-25; }
-    import odl-netconf-device { prefix "ond"; revision-date 2022-12-25; }
+    import netconf-node-topology { prefix "nnt"; revision-date 2024-02-23; }
+    import odl-netconf-device { prefix "ond"; revision-date 2024-02-23; }
 
     organization "Pantheon.tech";
 
     description
         "This module represents rpc operations on network-topology module";
 
+    revision "2024-05-09" {
+        description
+            "Use newer revision of netconf-node-topology and odl-netconf-device.";
+    }
 
     revision "2018-03-20" {
         description
@@ -27,6 +31,7 @@ module network-topology-rpcs {
           uses nt:node-attributes;
           uses nnt:netconf-node-fields;
           uses ond:connection-oper;
+          uses ond:credentials;
           must "boolean(../underlay-topology[*]/node[./supporting-nodes/node-ref])";
               // This constraint is meant to ensure that a referenced node is in fact
               // a node in an underlay topology.
