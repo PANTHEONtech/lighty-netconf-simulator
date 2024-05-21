@@ -10,8 +10,6 @@ package io.lighty.netconf.device.toaster;
 import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -72,7 +70,6 @@ public class DeviceTest {
     private static final List<SimpleNetconfClientSessionListener> SESSION_LISTENERS = new ArrayList<>();
     private static final List<NetconfClientSession> NETCONF_CLIENT_SESSIONS = new ArrayList<>();
     private static Main deviceSimulator;
-    private static NioEventLoopGroup nettyGroup;
 
     @BeforeAll
     public static void setUpClass() throws InterruptedException, ExecutionException,
@@ -82,7 +79,6 @@ public class DeviceTest {
                         String.valueOf(DEVICE_STARTING_PORT), "--thread-pool-size",
                         String.valueOf(THREAD_POOL_SIZE), "--device-count", String.valueOf(DEVICE_COUNT)},
                 true, false);
-        nettyGroup = new NioEventLoopGroup(THREAD_POOL_SIZE, new DefaultThreadFactory(NetconfClientFactory.class));
         NetconfClientFactory dispatcher =
                 new NetconfClientFactoryImpl(new DefaultNetconfTimer());
         for (int port = DEVICE_STARTING_PORT; port < DEVICE_STARTING_PORT + DEVICE_COUNT; port++) {
@@ -98,7 +94,6 @@ public class DeviceTest {
     public static void cleanUpClass() throws InterruptedException {
         NETCONF_CLIENT_SESSIONS.forEach(AbstractNetconfSession::close);
         deviceSimulator.shutdown();
-        nettyGroup.shutdownGracefully().sync();
     }
 
     @Test
