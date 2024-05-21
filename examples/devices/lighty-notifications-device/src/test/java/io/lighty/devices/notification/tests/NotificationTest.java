@@ -11,8 +11,6 @@ import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.notification.Main;
 import io.lighty.netconf.device.utils.TimeoutUtil;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -65,13 +63,11 @@ public class NotificationTest {
     private static final String EXPECTED_NOTIFICATION_PAYLOAD = "Test Notification";
     private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static Main deviceSimulator;
-    private static NioEventLoopGroup nettyGroup;
     private static NetconfClientFactory dispatcher;
 
     @BeforeAll
     public static void setupClass() {
         deviceSimulator = new Main();
-        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientFactory.class));
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false);
         dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
@@ -79,7 +75,6 @@ public class NotificationTest {
     @AfterAll
     public static void cleanUpClass() throws InterruptedException {
         deviceSimulator.shutdown();
-        nettyGroup.shutdownGracefully().sync();
     }
 
     private static NetconfClientConfiguration createSHHConfig(final NetconfClientSessionListener sessionListener) {

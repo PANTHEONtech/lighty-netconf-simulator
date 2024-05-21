@@ -11,8 +11,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.netconf.api.messages.NetconfMessage;
 import org.opendaylight.netconf.api.xml.XmlUtil;
-import org.opendaylight.netconf.client.NetconfClientFactory;
 import org.opendaylight.netconf.client.NetconfClientFactoryImpl;
 import org.opendaylight.netconf.client.NetconfClientSession;
 import org.opendaylight.netconf.client.NetconfClientSessionListener;
@@ -66,21 +63,18 @@ public class ActionDeviceTest {
     public static final String RESET_TAG = "reset-finished-at";
 
     private static Main deviceSimulator;
-    private static NioEventLoopGroup nettyGroup;
     private static NetconfClientFactoryImpl dispatcher;
 
     @BeforeAll
     public static void setUpClass() {
         deviceSimulator = new Main();
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false);
-        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientFactory.class));
         dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
 
     @AfterAll
     public static void cleanUpClass() throws InterruptedException {
         deviceSimulator.shutdown();
-        nettyGroup.shutdownGracefully().sync();
     }
 
     private static NetconfClientConfiguration createSHHConfig(final NetconfClientSessionListener sessionListener) {

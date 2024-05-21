@@ -14,8 +14,6 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -74,7 +72,6 @@ public class DeviceTest {
     private static final String DELETE_TOPOLOGY_CONFIG_REQUEST_XML = "delete_topology_config_request.xml";
     private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static Main deviceSimulator;
-    private static NioEventLoopGroup nettyGroup;
     private static NetconfClientFactory dispatcher;
 
 
@@ -83,14 +80,12 @@ public class DeviceTest {
         deviceSimulator = new Main();
         deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false, false);
 
-        nettyGroup = new NioEventLoopGroup(1, new DefaultThreadFactory(NetconfClientFactory.class));
         dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
 
     @AfterAll
     public static void cleanUpClass() throws InterruptedException {
         deviceSimulator.shutdown();
-        nettyGroup.shutdownGracefully().sync();
     }
 
     private static NetconfClientConfiguration createSHHConfig(final NetconfClientSessionListener sessionListener) {
