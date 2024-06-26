@@ -6,8 +6,8 @@ module network-topology-rpcs {
     prefix "ntr";
 
     import network-topology { prefix "nt"; revision-date 2013-10-21; }
-    import netconf-node-topology { prefix "nnt"; revision-date 2022-12-25; }
-    import odl-netconf-device { prefix "ond"; revision-date 2024-01-18; }
+    import netconf-node-topology { prefix "nnt"; revision-date 2024-02-23; }
+    import odl-netconf-device { prefix "ond"; revision-date 2024-02-23; }
 
     organization "Pantheon.tech";
 
