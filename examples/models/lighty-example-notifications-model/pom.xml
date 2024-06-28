@@ -18,6 +18,6 @@
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
     <artifactId>lighty-example-notifications-model</artifactId>
-    <version>20.1.0</version>
+    <version>20.2.0-SNAPSHOT</version>
 
 </project>
