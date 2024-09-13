@@ -50,7 +50,7 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io
           -B -V -Psource-quality
       - name: Upload surefire test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Surefire-Test-Results
           path: ~/**/surefire-reports/**/*.txt
