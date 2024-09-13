@@ -20,11 +20,15 @@ jobs:
       SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY}}
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: 'temurin'
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.8
       - name: Cache SonarCloud packages
         uses: actions/cache@v1
         if: ${{ env.SONAR_TOKEN != 0 }}
@@ -44,13 +48,13 @@ jobs:
       - name: Maven install + Test + SonarCloud
         if: ${{ env.SONAR_TOKEN != 0 }}
         run: mvn clean install org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-          -Dsonar.java.source=17
+          -Dsonar.java.source=21
           -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
           -Dsonar.host.url=https://sonarcloud.io
           -B -V -Psource-quality
       - name: Upload surefire test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Surefire-Test-Results
           path: ~/**/surefire-reports/**/*.txt
