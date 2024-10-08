@@ -9,7 +9,13 @@
                     <topology-id>test-config-topology-merge</topology-id>
                     <node>
                         <node-id>test-nettopo-node</node-id>
-                        <port xmlns="urn:opendaylight:netconf-node-topology" nc:operation="merge">17835</port>
+                        <netconf-node xmlns="urn:opendaylight:netconf-node-topology">
+                            <port xmlns="urn:opendaylight:netconf-node-topology" nc:operation="merge">17835</port>
+                            <login-password-unencrypted xmlns="urn:opendaylight:netconf-node-topology">
+                                <username xmlns="urn:opendaylight:netconf-node-topology">admin</username>
+                                <password xmlns="urn:opendaylight:netconf-node-topology">admin</password>
+                            </login-password-unencrypted>
+                        </netconf-node>
                     </node>
                 </topology>
             </network-topology>
