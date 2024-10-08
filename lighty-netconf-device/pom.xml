@@ -33,7 +33,7 @@
             <artifactId>lighty-codecs-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.netconf.model</groupId>
+            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc8639</artifactId>
         </dependency>
         <dependency>
