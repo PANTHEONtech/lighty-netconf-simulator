@@ -35,8 +35,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240120.co
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240120.connection.oper.UnavailableCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240120.connection.oper.available.capabilities.AvailableCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.device.rev240120.connection.oper.available.capabilities.AvailableCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev231121.NetconfNode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev231121.NetconfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev240911.NetconfNodeAugment;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev240911.NetconfNodeAugmentBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev231121.netconf.node.augment.NetconfNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netconf.node.topology.rev231121.netconf.node.augment.NetconfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -417,7 +419,7 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
                         final NodeBuilder build = new NodeBuilder()
                                 .withKey(nk2);
                         build.setNodeId(node.getNodeId());
-                        final NetconfNode augmentation = node.augmentation(NetconfNode.class);
+                        final NetconfNode augmentation = node.augmentation(NetconfNodeAugment.class).getNetconfNode();
                         if (augmentation != null) {
                             build.setHost(augmentation.getHost())
                                     .setPort(augmentation.getPort())
@@ -534,7 +536,7 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
             .network.topology.topology.NodeBuilder()
                 .withKey(nk)
                 .setNodeId(node.getNodeId())
-                .addAugmentation(ncNode)
+                .addAugmentation(new NetconfNodeAugmentBuilder().setNetconfNode(ncNode).build())
                 .build();
     }
 
@@ -574,7 +576,7 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
         final NodeBuilder build = new NodeBuilder().withKey(key);
         if (node != null) {
             build.setNodeId(node.getNodeId());
-            final NetconfNode augmentation = node.augmentation(NetconfNode.class);
+            final NetconfNode augmentation = node.augmentation(NetconfNodeAugment.class).getNetconfNode();
             if (augmentation != null) {
                 build.setHost(augmentation.getHost())
                     .setPort(augmentation.getPort())
