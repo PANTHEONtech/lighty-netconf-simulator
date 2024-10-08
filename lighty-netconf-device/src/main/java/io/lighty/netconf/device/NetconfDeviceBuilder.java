@@ -26,7 +26,7 @@ import org.opendaylight.netconf.auth.AuthProvider;
 import org.opendaylight.netconf.shaded.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.opendaylight.netconf.test.tool.config.ConfigurationBuilder;
 import org.opendaylight.netconf.test.tool.rpchandler.RpcHandler;
-import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.opendaylight.yangtools.yang.common.QName;
 
 public class NetconfDeviceBuilder {

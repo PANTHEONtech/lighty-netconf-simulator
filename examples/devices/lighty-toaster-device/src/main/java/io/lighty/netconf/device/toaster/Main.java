@@ -18,7 +18,7 @@ import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
 import io.lighty.netconf.device.utils.ModelUtils;
 import java.io.InputStream;
 import java.util.Set;
-import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

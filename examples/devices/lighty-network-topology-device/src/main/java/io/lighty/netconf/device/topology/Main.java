@@ -26,7 +26,7 @@ import io.lighty.netconf.device.utils.ModelUtils;
 import java.io.InputStream;
 import java.util.Set;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

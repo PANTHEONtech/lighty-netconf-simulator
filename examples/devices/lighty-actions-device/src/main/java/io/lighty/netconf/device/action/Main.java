@@ -12,7 +12,7 @@ import io.lighty.netconf.device.NetconfDevice;
 import io.lighty.netconf.device.NetconfDeviceBuilder;
 import io.lighty.netconf.device.action.processors.ActionServiceDeviceProcessor;
 import java.util.Set;
-import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
