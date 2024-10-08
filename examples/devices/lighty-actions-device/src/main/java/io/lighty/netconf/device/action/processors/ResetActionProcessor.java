@@ -24,7 +24,6 @@ import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
 import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
-import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.netconf.api.DocumentedException;
 import org.opendaylight.netconf.api.xml.XmlElement;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.Server;
@@ -32,8 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.ServerKey;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.Reset;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.ResetInput;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.ResetOutput;
+import org.opendaylight.yangtools.binding.data.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Key;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -79,12 +78,13 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
             final String key = findNameElement(xmlElement);
             Preconditions.checkNotNull(key);
             final Class listItem = Server.class;
-            final Key listKey = new ServerKey(key);
+            final ServerKey listKey = new ServerKey(key);
             final InstanceIdentifier instanceIdentifier = InstanceIdentifier.builder(listItem, listKey).build();
             final KeyedInstanceIdentifier<Server, ServerKey> keydIID
                     = (KeyedInstanceIdentifier<Server, ServerKey>) instanceIdentifier;
 
-            final ListenableFuture<RpcResult<ResetOutput>> outputFuture = this.resetAction.invoke(keydIID, input);
+            final ListenableFuture<RpcResult<ResetOutput>> outputFuture =
+                this.resetAction.invoke(keydIID.toIdentifier(), input);
             final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
             Futures.addCallback(outputFuture, new FutureCallback<RpcResult<ResetOutput>>() {
 

@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device.topology.processors;
 
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObject;
 
 public interface EmptyInput extends DataObject {
 }
