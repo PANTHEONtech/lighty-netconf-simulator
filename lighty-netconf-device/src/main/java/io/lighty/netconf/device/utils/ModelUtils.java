@@ -13,7 +13,7 @@ import io.lighty.core.common.models.YangModuleUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import org.opendaylight.yangtools.yang.binding.YangModuleInfo;
+import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 
 public final class ModelUtils {
 
