@@ -23,14 +23,14 @@ import java.util.concurrent.Executors;
 import javax.xml.transform.TransformerException;
 import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
-import org.opendaylight.mdsal.binding.dom.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.netconf.api.DocumentedException;
 import org.opendaylight.netconf.api.xml.XmlElement;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.Device;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.Start;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartInput;
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.StartOutput;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.data.codec.spi.BindingDOMCodecServices;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -71,7 +71,7 @@ public final class StartActionProcessor extends ActionServiceDeviceProcessor {
             final StartInput input = this.adapterSerializer.fromNormalizedNodeActionInput(Start.class,
                     deserializedNode);
             final ListenableFuture<RpcResult<StartOutput>> outputFuture = this.startAction
-                    .invoke(InstanceIdentifier.create(Device.class), input);
+                    .invoke(DataObjectIdentifier.builder(Device.class).build(), input);
             final CompletableFuture<Response> completableFuture = new CompletableFuture<>();
             Futures.addCallback(outputFuture, new FutureCallback<>() {
                 @Override

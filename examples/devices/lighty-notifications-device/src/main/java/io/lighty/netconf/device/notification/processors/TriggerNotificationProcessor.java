@@ -24,7 +24,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.DataNotification;
 import org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.DataNotificationBuilder;
 import org.opendaylight.yang.gen.v1.yang.lighty.test.notifications.rev180820.TriggerDataNotificationInput;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;

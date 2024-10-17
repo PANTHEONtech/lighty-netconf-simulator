@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device.requests.notification;
 
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.QName;
 
 /**
