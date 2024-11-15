@@ -35,6 +35,7 @@ public class NetconfDeviceBuilder {
     private ConfigurationBuilder configurationBuilder;
     private InputStream initialOperationalData;
     private InputStream initialConfigurationData;
+    private String outputDatastoreName;
     private Map<QName, RequestProcessor> requestProcessors;
     private Set<String> allCapabilities;
     private NotificationPublishServiceImpl creator;
@@ -73,6 +74,14 @@ public class NetconfDeviceBuilder {
 
     public NetconfDeviceBuilder setInitialConfigurationData(InputStream initialConfigurationData) {
         this.initialConfigurationData = initialConfigurationData;
+        return this;
+    }
+
+    public NetconfDeviceBuilder setOutputDatastoreName(String outputDatastoreName) {
+        if (outputDatastoreName == null || !outputDatastoreName.endsWith(".xml")) {
+            throw new IllegalArgumentException("Output datastore name must end with .xml and cannot be null");
+        }
+        this.outputDatastoreName = outputDatastoreName;
         return this;
     }
 
@@ -186,7 +195,7 @@ public class NetconfDeviceBuilder {
         this.configurationBuilder.setModels(moduleInfos);
         return new NetconfDeviceImpl(moduleInfos, configurationBuilder.build(),
             initialOperationalData, initialConfigurationData, requestProcessors, creator,
-            netconfMonitoringEnabled);
+            netconfMonitoringEnabled, outputDatastoreName);
     }
 
 }

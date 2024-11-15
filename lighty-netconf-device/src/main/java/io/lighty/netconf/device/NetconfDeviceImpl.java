@@ -8,28 +8,38 @@
 package io.lighty.netconf.device;
 
 import com.google.common.util.concurrent.FluentFuture;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.codecs.util.exception.DeserializationException;
+import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.RpcHandlerImpl;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
 import io.lighty.netconf.device.utils.TimeoutUtil;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.netconf.test.tool.NetconfDeviceSimulator;
 import org.opendaylight.netconf.test.tool.config.Configuration;
@@ -62,12 +72,13 @@ public class NetconfDeviceImpl implements NetconfDevice {
     private NetconfDeviceSimulator netConfDeviceSimulator;
     private InputStream initialOperationalData;
     private InputStream initialConfigurationData;
+    private String outputDatastoreName;
     private boolean netconfMonitoringEnabled;
 
     public NetconfDeviceImpl(Collection<YangModuleInfo> moduleInfos, Configuration config,
             InputStream initialOperationalData, InputStream initialConfigurationData,
             Map<QName, RequestProcessor> requestProcessors, NotificationPublishServiceImpl creator,
-            boolean netconfMonitoringEnabled) {
+            boolean netconfMonitoringEnabled, String outputDatastoreName) {
         if (creator != null) {
             config.setOperationsCreator(creator);
         }
@@ -78,6 +89,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
         config.setRpcHandler(rpcHandler);
         this.netConfDeviceSimulator = new NetconfDeviceSimulator(config);
         this.netconfMonitoringEnabled = netconfMonitoringEnabled;
+        this.outputDatastoreName = outputDatastoreName;
     }
 
     @Override
@@ -126,6 +138,41 @@ public class NetconfDeviceImpl implements NetconfDevice {
         }
     }
 
+    private void saveDatastore(@NonNull String fileName) {
+        final DOMDataTreeReadTransaction readTransaction =
+            netconfDeviceServices.getDOMDataBroker().newReadOnlyTransaction();
+        final Optional<NormalizedNode> response;
+        try {
+            response = readTransaction.read(LogicalDatastoreType.CONFIGURATION,
+                YangInstanceIdentifier.empty()).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | TimeoutException | ExecutionException e) {
+            LOG.error("Could not retrieve configuration datastore! ", e);
+            return;
+        }
+        if (response.isPresent()) {
+            final XmlNodeConverter converter = netconfDeviceServices.getXmlNodeConverter();
+            try {
+                final Writer writer = converter.serializeRpc(YangInstanceIdentifier.empty(), response.get());
+                LOG.info("data: {}", writer.toString());
+                saveToFile(writer.toString(), fileName);
+            } catch (SerializationException e) {
+                LOG.error("Unable to serialize config datastore: ", e);
+            }
+        } else {
+            LOG.warn("No configuration data found in the datastore. "
+                + "Aborting save operation to prevent overwriting existing data.");
+        }
+    }
+
+    private void saveToFile(String data, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+            new FileOutputStream(fileName), StandardCharsets.UTF_8))) {
+            writer.write(data);
+        } catch (IOException e) {
+            LOG.error("Unable to write to file: ", e);
+        }
+    }
+
     @Override
     public NetconfDeviceServices getNetconfDeviceServices() {
         return netconfDeviceServices;
@@ -133,6 +180,10 @@ public class NetconfDeviceImpl implements NetconfDevice {
 
     @Override
     public void close() throws Exception {
+        if (outputDatastoreName != null) {
+            LOG.info("Saving datastore as {}", outputDatastoreName);
+            saveDatastore(outputDatastoreName);
+        }
         LOG.info("shutting down Netconf device");
         netConfDeviceSimulator.close();
     }

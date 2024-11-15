@@ -71,8 +71,8 @@ public final class Main {
         InputStream initialOperationalData = null;
         InputStream initialConfigurationData = null;
         if (initDatastore) {
-            initialOperationalData = Main.class.getResourceAsStream("/initial-network-topo-operational-datastore.xml");
-            initialConfigurationData = Main.class.getResourceAsStream("/initial-network-topo-config-datastore.xml");
+            initialOperationalData = Main.class.getResourceAsStream("/configDatastore.xml");
+            initialConfigurationData = Main.class.getResourceAsStream("/configDatastore.xml");
         }
 
         //3. Initialize RPCs
@@ -87,6 +87,8 @@ public final class Main {
                 .withDefaultCapabilities()
                 .setInitialOperationalData(initialOperationalData)
                 .setInitialConfigurationData(initialConfigurationData)
+                .setOutputDatastoreName(
+                    "./examples/devices/lighty-network-topology-device/src/main/resources/configDatastore.xml")
                 .withRequestProcessor(new NetworkTopologyServiceGetTopologiesProcessor(networkTopologyService))
                 .withRequestProcessor(new NetworkTopologyServiceGetTopologyByIdProcessor(networkTopologyService))
                 .withRequestProcessor(new NetworkTopologyServiceGetTopologyIdsProcessor(networkTopologyService))
