@@ -1,0 +1,13 @@
+<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <network-topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+        <topology>
+            <topology-id>default-topology</topology-id>
+            <node>
+                <node-id>new-netconf-device-1</node-id>
+            </node>
+            <node>
+                <node-id>new-netconf-device</node-id>
+            </node>
+        </topology>
+    </network-topology>
+</data>
