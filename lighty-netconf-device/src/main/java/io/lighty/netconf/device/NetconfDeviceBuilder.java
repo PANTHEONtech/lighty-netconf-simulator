@@ -16,7 +16,7 @@ import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.notification.CreateSubscriptionRequestProcessor;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
 import io.lighty.netconf.device.utils.ModelUtils;
-import java.io.InputStream;
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,8 +33,8 @@ public class NetconfDeviceBuilder {
 
     private Set<YangModuleInfo> moduleInfos;
     private ConfigurationBuilder configurationBuilder;
-    private InputStream initialOperationalData;
-    private InputStream initialConfigurationData;
+    private File operationalData;
+    private File configurationData;
     private Map<QName, RequestProcessor> requestProcessors;
     private Set<String> allCapabilities;
     private NotificationPublishServiceImpl creator;
@@ -66,13 +66,13 @@ public class NetconfDeviceBuilder {
         return this;
     }
 
-    public NetconfDeviceBuilder setInitialOperationalData(InputStream initialOperationalData) {
-        this.initialOperationalData = initialOperationalData;
+    public NetconfDeviceBuilder setOperationalDatastore(File operationalDataFile) {
+        this.operationalData = operationalDataFile;
         return this;
     }
 
-    public NetconfDeviceBuilder setInitialConfigurationData(InputStream initialConfigurationData) {
-        this.initialConfigurationData = initialConfigurationData;
+    public NetconfDeviceBuilder setConfigDatastore(File configurationDataFile) {
+        this.configurationData = configurationDataFile;
         return this;
     }
 
@@ -185,7 +185,7 @@ public class NetconfDeviceBuilder {
         this.configurationBuilder.setGetDefaultYangResources(Collections.emptySet());
         this.configurationBuilder.setModels(moduleInfos);
         return new NetconfDeviceImpl(moduleInfos, configurationBuilder.build(),
-            initialOperationalData, initialConfigurationData, requestProcessors, creator,
+            operationalData, configurationData, requestProcessors, creator,
             netconfMonitoringEnabled);
     }
 

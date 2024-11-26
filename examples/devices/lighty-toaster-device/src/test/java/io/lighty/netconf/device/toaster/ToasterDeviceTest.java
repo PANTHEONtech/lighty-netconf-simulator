@@ -70,7 +70,7 @@ public class ToasterDeviceTest {
     @BeforeAll
     public static void setUpClass() {
         deviceSimulator = new Main();
-        deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false, false);
+        deviceSimulator.start(new String[]{DEVICE_SIMULATOR_PORT + ""}, false, false, false);
         dispatcher = new NetconfClientFactoryImpl(new DefaultNetconfTimer());
     }
 
