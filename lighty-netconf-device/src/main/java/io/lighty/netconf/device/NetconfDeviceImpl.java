@@ -7,29 +7,41 @@
  */
 package io.lighty.netconf.device;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
+import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.codecs.util.exception.DeserializationException;
+import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.requests.RequestProcessor;
 import io.lighty.netconf.device.requests.RpcHandlerImpl;
 import io.lighty.netconf.device.requests.notification.NotificationPublishServiceImpl;
 import io.lighty.netconf.device.utils.TimeoutUtil;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeReadTransaction;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.netconf.test.tool.NetconfDeviceSimulator;
 import org.opendaylight.netconf.test.tool.config.Configuration;
@@ -60,20 +72,20 @@ public class NetconfDeviceImpl implements NetconfDevice {
 
     private NetconfDeviceServices netconfDeviceServices;
     private NetconfDeviceSimulator netConfDeviceSimulator;
-    private InputStream initialOperationalData;
-    private InputStream initialConfigurationData;
+    private File operationalData;
+    private File configurationData;
     private boolean netconfMonitoringEnabled;
 
     public NetconfDeviceImpl(Collection<YangModuleInfo> moduleInfos, Configuration config,
-            InputStream initialOperationalData, InputStream initialConfigurationData,
+            File operationalData, File configurationData,
             Map<QName, RequestProcessor> requestProcessors, NotificationPublishServiceImpl creator,
             boolean netconfMonitoringEnabled) {
         if (creator != null) {
             config.setOperationsCreator(creator);
         }
         this.netconfDeviceServices = new NetconfDeviceServicesImpl(moduleInfos, creator);
-        this.initialOperationalData = initialOperationalData;
-        this.initialConfigurationData = initialConfigurationData;
+        this.operationalData = operationalData;
+        this.configurationData = configurationData;
         RpcHandlerImpl rpcHandler = new RpcHandlerImpl(netconfDeviceServices, requestProcessors);
         config.setRpcHandler(rpcHandler);
         this.netConfDeviceSimulator = new NetconfDeviceSimulator(config);
@@ -83,11 +95,11 @@ public class NetconfDeviceImpl implements NetconfDevice {
     @Override
     public void start() {
         LOG.info("Starting Netconf device");
-        if (initialOperationalData != null) {
-            initDatastore(LogicalDatastoreType.OPERATIONAL, initialOperationalData);
+        if (operationalData != null && isNotEmpty(operationalData)) {
+            initDatastore(LogicalDatastoreType.OPERATIONAL, operationalData);
         }
-        if (initialConfigurationData != null) {
-            initDatastore(LogicalDatastoreType.CONFIGURATION, initialConfigurationData);
+        if (configurationData != null && isNotEmpty(configurationData)) {
+            initDatastore(LogicalDatastoreType.CONFIGURATION, configurationData);
         }
         netConfDeviceSimulator.start();
         if (netconfMonitoringEnabled) {
@@ -104,10 +116,12 @@ public class NetconfDeviceImpl implements NetconfDevice {
         LOG.info("Netconf device started");
     }
 
+    @VisibleForTesting()
     @SuppressWarnings("checkstyle:AvoidHidingCauseException")
-    private void initDatastore(LogicalDatastoreType datastoreType, InputStream initialData) {
+    void initDatastore(LogicalDatastoreType datastoreType, File initialData) {
         LOG.debug("Setting up initial state of {} datastore from XML", datastoreType);
-        try (Reader reader = new InputStreamReader(initialData, Charset.defaultCharset())) {
+        try (InputStream inputStream = initialData.toURI().toURL().openStream();
+            Reader reader = new InputStreamReader(inputStream, Charset.defaultCharset())) {
             NormalizedNode initialDataBI = netconfDeviceServices.getXmlNodeConverter()
                     .deserialize(netconfDeviceServices.getRootInference(), reader);
             DOMDataTreeWriteTransaction writeTx = netconfDeviceServices.getDOMDataBroker().newWriteOnlyTransaction();
@@ -126,6 +140,42 @@ public class NetconfDeviceImpl implements NetconfDevice {
         }
     }
 
+    @VisibleForTesting
+    void saveDatastore(@NonNull File fileName, LogicalDatastoreType datastoreType) {
+        final DOMDataTreeReadTransaction readTransaction =
+            netconfDeviceServices.getDOMDataBroker().newReadOnlyTransaction();
+        final Optional<NormalizedNode> response;
+        try {
+            response = readTransaction.read(datastoreType,
+                YangInstanceIdentifier.of()).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | TimeoutException | ExecutionException e) {
+            LOG.error("Could not retrieve configuration datastore! ", e);
+            return;
+        }
+        if (response.isPresent()) {
+            final XmlNodeConverter converter = netconfDeviceServices.getXmlNodeConverter();
+            try {
+                final Writer writer = converter.serializeRpc(YangInstanceIdentifier.of(), response.get());
+                LOG.info("data: {}", writer.toString());
+                saveToFile(writer.toString(), fileName);
+            } catch (SerializationException e) {
+                LOG.error("Unable to serialize config datastore: ", e);
+            }
+        } else {
+            LOG.warn("No configuration data found in the datastore. "
+                + "Aborting save operation to prevent overwriting existing data.");
+        }
+    }
+
+    private void saveToFile(String data, File fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+            new FileOutputStream(fileName), StandardCharsets.UTF_8))) {
+            writer.write(data);
+        } catch (IOException e) {
+            LOG.error("Unable to write to file: ", e);
+        }
+    }
+
     @Override
     public NetconfDeviceServices getNetconfDeviceServices() {
         return netconfDeviceServices;
@@ -133,6 +183,14 @@ public class NetconfDeviceImpl implements NetconfDevice {
 
     @Override
     public void close() throws Exception {
+        if (configurationData != null && configurationData.exists()) {
+            LOG.info("Saving datastore as {}", configurationData);
+            saveDatastore(configurationData, LogicalDatastoreType.CONFIGURATION);
+        }
+        if (operationalData != null && operationalData.exists()) {
+            LOG.info("Saving datastore as {}", operationalData);
+            saveDatastore(operationalData, LogicalDatastoreType.OPERATIONAL);
+        }
         LOG.info("shutting down Netconf device");
         netConfDeviceSimulator.close();
     }
@@ -184,6 +242,19 @@ public class NetconfDeviceImpl implements NetconfDevice {
             .setVersion(module.getRevision().map(Revision::toString).orElse(""))
             .setLocation(Collections.singleton(new Schema.Location(Schema.Location.Enumeration.NETCONF)))
             .build();
+    }
+
+    private boolean isNotEmpty(File inputStream) {
+        try {
+            boolean available = inputStream.toURI().toURL().openStream().available() > 0;
+            if (!available) {
+                LOG.warn("The provided initial datastore is empty!");
+            }
+            return available;
+        } catch (IOException e) {
+            LOG.warn("Unable to read datastore input: ", e);
+            return false;
+        }
     }
 
 }

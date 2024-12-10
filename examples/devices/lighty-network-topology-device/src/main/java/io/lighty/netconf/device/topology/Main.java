@@ -23,7 +23,7 @@ import io.lighty.netconf.device.topology.processors.NetworkTopologyServiceRemove
 import io.lighty.netconf.device.topology.processors.NetworkTopologyServiceRemoveTopologyProcessor;
 import io.lighty.netconf.device.topology.rpcs.NetworkTopologyServiceImpl;
 import io.lighty.netconf.device.utils.ModelUtils;
-import java.io.InputStream;
+import java.io.File;
 import java.util.Set;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
@@ -39,15 +39,12 @@ public final class Main {
 
     public static void main(String[] args) {
         Main app = new Main();
-        app.start(args, true, true);
-    }
-
-    public void start(String[] args) {
-        start(args, false, true);
+        app.start(args, true, true, true);
     }
 
     @SuppressFBWarnings({"SLF4J_SIGN_ONLY_FORMAT", "OBL_UNSATISFIED_OBLIGATION"})
-    public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore) {
+    public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore,
+            final boolean saveDatastore) {
         int port = getPortFromArgs(args);
         LOG.info("Lighty-Network-Topology device started {}", port);
         LOG.info(" _______          __ ________              .__");
@@ -68,11 +65,20 @@ public final class Main {
                     "2023-11-21"));
 
         //2. Initialize DataStores
-        InputStream initialOperationalData = null;
-        InputStream initialConfigurationData = null;
+        File operationalFile = null;
+        File configFile = null;
+        final String configDir = System.getProperty("config.dir",
+            "./examples/devices/lighty-network-topology-device/src/main/resources");
         if (initDatastore) {
-            initialOperationalData = Main.class.getResourceAsStream("/initial-network-topo-operational-datastore.xml");
-            initialConfigurationData = Main.class.getResourceAsStream("/initial-network-topo-config-datastore.xml");
+            LOG.info("Using initial datastore from: {}", configDir);
+            operationalFile = new File(
+                configDir, "initial-network-topo-operational-datastore.xml");
+            configFile = new File(
+                configDir, "initial-network-topo-config-datastore.xml");
+        }
+        if (saveDatastore) {
+            operationalFile = new File(configDir, "initial-network-topo-operational-datastore.xml");
+            configFile = new File(configDir, "initial-network-topo-config-datastore.xml");
         }
 
         //3. Initialize RPCs
@@ -85,8 +91,8 @@ public final class Main {
                 .withModels(modules)
                 .withDefaultRequestProcessors()
                 .withDefaultCapabilities()
-                .setInitialOperationalData(initialOperationalData)
-                .setInitialConfigurationData(initialConfigurationData)
+                .setOperationalDatastore(operationalFile)
+                .setConfigDatastore(configFile)
                 .withRequestProcessor(new NetworkTopologyServiceGetTopologiesProcessor(networkTopologyService))
                 .withRequestProcessor(new NetworkTopologyServiceGetTopologyByIdProcessor(networkTopologyService))
                 .withRequestProcessor(new NetworkTopologyServiceGetTopologyIdsProcessor(networkTopologyService))
