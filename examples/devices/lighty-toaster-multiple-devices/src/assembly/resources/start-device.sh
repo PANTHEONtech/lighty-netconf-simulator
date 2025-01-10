@@ -15,7 +15,7 @@
 # ./start-device --starting-port 20000 --device-count 200 --thread-pool-size 200
 #
 
-CLASSPATH=lighty-toaster-multiple-devices-21.2.0.jar
+CLASSPATH=lighty-toaster-multiple-devices-21.3.0-SNAPSHOT.jar
 
 ARGUMENT_LIST=(
     "device-count"
