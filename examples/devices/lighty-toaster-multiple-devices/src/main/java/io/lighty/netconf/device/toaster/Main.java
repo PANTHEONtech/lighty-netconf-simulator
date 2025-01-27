@@ -15,7 +15,7 @@ import io.lighty.netconf.device.toaster.processors.ToasterServiceCancelToastProc
 import io.lighty.netconf.device.toaster.processors.ToasterServiceMakeToastProcessor;
 import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
 import io.lighty.netconf.device.utils.ModelUtils;
-import java.io.InputStream;
+import java.io.File;
 import java.util.Set;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -37,11 +37,12 @@ public final class Main {
 
     public static void main(String[] args) {
         Main app = new Main();
-        app.start(args, true, true);
+        app.start(args, true, true, true);
     }
 
     @SuppressFBWarnings({"SLF4J_SIGN_ONLY_FORMAT", "OBL_UNSATISFIED_OBLIGATION"})
-    public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore) {
+    public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore,
+            final boolean saveDatastore) {
         //1. Load parameters
         final TesttoolParameters params = parseArgs(args, getParser());
 
@@ -60,13 +61,20 @@ public final class Main {
                         "http://netconfcentral.org/ns/toaster", "toaster", "2009-11-20"));
 
         //3. Initialize DataStores
-        InputStream initialOperationalData = null;
-        InputStream initialConfigurationData = null;
+        File operationalFile = null;
+        File configFile = null;
+        final String configDir = System.getProperty("config.dir",
+            "examples/devices/lighty-toaster-multiple-devices/src/main/resources");
         if (initDatastore) {
-            initialOperationalData =
-                    Main.class.getResourceAsStream("/initial-toaster-operational-datastore.xml");
-            initialConfigurationData =
-                    Main.class.getResourceAsStream("/initial-toaster-config-datastore.xml");
+            LOG.info("Using initial datastore from: {}", configDir);
+            operationalFile = new File(
+                configDir, "initial-toaster-operational-datastore.xml");
+            configFile = new File(
+                configDir, "initial-toaster-config-datastore.xml");
+        }
+        if (saveDatastore) {
+            operationalFile = new File(configDir, "initial-toaster-operational-datastore.xml");
+            configFile = new File(configDir, "initial-toaster-config-datastore.xml");
         }
 
         ToasterServiceImpl toasterService = new ToasterServiceImpl();
@@ -82,8 +90,8 @@ public final class Main {
                 .withRequestProcessor(new ToasterServiceCancelToastProcessor(toasterService))
                 .setThreadPoolSize(params.threadPoolSize)
                 .setDeviceCount(params.deviceCount)
-                .setInitialOperationalData(initialOperationalData)
-                .setInitialConfigurationData(initialConfigurationData)
+                .setOperationalDatastore(operationalFile)
+                .setConfigDatastore(configFile)
                 .build();
 
         netconfDevice.start();

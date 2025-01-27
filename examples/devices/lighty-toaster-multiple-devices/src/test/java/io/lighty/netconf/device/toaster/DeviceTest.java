@@ -78,7 +78,7 @@ public class DeviceTest {
         deviceSimulator.start(new String[]{"--starting-port",
                         String.valueOf(DEVICE_STARTING_PORT), "--thread-pool-size",
                         String.valueOf(THREAD_POOL_SIZE), "--device-count", String.valueOf(DEVICE_COUNT)},
-                true, false);
+                true, false, false);
         NetconfClientFactory dispatcher =
                 new NetconfClientFactoryImpl(new DefaultNetconfTimer());
         for (int port = DEVICE_STARTING_PORT; port < DEVICE_STARTING_PORT + DEVICE_COUNT; port++) {
@@ -91,7 +91,7 @@ public class DeviceTest {
     }
 
     @AfterAll
-    public static void cleanUpClass() throws InterruptedException {
+    public static void cleanUpClass() {
         NETCONF_CLIENT_SESSIONS.forEach(AbstractNetconfSession::close);
         deviceSimulator.shutdown();
     }

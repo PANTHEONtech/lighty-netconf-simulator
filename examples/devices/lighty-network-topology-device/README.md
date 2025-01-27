@@ -630,3 +630,24 @@ It contains information about topology created, and the time event occurred.
 
 This notification is sent, when topology was deleted from device.
 It contains information about topology deleted, and the time event occurred.
+
+## Persistence
+This NETCONF device simulator supports persistence, allowing data to be stored and reloaded between sessions.
+Persistence can be manually enabled or disabled in the application's initial arguments.
+### Configuration Options
+* **Directory for Persistence Files:** 
+Specify the directory for storing and loading persisted data using the -Dconfig.dir=/path/to/directory JVM argument. <br>
+Example: `-Dconfig.dir=/home/user/config`
+
+* **Required Datastore Files:**
+The directory **must** contain the following files:<br>
+`initial-network-topo-config-datastore.xml` <br>
+`initial-network-topo-operational-datastore.xml` <br>
+ Note: _If persistance is disabled, the files and directory are not required to be specified._ <br>
+
+* **Default Behavior:**
+If no directory is specified and persistence is enabled, the application will use the files located in: <br>
+`examples/devices/lighty-network-topology-device/src/main/resources` <br>
+
+Example Startup Command:
+`java -Dconfig.dir=/home/user/IdeaProjects/lighty-netconf-simulator/examples/devices/lighty-network-topology-device/src/main/resources -jar lighty-network-topology-device-22.0.0-SNAPSHOT.jar`
