@@ -15,9 +15,12 @@ import io.lighty.netconf.device.toaster.processors.ToasterServiceCancelToastProc
 import io.lighty.netconf.device.toaster.processors.ToasterServiceMakeToastProcessor;
 import io.lighty.netconf.device.toaster.processors.ToasterServiceRestockToasterProcessor;
 import io.lighty.netconf.device.toaster.rpcs.ToasterServiceImpl;
+import io.lighty.netconf.device.utils.ArgumentParser;
 import io.lighty.netconf.device.utils.ModelUtils;
 import java.io.File;
+import java.util.List;
 import java.util.Set;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +32,22 @@ public class Main {
 
     public static void main(String[] args) {
         Main app = new Main();
-        app.start(args, true, true, true);
+        app.start(args, true);
     }
 
     public void start(String[] args) {
-        start(args, false, true, true);
+        start(args, false);
     }
 
     @SuppressFBWarnings({"SLF4J_SIGN_ONLY_FORMAT", "OBL_UNSATISFIED_OBLIGATION"})
-    public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore,
-        final boolean saveDatastore) {
-        int port = getPortFromArgs(args);
+    public void start(String[] args, boolean registerShutdownHook) {
+        final ArgumentParser argumentParser = new ArgumentParser();
+        final Namespace parseArguments = argumentParser.parseArguments(args);
+
+        //parameters are stored as string list
+        final List<?> portList = parseArguments.get("port");
+        final int port = Integer.parseInt(String.valueOf(portList.getFirst()));
+
         LOG.info("Lighty-Toaster device started at port {}", port);
         LOG.info("___________             __        ________              .__");
         LOG.info("\\__    ___/___  _______/  |_______\\______ \\   _______  _|__| ____  ____");
@@ -81,14 +89,14 @@ public class Main {
         File configFile = null;
         final String configDir = System.getProperty("config.dir",
             "./examples/devices/lighty-toaster-device/src/main/resources");
-        if (initDatastore) {
+        if (argumentParser.isInitDatastore()) {
             LOG.info("Using initial datastore from: {}", configDir);
             operationalFile = new File(
                 configDir, "initial-toaster-operational-datastore.xml");
             configFile = new File(
                 configDir, "initial-toaster-config-datastore.xml");
         }
-        if (saveDatastore) {
+        if (argumentParser.isSaveDatastore()) {
             operationalFile = new File(configDir, "initial-toaster-operational-datastore.xml");
             configFile = new File(configDir, "initial-toaster-config-datastore.xml");
         }
@@ -144,14 +152,4 @@ public class Main {
             }
         }
     }
-
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private static int getPortFromArgs(String[] args) {
-        try {
-            return Integer.parseInt(args[0]);
-        } catch (Exception e) {
-            return 17830;
-        }
-    }
-
 }
