@@ -12,8 +12,20 @@ RUN mvn install -DskipTests
 
 WORKDIR /lighty-netconf-simulator/examples/devices/lighty-network-topology-device
 
-RUN cp target/lighty-network-topology-device-$VERSION.jar target/lighty-network-topology-device.jar
+RUN unzip target/lighty-network-topology-device-$VERSION-bin.zip -d target/
+
+RUN mv target/lighty-network-topology-device-$VERSION target/lighty-network-topology-device
+RUN mv target/lighty-network-topology-device/lighty-network-topology-device-$VERSION.jar target/lighty-network-topology-device/lighty-network-topology-device.jar
+
+FROM eclipse-temurin:21-jre-alpine
+
+ARG VERSION
+
+COPY --from=build /lighty-netconf-simulator/examples/devices/lighty-network-topology-device/target/lighty-network-topology-device /app/target
+COPY --from=build /lighty-netconf-simulator/examples/devices/lighty-network-topology-device/src/main/resources /app/target/resources
+
+WORKDIR /app/target
 
 EXPOSE 17380
 
-ENTRYPOINT ["java", "-jar", "target/lighty-network-topology-device.jar"]
+ENTRYPOINT ["java", "-jar", "lighty-network-topology-device.jar"]
