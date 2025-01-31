@@ -314,3 +314,24 @@ toast type: pink-bread)
 </rpc-reply>
 ]]>]]>
 ```
+
+## Persistence
+This NETCONF device simulator supports persistence, allowing data to be stored and reloaded between sessions.
+Persistence can be manually enabled or disabled in the application's initial arguments.
+
+### Configuration Options
+* **Directory for Persistence Files:**
+  Specify the directory for storing and loading persisted data using the -i JVM argument. <br>
+  Example: `-i /home/user/config`
+
+* **Required Datastore Files:**
+  The directory **must** contain the following files:<br>
+  `initial-network-topo-config-datastore.xml` <br>
+  `initial-network-topo-operational-datastore.xml` <br>
+  Note: _Using the -i and -o path for the same directory will result in persistence (data will be rewritten when application closes)._ <br>
+
+* **Default Behavior:**
+  When -i argument is not set, persistence is disabled by default: <br>
+
+Example Startup Command:
+`java -jar lighty-toaster-device-22.0.0-SNAPSHOT.jar -i path/to/persistence/directory -o path/to/persistence/directory`
