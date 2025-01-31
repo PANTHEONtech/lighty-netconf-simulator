@@ -22,9 +22,12 @@ import io.lighty.netconf.device.topology.processors.NetworkTopologyServiceRemove
 import io.lighty.netconf.device.topology.processors.NetworkTopologyServiceRemoveNodeProcessor;
 import io.lighty.netconf.device.topology.processors.NetworkTopologyServiceRemoveTopologyProcessor;
 import io.lighty.netconf.device.topology.rpcs.NetworkTopologyServiceImpl;
+import io.lighty.netconf.device.utils.ArgumentParser;
 import io.lighty.netconf.device.utils.ModelUtils;
 import java.io.File;
+import java.util.List;
 import java.util.Set;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
@@ -39,13 +42,18 @@ public final class Main {
 
     public static void main(String[] args) {
         Main app = new Main();
-        app.start(args, true, true, true);
+        app.start(args, true);
     }
 
     @SuppressFBWarnings({"SLF4J_SIGN_ONLY_FORMAT", "OBL_UNSATISFIED_OBLIGATION"})
-    public void start(String[] args, boolean registerShutdownHook, final boolean initDatastore,
-            final boolean saveDatastore) {
-        int port = getPortFromArgs(args);
+    public void start(String[] args, boolean registerShutdownHook) {
+        final ArgumentParser argumentParser = new ArgumentParser();
+        final Namespace parseArguments = argumentParser.parseArguments(args);
+
+        //parameters are stored as string list
+        final List<?> portList = parseArguments.get("port");
+        final int port = Integer.parseInt(String.valueOf(portList.getFirst()));
+
         LOG.info("Lighty-Network-Topology device started {}", port);
         LOG.info(" _______          __ ________              .__");
         LOG.info(" \\      \\   _____/  |\\______ \\   _______  _|__| ____  ____");
@@ -67,18 +75,20 @@ public final class Main {
         //2. Initialize DataStores
         File operationalFile = null;
         File configFile = null;
-        final String configDir = System.getProperty("config.dir",
-            "./examples/devices/lighty-network-topology-device/src/main/resources");
-        if (initDatastore) {
+        if (argumentParser.isInitDatastore()) {
+            final List initDatastoreList = parseArguments.get("init_datastore");
+            final String configDir = initDatastoreList.getFirst().toString();
             LOG.info("Using initial datastore from: {}", configDir);
             operationalFile = new File(
-                configDir, "initial-network-topo-operational-datastore.xml");
+                configDir, "/initial-network-topo-operational-datastore.xml");
             configFile = new File(
-                configDir, "initial-network-topo-config-datastore.xml");
+                configDir, "/initial-network-topo-config-datastore.xml");
         }
-        if (saveDatastore) {
-            operationalFile = new File(configDir, "initial-network-topo-operational-datastore.xml");
-            configFile = new File(configDir, "initial-network-topo-config-datastore.xml");
+        if (argumentParser.isSaveDatastore()) {
+            final List outputDatastoreList = parseArguments.get("init_datastore");
+            final String outDir = outputDatastoreList.getFirst().toString();
+            operationalFile = new File(outDir, "/initial-network-topo-operational-datastore.xml");
+            configFile = new File(outDir, "/initial-network-topo-config-datastore.xml");
         }
 
         //3. Initialize RPCs
@@ -166,15 +176,6 @@ public final class Main {
                     LOG.error("Failed to close Netconf device properly", e);
                 }
             }
-        }
-    }
-
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private static int getPortFromArgs(String[] args) {
-        try {
-            return Integer.parseInt(args[0]);
-        } catch (Exception e) {
-            return 17830;
         }
     }
 
