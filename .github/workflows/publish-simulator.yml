@@ -51,9 +51,8 @@ jobs:
           DOCKER_IMAGE_NAME_GHCR=$(echo ghcr.io/pantheontech/${{ env.IMAGE_NAME }})
           DOCKER_IMAGE_NAME_GHCR_TAG=$(echo $DOCKER_IMAGE_NAME_GHCR:${{ inputs.version }})
           
-          echo "cd examples/devices/lighty-network-topology-device"
-          cd examples/devices/lighty-network-topology-device
-          mvn docker:build
+          echo "docker build -t $DOCKER_IMAGE_NAME ."
+          docker build -t $DOCKER_IMAGE_NAME .
           
           echo "Docker image tag:" $DOCKER_IMAGE_NAME_GHCR $DOCKER_IMAGE_NAME_GHCR_TAG
           docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME_TAG

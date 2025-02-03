@@ -60,45 +60,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.45.1</version>
-                <configuration>
-                    <images>
-                        <image>
-                            <name>${image.name}</name>
-                            <build>
-                                <contextDir>${project.basedir}</contextDir>
-                                <dockerFile>src/main/docker/Dockerfile</dockerFile>
-                                <assembly>
-                                    <inline>
-                                        <fileSets>
-                                            <fileSet>
-                                                <directory>${project.build.directory}</directory>
-                                                <includes>
-                                                    <include>*.jar</include>
-                                                </includes>
-                                                <outputDirectory>/</outputDirectory>
-                                            </fileSet>
-                                            <fileSet>
-                                                <directory>${project.build.directory}</directory>
-                                                <includes>
-                                                    <include>*.zip</include>
-                                                </includes>
-                                                <outputDirectory>/</outputDirectory>
-                                            </fileSet>
-                                        </fileSets>
-                                    </inline>
-                                </assembly>
-                                <cleanup>try</cleanup>
-                            </build>
-                        </image>
-                    </images>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
