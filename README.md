@@ -31,6 +31,26 @@ This tool contains 5 device examples, to demonstrate the usage of the NETCONF De
 
 [Read about the background of this project here.](https://pantheon.tech/netconf-monitoring-get-schema/)
 
+## Running the application using docker
+1. Build the application dockerfile using `docker build -t lighty-netconf-simulator .`
+2. Run the dockerfile using `docker run --name lighty-netconf-simulator -p 17830:17830 lighty-netconf-simulator -i resources/ -o resources/`
+3. Get ip address using `docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' lighty-netconf-simulator`
+4. Start lighty.io or other controller and connect to the device
+5. Make changes to the device. example:
+```
+curl --location 'http://localhost:8888/restconf/data/network-topology:network-topology/topology=topology-netconf/node=new-netconf-device/yang-ext:mount/network-topology:network-topology/topology=default-topology' \
+--header 'Content-Type: application/json' \
+--data '{
+    "node": [
+        {
+            "node-id": "test-12345"
+            }
+    ]
+}'
+```
+6. Stop the docker container
+7. Restart the docker container using `docker start lighty-netconf-simulator`
+
 ## Known Issues
 
 **Problem:** Creating multiple simulators takes a long time.  
