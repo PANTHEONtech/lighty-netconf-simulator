@@ -64,9 +64,8 @@ public abstract class BaseRequestProcessor implements RequestProcessor {
     /**
      * Should process the input {@link Element} and return data in form of {@link NormalizedNode}. {@link List} enables
      * method to return more than one top elements.
-     * <p>
-     * The child classes should override this method to achieve the expected behavior.
-     * </p>
+     *
+     * <p>The child classes should override this method to achieve the expected behavior.</p>
      *
      * @param requestXmlElement XML RPC request element
      * @return {@link List} containing {@link NormalizedNode}s to be returned by request.
