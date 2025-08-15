@@ -14,13 +14,13 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-app-parent</artifactId>
-        <version>20.3.0</version>
+        <version>20.4.0</version>
         <relativePath/>
     </parent>
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-parent</artifactId>
-    <version>20.4.0-SNAPSHOT</version>
+    <version>20.4.0</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -34,7 +34,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.5.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -45,7 +45,7 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>examples-bom</artifactId>
-                <version>20.4.0-SNAPSHOT</version>
+                <version>20.4.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
