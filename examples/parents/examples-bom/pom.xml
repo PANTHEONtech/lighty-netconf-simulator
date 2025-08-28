@@ -11,7 +11,7 @@
 
     <groupId>io.lighty.netconf.device.examples</groupId>
     <artifactId>examples-bom</artifactId>
-    <version>21.3.0-SNAPSHOT</version>
+    <version>21.3.0</version>
     <packaging>pom</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -26,58 +26,58 @@
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-network-topology-device-model</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-data-center-model</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device</groupId>
                 <artifactId>lighty-netconf-device</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-actions-device</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-device</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-network-topology-device</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>lighty-toaster-multiple-devices</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples.models</groupId>
                 <artifactId>lighty-example-notifications-model</artifactId>
-                <version>21.3.0-SNAPSHOT</version>
+                <version>21.3.0</version>
             </dependency>
 
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.11.2</version>
+                <version>5.13.4</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.11.2</version>
+                <version>5.13.4</version>
             </dependency>
             <dependency>
                 <groupId>org.xmlunit</groupId>
                 <artifactId>xmlunit-core</artifactId>
-                <version>2.10.0</version>
+                <version>2.10.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
