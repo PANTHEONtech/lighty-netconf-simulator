@@ -9,10 +9,6 @@ on:
         description: Should be this docker labeled with tag latest? Enter `true` if the tag `latest` should be added for image.
         default: "true"
         required: true
-      publish-access-key:
-        description: The branch, tag or SHA to checkout. (if "default" the selected branch will be used)
-        default: default
-        required: true
 
 jobs:
   publish-docker-helm:
@@ -67,7 +63,7 @@ jobs:
       - name: Docker log in (ghcr.io)
         shell: bash
         run: |
-          echo ${{ inputs.publish-access-key}} | docker login  --username ${{ github.actor }} --password-stdin ghcr.io
+          echo "${{ secrets.MM_PKG_WRITE }}" | docker login ghcr.io --username ${{ github.actor }} --password-stdin
       - name: Publish docker image (ghcr.io)
         shell: bash
         run: |
