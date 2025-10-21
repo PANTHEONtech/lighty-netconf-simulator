@@ -1,4 +1,4 @@
-ARG VERSION="22.1.0-SNAPSHOT"
+ARG VERSION="22.1.0"
 
 FROM maven:3.9-eclipse-temurin-21-alpine as build
 
