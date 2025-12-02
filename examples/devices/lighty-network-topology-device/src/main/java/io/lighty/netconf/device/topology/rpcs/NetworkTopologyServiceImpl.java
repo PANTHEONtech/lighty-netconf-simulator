@@ -75,7 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topo
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.node.data.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.node.data.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tech.pantheon.netconfdevice.network.topology.rpcs.rev230927.topology.data.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Revision;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -170,8 +170,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
                         .setTopologyId(topologyId)
                         .setNode(nodeConfigMap)
                         .build();
-                final InstanceIdentifier<Topology> tii =
-                        InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
+                final DataObjectIdentifier<Topology> tii =
+                    DataObjectIdentifier.builder(NetworkTopology.class).child(Topology.class,
                                 topology.key()).build();
                 writeTxConfig.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
                 topology = new TopologyBuilder()
@@ -206,8 +206,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
                 final WriteTransaction writeTxConfig =
                         NetworkTopologyServiceImpl.this.dataBrokerService.newWriteOnlyTransaction();
                 final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
-                final InstanceIdentifier<Topology> tii =
-                        InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
+                final DataObjectIdentifier<Topology> tii =
+                    DataObjectIdentifier.builder(NetworkTopology.class).child(Topology.class,
                                 topology.key()).build();
                 writeTxConfig.merge(LogicalDatastoreType.CONFIGURATION, tii, topology);
                 writeTxOper.merge(LogicalDatastoreType.OPERATIONAL, tii, topology);
@@ -233,8 +233,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
             @Override
             public RpcResult<RemoveTopologyOutput> call() throws Exception {
                 final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
-                final InstanceIdentifier<Topology> tii =
-                        InstanceIdentifier.builder(NetworkTopology.class)
+                final DataObjectIdentifier<Topology> tii =
+                    DataObjectIdentifier.builder(NetworkTopology.class)
                         .child(Topology.class, topology.key())
                         .build();
                 removeFromDatastore(tii);
@@ -263,9 +263,9 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
                         new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                             .rev131021.network.topology.topology.NodeKey(input.getNodeId());
 
-                final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                final DataObjectIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                     .rev131021.network.topology.topology.Node> nii =
-                        InstanceIdentifier.builder(NetworkTopology.class)
+                    DataObjectIdentifier.builder(NetworkTopology.class)
                         .child(Topology.class, topology.key())
                         .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                             .rev131021.network.topology.topology.Node.class, nk)
@@ -291,8 +291,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
         this.executor.submit(new Callable<RpcResult<RemoveAllTopologiesOutput>>() {
             @Override
             public RpcResult<RemoveAllTopologiesOutput> call() throws Exception {
-                final InstanceIdentifier<NetworkTopology> ntii =
-                        InstanceIdentifier.builder(NetworkTopology.class).build();
+                final DataObjectIdentifier<NetworkTopology> ntii =
+                    DataObjectIdentifier.builder(NetworkTopology.class).build();
                 removeFromDatastore(ntii);
                 final RemoveAllTopologiesOutput topologiesOutput = new RemoveAllTopologiesOutputBuilder().build();
                 final RpcResult<RemoveAllTopologiesOutput> rpcResult = RpcResultBuilder.success(topologiesOutput)
@@ -316,8 +316,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
                 try (ReadTransaction readTx =
                              NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction()) {
                     final Topology topology = new TopologyBuilder().setTopologyId(input.getTopologyId()).build();
-                    final InstanceIdentifier<Topology> tii =
-                            InstanceIdentifier.builder(NetworkTopology.class)
+                    final DataObjectIdentifier<Topology> tii =
+                        DataObjectIdentifier.builder(NetworkTopology.class)
                                     .child(Topology.class, topology.key())
                                     .build();
                     final Optional<Topology> readTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
@@ -401,9 +401,9 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
                             new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                                     .rev131021.network.topology.topology.NodeKey(input.getNodeId());
 
-                    final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
+                    final DataObjectIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                             .rev131021.network.topology.topology.Node> tii =
-                            InstanceIdentifier.builder(NetworkTopology.class)
+                        DataObjectIdentifier.builder(NetworkTopology.class)
                                     .child(Topology.class, topology.key())
                                     .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
                                             .rev131021.network.topology.topology.Node.class, nk)
@@ -466,8 +466,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
             public RpcResult<GetTopologiesOutput> call() throws Exception {
                 try (ReadTransaction readTx =
                              NetworkTopologyServiceImpl.this.dataBrokerService.newReadOnlyTransaction()) {
-                    final InstanceIdentifier<NetworkTopology> tii =
-                            InstanceIdentifier.builder(NetworkTopology.class).build();
+                    final DataObjectIdentifier<NetworkTopology> tii =
+                        DataObjectIdentifier.builder(NetworkTopology.class).build();
                     final Optional<NetworkTopology> networkTopology =
                             readTx.read(LogicalDatastoreType.CONFIGURATION, tii)
                             .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
@@ -541,12 +541,12 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
     }
 
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
-    private void removeFromDatastore(final InstanceIdentifier<?> instanceIdentifier)
+    private void removeFromDatastore(final DataObjectIdentifier<?> identifier)
             throws ExecutionException, InterruptedException, TimeoutException {
         final WriteTransaction writeTxConfig = this.dataBrokerService.newWriteOnlyTransaction();
         final WriteTransaction writeTxOper = this.dataBrokerService.newWriteOnlyTransaction();
-        writeTxConfig.delete(LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
-        writeTxOper.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+        writeTxConfig.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+        writeTxOper.delete(LogicalDatastoreType.OPERATIONAL, identifier);
         writeTxConfig.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         writeTxOper.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
     }
@@ -554,8 +554,8 @@ public final class NetworkTopologyServiceImpl implements AutoCloseable {
     @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private Set<TopologyId> prepareGetTopologyIds() throws ExecutionException, InterruptedException, TimeoutException {
         try (ReadTransaction readTx = this.dataBrokerService.newReadOnlyTransaction()) {
-            final InstanceIdentifier<NetworkTopology> ntii =
-                    InstanceIdentifier.builder(NetworkTopology.class)
+            final DataObjectIdentifier<NetworkTopology> ntii =
+                DataObjectIdentifier.builder(NetworkTopology.class)
                             .build();
             final Optional<NetworkTopology> networkTopology = readTx.read(LogicalDatastoreType.CONFIGURATION, ntii)
                     .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
