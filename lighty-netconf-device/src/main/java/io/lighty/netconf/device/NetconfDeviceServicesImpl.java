@@ -25,6 +25,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.broker.DOMNotificationRouter;
+import org.opendaylight.mdsal.dom.broker.RouterDOMNotificationService;
 import org.opendaylight.mdsal.dom.broker.SerializedDOMDataBroker;
 import org.opendaylight.mdsal.dom.spi.store.DOMStore;
 import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
@@ -74,7 +75,7 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
         this.domDataBroker = createDOMDataBroker();
         this.dataBroker = new BindingDOMDataBrokerAdapter(this.adapterContext, this.domDataBroker);
         this.notificationService = new BindingDOMNotificationServiceAdapter(this.adapterContext,
-                this.domNotificationRouter.notificationService());
+            new RouterDOMNotificationService(domNotificationRouter));
         this.xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
     }
 
