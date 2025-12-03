@@ -218,7 +218,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         while (it.hasNext()) {
             final PathArgument pathArgument = it.next();
             if (rootNormalizedPath == null) {
-                rootNormalizedPath = YangInstanceIdentifier.create(pathArgument);
+                rootNormalizedPath = YangInstanceIdentifier.of(pathArgument);
             }
 
             if (it.hasNext()) {
@@ -233,7 +233,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
         Preconditions.checkArgument(rootNormalizedPath != null, "Empty path received");
 
         final NormalizedNode parentStructure = ImmutableNodes.fromInstanceId(effectiveModelContext,
-                YangInstanceIdentifier.create(normalizedPathWithoutChildArgs));
+                YangInstanceIdentifier.of(normalizedPathWithoutChildArgs));
         writeTx.merge(LogicalDatastoreType.CONFIGURATION, rootNormalizedPath, parentStructure);
     }
 
@@ -302,7 +302,7 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
             contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
 
             while (contextNode instanceof PathMixin) {
-                targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
+                targetIdentifier = YangInstanceIdentifier.of(targetIdentifier.getPathArguments())
                         .node(contextNode.pathStep());
                 contextNode = requireNonNull(((DataSchemaContext.Composite) contextNode).childByQName(currentQname));
             }
@@ -313,10 +313,10 @@ public class EditConfigRequestProcessor extends OkOutputRequestProcessor {
                 final MapEntryNode next = ((MapNode) findNode.get()).body().iterator().next();
                 final Map<QName, Object> keyValues = next.name().asMap();
                 targetIdentifier = YangInstanceIdentifier
-                        .builder(YangInstanceIdentifier.create(targetIdentifier.getPathArguments()))
+                        .builder(YangInstanceIdentifier.of(targetIdentifier.getPathArguments()))
                         .nodeWithKey(contextNode.dataSchemaNode().getQName(), keyValues).build();
             } else {
-                targetIdentifier = YangInstanceIdentifier.create(targetIdentifier.getPathArguments())
+                targetIdentifier = YangInstanceIdentifier.of(targetIdentifier.getPathArguments())
                         .node(contextNode.getPathStep());
             }
         }
