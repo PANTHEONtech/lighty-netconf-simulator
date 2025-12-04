@@ -18,5 +18,5 @@
 
     <groupId>io.lighty.netconf.device.examples.models</groupId>
     <artifactId>lighty-example-data-center-model</artifactId>
-    <version>23.0.0-SNAPSHOT</version>
+    <version>24.0.0-SNAPSHOT</version>
 </project>
