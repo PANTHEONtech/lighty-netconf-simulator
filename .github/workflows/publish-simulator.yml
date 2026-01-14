@@ -1,4 +1,5 @@
 name: Publish netconf-simulator
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,26 +7,27 @@ on:
         description: Desired version of published docker image, e.g. "XX.YY.ZZ"
         required: true
       image-tag-latest:
-        description: Should be this docker labeled with tag latest? Enter `true` if the tag `latest` should be added for image.
+        description: Should this docker image be labeled with tag latest? Enter `true` if yes.
         default: "true"
         required: true
-      publish-access-key:
-        description: The branch, tag or SHA to checkout. (if "default" the selected branch will be used)
+      checkout-ref:
+        description: The branch, tag, or SHA to checkout. Use "default" to use the current branch.
         default: default
         required: true
 
 jobs:
   publish-docker:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
+    permissions:
+      contents: read
+      packages: write
+    name: "Publish netconf-simulator docker image"
     env:
-      IMAGE_NAME: "lighty-network-topology-device"
-      PUBLISH_ACCESS_KEY: ${{ secrets.MM_PKG_WRITE }}
-    name: "Publish netconf-simulator docker image. Checkout-ref: ${{ github.event.inputs.publish-access-key }}"
+      IMAGE_NAME: "netconf-simulator"
+      REGISTRY: "ghcr.io/pantheontech"
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up JDK 21
@@ -35,48 +37,47 @@ jobs:
           distribution: 'temurin'
 
       - name: Build lighty-netconf-simulator
-        shell: bash
         run: |
           echo "Building lighty-netconf-simulator..."
-          mvn install -DskipTests
+          mvn -B install -DskipTests
 
-      - name: Run docker:build...
-        shell: bash
+      - name: Build Docker image
         run: |
-          
-          echo "Image name set to:" ${{ env.IMAGE_NAME }}
-          
-          DOCKER_IMAGE_NAME=${{env.IMAGE_NAME}}
-          DOCKER_IMAGE_NAME_TAG=$(echo $DOCKER_IMAGE_NAME:${{ inputs.version }})
-          DOCKER_IMAGE_NAME_GHCR=$(echo ghcr.io/pantheontech/${{ env.IMAGE_NAME }})
-          DOCKER_IMAGE_NAME_GHCR_TAG=$(echo $DOCKER_IMAGE_NAME_GHCR:${{ inputs.version }})
-          
-          echo "docker build -t $DOCKER_IMAGE_NAME ."
-          docker build -t $DOCKER_IMAGE_NAME .
-          
-          echo "Docker image tag:" $DOCKER_IMAGE_NAME_GHCR $DOCKER_IMAGE_NAME_GHCR_TAG
-          docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME_TAG
-          if [ "${{ inputs.image-tag-latest }}" = 'true' ]; then
-            docker tag $DOCKER_IMAGE_NAME $DOCKER_IMAGE_NAME:latest
+          echo "Building Docker image..."
+          VERSION=${{ inputs.version }}
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+          docker build -t ${IMAGE}:${VERSION} .
+
+          if [ "${{ inputs.image-tag-latest }}" = "true" ]; then
+            docker tag ${IMAGE}:${VERSION} ${IMAGE}:latest
           fi
-          docker images | grep $DOCKER_IMAGE_NAME
-      - name: List docker images
-        shell: bash
-        run: |
-          docker images
-      - name: Docker log in (ghcr.io)
-        shell: bash
+
+          echo "Built images:"
+          docker images ${IMAGE}
+
+      - name: Log in to GitHub Container Registry
         run: |
           echo ${{ inputs.publish-access-key}} | docker login  --username ${{ github.actor }} --password-stdin ghcr.io
-      - name: Publish docker image (ghcr.io)
-        shell: bash
+
+      - name: Push Docker image
         run: |
-          docker push $DOCKER_IMAGE_NAME_GHCR_TAG
-          if [ "${{ inputs.image-tag-latest }}" = 'true' ]; then
-            docker push $DOCKER_IMAGE_NAME_GHCR:latest
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          VERSION=${{ inputs.version }}
+
+          echo "Pushing ${IMAGE}:${VERSION}"
+          docker push ${IMAGE}:${VERSION}
+
+          if [ "${{ inputs.image-tag-latest }}" = "true" ]; then
+            echo "Pushing ${IMAGE}:latest"
+            docker push ${IMAGE}:latest
           fi
-      - name: Check if docker image is pullable  (ghcr.io)
-        shell: bash
+
+      - name: Verify image pull works
         run: |
-          docker rmi $DOCKER_IMAGE_NAME_GHCR_TAG
-          docker pull $DOCKER_IMAGE_NAME_GHCR_TAG
+          IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          VERSION=${{ inputs.version }}
+
+          echo "Testing pull of ${IMAGE}:${VERSION}"
+          docker rmi ${IMAGE}:${VERSION} || true
+          docker pull ${IMAGE}:${VERSION}
