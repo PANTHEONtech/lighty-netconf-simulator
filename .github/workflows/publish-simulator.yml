@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Desired version of published docker image & helm charts, e.g. "XX.YY.ZZ"
+        description: Desired version of published docker image, e.g. "XX.YY.ZZ"
         required: true
       image-tag-latest:
         description: Should be this docker labeled with tag latest? Enter `true` if the tag `latest` should be added for image.
@@ -15,7 +15,7 @@ on:
         required: true
 
 jobs:
-  publish-docker-helm:
+  publish-docker:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -80,15 +80,3 @@ jobs:
         run: |
           docker rmi $DOCKER_IMAGE_NAME_GHCR_TAG
           docker pull $DOCKER_IMAGE_NAME_GHCR_TAG
-      - name: Install yq (yaml processor)
-        shell: bash
-        run: |
-          sudo snap install yq
-      - name: Set image.name, image.version in values.yaml of helm chart
-        shell: bash
-        run: |
-          yq eval '.image.name="ghcr.io/pantheontech/$'"IMAGE_NAME"'" | .image.version="'${{ inputs.version }}'"' "${{ inputs.app-helm-values-path }}" -i
-      - name: Print values.yaml
-        shell: bash
-        run: |
-          cat -A ${{ inputs.app-helm-values-path }}
