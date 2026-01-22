@@ -21,9 +21,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-    name: "Publish netconf-simulator docker image"
+    name: "Publish lighty.io netconf-simulator docker image"
     env:
-      IMAGE_NAME: "netconf-simulator"
+      IMAGE_NAME: "lighty-netconf-simulator"
       REGISTRY: "ghcr.io/pantheontech"
 
     steps:
