@@ -12,7 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -36,48 +37,41 @@ final class TopologyDataTreeChangeListener implements DataTreeChangeListener<Net
 
     @Override
     public void onDataTreeChanged(@NonNull List<DataTreeModification<NetworkTopology>> changes) {
-        changes.stream().forEach(change -> {
-            DataObjectModification.ModificationType modificationType = change.getRootNode().getModificationType();
+        changes.forEach(change -> {
+            final var rootNode = change.getRootNode();
             Set<TopologyId> ids = new HashSet<>();
-            final NetworkTopology dataBefore = change.getRootNode().getDataBefore();
-            final NetworkTopology dataAfter = change.getRootNode().getDataAfter();
-            if (DataObjectModification.ModificationType.DELETE.equals(modificationType)) {
-
-                LOG.info("Data has been deleted");
-
-                notificationForDeletedData(dataBefore, dataAfter, ids);
-            } else if (DataObjectModification.ModificationType.SUBTREE_MODIFIED.equals(modificationType)
-                || DataObjectModification.ModificationType.WRITE.equals(modificationType)) {
-
-                int sizeOfDataBefore = 0;
-                int sizeOfDataAfter = 0;
-
-                if (dataBefore != null) {
-                    sizeOfDataBefore = dataBefore.getTopology().size();
-                }
-
-                if (dataAfter != null) {
-                    sizeOfDataAfter = dataAfter.getTopology().size();
-                }
-
-                if (sizeOfDataBefore < sizeOfDataAfter) {
-                    LOG.info("Data has been created");
+            switch (rootNode) {
+                case WithDataAfter<NetworkTopology> written -> {
+                    final var dataBefore = written.dataBefore();
+                    final var dataAfter = written.dataAfter();
+                    int sizeOfDataBefore = 0;
+                    int sizeOfDataAfter = dataAfter.nonnullTopology().size();
                     if (dataBefore != null) {
-                        dataBefore.nonnullTopology().values().forEach(topology -> ids.add(topology.getTopologyId()));
+                        sizeOfDataBefore = dataBefore.nonnullTopology().size();
                     }
 
-                    if (dataAfter != null) {
+                    if (sizeOfDataBefore < sizeOfDataAfter) {
+                        LOG.info("Data has been created");
+                        if (dataBefore != null) {
+                            dataBefore.nonnullTopology().values().forEach(
+                                topology -> ids.add(topology.getTopologyId()));
+                        }
+
                         dataAfter.nonnullTopology().values().forEach(topology -> {
                             if (!ids.contains(topology.getTopologyId())) {
                                 notificationPublishService.publish(new NewTopologyCreatedBuilder()
-                                        .setTopologyId(topology.getTopologyId())
-                                        .build(), NewTopologyCreated.QNAME);
+                                    .setTopologyId(topology.getTopologyId())
+                                    .build(), NewTopologyCreated.QNAME);
                             }
                         });
+                    } else {
+                        LOG.info("Data has been modified");
+                        notificationForDeletedData(dataBefore, dataAfter, ids);
                     }
-                } else {
-                    LOG.info("Data has been modified");
-                    notificationForDeletedData(dataBefore, dataAfter, ids);
+                }
+                case DataObjectDeleted<NetworkTopology> deleted -> {
+                    LOG.info("Data has been deleted");
+                    notificationForDeletedData(deleted.dataBefore(), null, ids);
                 }
             }
         });

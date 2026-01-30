@@ -53,8 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.mon
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.schemas.Schema;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.schemas.SchemaBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.netconf.monitoring.rev101004.netconf.state.schemas.SchemaKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Revision;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -125,7 +125,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
             NormalizedNode initialDataBI = netconfDeviceServices.getXmlNodeConverter()
                     .deserialize(netconfDeviceServices.getRootInference(), reader);
             DOMDataTreeWriteTransaction writeTx = netconfDeviceServices.getDOMDataBroker().newWriteOnlyTransaction();
-            writeTx.put(datastoreType, YangInstanceIdentifier.empty(), initialDataBI);
+            writeTx.put(datastoreType, YangInstanceIdentifier.of(), initialDataBI);
             writeTx.commit().get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             final String dataTreeString = NormalizedNodes.toStringTree(initialDataBI);
             LOG.trace("Initial {} datastore data: {}", datastoreType, dataTreeString);
@@ -224,7 +224,7 @@ public class NetconfDeviceImpl implements NetconfDevice {
         }
         WriteTransaction writeTx = netconfDeviceServices.getDataBroker().newWriteOnlyTransaction();
         writeTx.merge(LogicalDatastoreType.OPERATIONAL,
-            InstanceIdentifier.builder(NetconfState.class).child(Schemas.class).build(),
+            DataObjectIdentifier.builder(NetconfState.class).child(Schemas.class).build(),
             new SchemasBuilder().setSchema(mapSchemas).build());
         return writeTx.commit();
     }

@@ -48,7 +48,7 @@ public abstract class DatastoreOutputRequestProcessor extends BaseRequestProcess
         Optional<NormalizedNode> listData;
         try (DOMDataTreeReadTransaction domDataReadOnlyTransaction = domDataBroker.newReadOnlyTransaction()) {
             FluentFuture<Optional<NormalizedNode>> readData =
-                    domDataReadOnlyTransaction.read(datastoreType, YangInstanceIdentifier.empty());
+                    domDataReadOnlyTransaction.read(datastoreType, YangInstanceIdentifier.of());
             listData = readData.get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
             if (listData.isPresent()) {

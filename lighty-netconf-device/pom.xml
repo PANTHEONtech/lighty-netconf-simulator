@@ -14,13 +14,13 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-parent</artifactId>
-        <version>22.0.0</version>
+        <version>23.0.0</version>
         <relativePath/>
     </parent>
 
     <groupId>io.lighty.netconf.device</groupId>
     <artifactId>lighty-netconf-device</artifactId>
-    <version>23.0.0-SNAPSHOT</version>
+    <version>23.0.0</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -33,7 +33,7 @@
             <artifactId>lighty-codecs-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+            <groupId>org.opendaylight.ietf.model</groupId>
             <artifactId>rfc8639</artifactId>
         </dependency>
         <dependency>

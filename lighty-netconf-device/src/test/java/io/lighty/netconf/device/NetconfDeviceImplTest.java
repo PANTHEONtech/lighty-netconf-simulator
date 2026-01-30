@@ -32,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.testng.Assert;
@@ -80,8 +80,8 @@ public class NetconfDeviceImplTest {
             file);
         //create identifier
         final Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("default-topology")).build();
-        final InstanceIdentifier<Topology> tii =
-            InstanceIdentifier.builder(NetworkTopology.class)
+        final DataObjectIdentifier<Topology> tii =
+            DataObjectIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, topology.key())
                 .build();
         //read the datastore using the identifier from the simulator
@@ -100,8 +100,8 @@ public class NetconfDeviceImplTest {
         TimeoutException, DeserializationException {
         //create identifier
         final Topology topology = new TopologyBuilder().setTopologyId(new TopologyId("default-topology")).build();
-        final InstanceIdentifier<Topology> tii =
-            InstanceIdentifier.builder(NetworkTopology.class)
+        final DataObjectIdentifier<Topology> tii =
+            DataObjectIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, topology.key())
                 .build();
         //write a new topology to device using the identifier
