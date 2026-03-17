@@ -7,8 +7,8 @@
  */
 package io.lighty.netconf.device.action;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.File;
@@ -138,12 +138,12 @@ public class ActionDeviceTest {
             final NetconfMessage startActionResponse = sentRequesttoDevice(sessionListener, START_ACTION_REQUEST_XML);
             final String startResultTag = startActionResponse.getDocument().getDocumentElement().getElementsByTagName(
                     START_TAG).item(0).getTextContent();
-            assertEquals(startResultTag, START_ACTION_EXPECTED_VALUE);
+            assertEquals(START_ACTION_EXPECTED_VALUE, startResultTag);
 
             final NetconfMessage resetActionResponse = sentRequesttoDevice(sessionListener, RESET_ACTION_REQUEST_XML);
             final String resetResultTag = resetActionResponse.getDocument().getDocumentElement().getElementsByTagName(
                     RESET_TAG).item(0).getTextContent();
-            assertEquals(resetResultTag, RESET_ACTION_EXPECTED_VALUE);
+            assertEquals(RESET_ACTION_EXPECTED_VALUE, resetResultTag);
         }
     }
 
