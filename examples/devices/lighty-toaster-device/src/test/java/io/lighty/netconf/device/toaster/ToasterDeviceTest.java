@@ -36,6 +36,7 @@ import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
 import org.opendaylight.netconf.common.di.DefaultNetconfTimer;
 import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.netconf.transport.ssh.SSHNegotiatedAlgListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.crypto.types.rev241010.password.grouping.password.type.CleartextPasswordBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Host;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -61,6 +62,9 @@ public class ToasterDeviceTest {
     private static final String RESTOCK_TOAST_REQUEST_XML = "restock_toast_request.xml";
     private static final String CREATE_TOASTER_REQUEST_XML = "create_toaster_request.xml";
     private static final String GET_TOASTER_DATA_REQUEST_XML = "get_toaster_data_request.xml";
+    private static final SSHNegotiatedAlgListener NO_OP_LISTENER = (kex, hostKey, enc, mac) -> {
+        // No-op
+    };
     public static final String SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML = "subscribe_to_notifications_request.xml";
     public static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
 
@@ -105,8 +109,8 @@ public class ToasterDeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sentRequestToDevice(GET_SCHEMAS_REQUEST_XML,
                     sessionListener);
 
@@ -138,8 +142,8 @@ public class ToasterDeviceTest {
             new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession sessionSimple =
-                dispatcher.createClient(createSHHConfig(sessionListenerSimple))
-                    .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            dispatcher.createClient(createSHHConfig(sessionListenerSimple), NO_OP_LISTENER)
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
 
             final NetconfMessage createToasterResponse =
                     sentRequestToDevice(CREATE_TOASTER_REQUEST_XML, sessionListenerSimple);
@@ -172,11 +176,11 @@ public class ToasterDeviceTest {
                 new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession sessionNotification =
-                dispatcher.createClient(createSHHConfig(sessionListenerNotification))
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-                NetconfClientSession sessionSimple =
-                        dispatcher.createClient(createSHHConfig(sessionListenerSimple))
-                                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            dispatcher.createClient(createSHHConfig(sessionListenerNotification), NO_OP_LISTENER)
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            NetconfClientSession sessionSimple =
+                dispatcher.createClient(createSHHConfig(sessionListenerSimple), NO_OP_LISTENER)
+                    .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
 
             final NetconfMessage subscribeResponse =
                     sentRequestToDevice(SUBSCRIBE_TO_NOTIFICATIONS_REQUEST_XML, sessionListenerNotification);
@@ -207,7 +211,7 @@ public class ToasterDeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
-            dispatcher.createClient(createSHHConfig(sessionListener))
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
                 .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
 
             final NetconfMessage schemaResponse = sentRequestToDevice(GET_SCHEMAS_REQUEST_XML,
