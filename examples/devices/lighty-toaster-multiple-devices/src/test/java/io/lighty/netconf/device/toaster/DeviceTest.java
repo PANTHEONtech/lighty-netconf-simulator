@@ -39,6 +39,7 @@ import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
 import org.opendaylight.netconf.common.di.DefaultNetconfTimer;
 import org.opendaylight.netconf.nettyutil.AbstractNetconfSession;
 import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.netconf.transport.ssh.SSHNegotiatedAlgListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.crypto.types.rev241010.password.grouping.password.type.CleartextPasswordBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Host;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -69,6 +70,9 @@ public class DeviceTest {
     public static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
     private static final List<SimpleNetconfClientSessionListener> SESSION_LISTENERS = new ArrayList<>();
     private static final List<NetconfClientSession> NETCONF_CLIENT_SESSIONS = new ArrayList<>();
+    private static final SSHNegotiatedAlgListener NO_OP_LISTENER = (kex, hostKey, enc, mac) -> {
+        // No-op
+    };
     private static Main deviceSimulator;
 
     @BeforeAll
@@ -83,8 +87,8 @@ public class DeviceTest {
                 new NetconfClientFactoryImpl(new DefaultNetconfTimer());
         for (int port = DEVICE_STARTING_PORT; port < DEVICE_STARTING_PORT + DEVICE_COUNT; port++) {
             final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
-            NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener, port))
-                    .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            NetconfClientSession session = dispatcher.createClient(createSHHConfig(sessionListener, port),
+                    NO_OP_LISTENER).get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             NETCONF_CLIENT_SESSIONS.add(session);
             SESSION_LISTENERS.add(sessionListener);
         }
