@@ -34,6 +34,7 @@ import org.opendaylight.netconf.client.conf.NetconfClientConfiguration;
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
 import org.opendaylight.netconf.common.di.DefaultNetconfTimer;
 import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.netconf.transport.ssh.SSHNegotiatedAlgListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.crypto.types.rev241010.password.grouping.password.type.CleartextPasswordBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Host;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -57,11 +58,13 @@ public class ActionDeviceTest {
     private static final int DEVICE_SIMULATOR_PORT = 9090;
     private static final String RESET_ACTION_EXPECTED_VALUE = "2020-09-03T16:20:00Z";
     private static final String START_ACTION_EXPECTED_VALUE = "2020-09-03T16:30:00Z";
+    private static final SSHNegotiatedAlgListener NO_OP_LISTENER = (kex, hostKey, enc, mac) -> {
+        // No-op
+    };
     public static final String START_ACTION_REQUEST_XML = "start_action_request.xml";
     public static final String RESET_ACTION_REQUEST_XML = "reset_action_request.xml";
     public static final String START_TAG = "start-finished-at";
     public static final String RESET_TAG = "reset-finished-at";
-
     private static Main deviceSimulator;
     private static NetconfClientFactoryImpl dispatcher;
 
@@ -103,8 +106,8 @@ public class ActionDeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sentRequesttoDevice(
                     sessionListener, "get_schemas_request.xml");
 
@@ -133,8 +136,8 @@ public class ActionDeviceTest {
             ExecutionException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
-                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
+                .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage startActionResponse = sentRequesttoDevice(sessionListener, START_ACTION_REQUEST_XML);
             final String startResultTag = startActionResponse.getDocument().getDocumentElement().getElementsByTagName(
                     START_TAG).item(0).getTextContent();

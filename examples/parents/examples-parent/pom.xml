@@ -14,7 +14,7 @@
     <parent>
         <groupId>io.lighty.core</groupId>
         <artifactId>lighty-app-parent</artifactId>
-        <version>23.0.0</version>
+        <version>23.1.0</version>
         <relativePath/>
     </parent>
 
@@ -34,7 +34,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.4</version>
+                    <version>3.5.5</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -35,6 +35,7 @@ import org.opendaylight.netconf.client.conf.NetconfClientConfiguration.NetconfCl
 import org.opendaylight.netconf.client.conf.NetconfClientConfigurationBuilder;
 import org.opendaylight.netconf.common.di.DefaultNetconfTimer;
 import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.netconf.transport.ssh.SSHNegotiatedAlgListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.crypto.types.rev241010.password.grouping.password.type.CleartextPasswordBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Host;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -71,6 +72,9 @@ public class DeviceTest {
     private static final String GET_CONFIG_REQUEST_XML = "get_config_request.xml";
     private static final String DELETE_TOPOLOGY_CONFIG_REQUEST_XML = "delete_topology_config_request.xml";
     private static final String GET_SCHEMAS_REQUEST_XML = "get_schemas_request.xml";
+    private static final SSHNegotiatedAlgListener NO_OP_LISTENER = (kex, hostKey, enc, mac) -> {
+        // No-op
+    };
     private static Main deviceSimulator;
     private static NetconfClientFactory dispatcher;
 
@@ -114,7 +118,7 @@ public class DeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
                         .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
 
@@ -143,7 +147,7 @@ public class DeviceTest {
             IOException, TimeoutException, URISyntaxException, SAXException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
                         .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage createTopoResponse =
                     sendRequestToDevice(CREATE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
@@ -193,7 +197,7 @@ public class DeviceTest {
             SAXException, TimeoutException, UnsupportedConfigurationException {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
                         .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
 
             final NetconfMessage createTopoResponse =
@@ -215,7 +219,7 @@ public class DeviceTest {
         final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
 
         try (NetconfClientSession session =
-                dispatcher.createClient(createSHHConfig(sessionListener))
+            dispatcher.createClient(createSHHConfig(sessionListener), NO_OP_LISTENER)
                         .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
             final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML, sessionListener);
 
