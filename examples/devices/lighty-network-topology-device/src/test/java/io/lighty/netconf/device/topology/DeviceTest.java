@@ -8,10 +8,10 @@
 package io.lighty.netconf.device.topology;
 
 import static io.lighty.netconf.device.topology.TestUtils.xmlFileToInputStream;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.IOException;
@@ -156,17 +156,17 @@ public class DeviceTest {
             final NetconfMessage getConfigDataResponse = sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
 
             final NodeList topologies = getConfigDataResponse.getDocument().getElementsByTagName("topology");
-            assertEquals(topologies.getLength(), 2);
+            assertEquals(2, topologies.getLength());
             if (getTopologyID(topologies.item(0)).equals("test-config-topology")) {
-                assertEquals(getTopologyID(topologies.item(0)), "test-config-topology");
-                assertEquals(getTopologyID(topologies.item(1)), "test-config-topology-merge");
+                assertEquals("test-config-topology", getTopologyID(topologies.item(0)));
+                assertEquals("test-config-topology-merge", getTopologyID(topologies.item(1)));
             } else {
-                assertEquals(getTopologyID(topologies.item(1)), "test-config-topology");
-                assertEquals(getTopologyID(topologies.item(0)), "test-config-topology-merge");
+                assertEquals("test-config-topology", getTopologyID(topologies.item(1)));
+                assertEquals("test-config-topology-merge", getTopologyID(topologies.item(0)));
             }
 
             final NodeList nodes = getConfigDataResponse.getDocument().getElementsByTagName("node");
-            assertEquals(nodes.getLength(), 1);
+            assertEquals(1, nodes.getLength());
 
             final NetconfMessage deleteTopologyResponse =
                     sendRequestToDevice(DELETE_TOPOLOGY_CONFIG_REQUEST_XML, sessionListener);
@@ -176,7 +176,7 @@ public class DeviceTest {
                     sendRequestToDevice(GET_CONFIG_REQUEST_XML, sessionListener);
             final NodeList topologiesAfterDelete =
                     getConfigDataResponseAfterDelete.getDocument().getElementsByTagName("topology");
-            assertEquals(topologiesAfterDelete.getLength(), 1);
+            assertEquals(1, topologiesAfterDelete.getLength());
         }
     }
 
@@ -229,8 +229,8 @@ public class DeviceTest {
                             .item(0).getFirstChild().getTextContent();
                     final String namespace = element.getElementsByTagName("namespace")
                             .item(0).getFirstChild().getTextContent();
-                    assertEquals(schemaFormat, "yang");
-                    assertEquals(location, "NETCONF");
+                    assertEquals("yang", schemaFormat);
+                    assertEquals("NETCONF", location);
                     assertNotNull(namespace);
                 }
             }

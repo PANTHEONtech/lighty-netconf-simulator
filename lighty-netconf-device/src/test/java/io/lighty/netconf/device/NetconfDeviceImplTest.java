@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -36,7 +37,6 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.testng.Assert;
 
 public class NetconfDeviceImplTest {
 
@@ -88,10 +88,10 @@ public class NetconfDeviceImplTest {
         final Topology response = netconfDevice.getNetconfDeviceServices().getDataBroker().newReadOnlyTransaction()
             .read(LogicalDatastoreType.CONFIGURATION, tii).get(REQUEST_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS).get();
         //check if the simulator contains the initial datastore
-        Assert.assertEquals(response.getNode().values().size(), 2);
-        Assert.assertTrue(response.getNode().values().contains(
+        Assertions.assertEquals(2, response.getNode().values().size());
+        Assertions.assertTrue(response.getNode().values().contains(
             new NodeBuilder().setNodeId(new NodeId("new-netconf-device")).build()));
-        Assert.assertTrue(response.getNode().values().contains(
+        Assertions.assertTrue(response.getNode().values().contains(
             new NodeBuilder().setNodeId(new NodeId("new-netconf-device-1")).build()));
     }
 
@@ -115,15 +115,14 @@ public class NetconfDeviceImplTest {
             new File("./src/test/resources/saved-datastore.xml"), LogicalDatastoreType.CONFIGURATION);
         //verify that the file exists and contains the topology
         final File file = new File("./src/test/resources/saved-datastore.xml");
-        Assert.assertTrue(file.exists());
+        Assertions.assertTrue(file.exists());
         try (InputStream stream = new FileInputStream(file)) {
-            Assert.assertNotNull(stream);
+            Assertions.assertNotNull(stream);
             final Reader reader = new InputStreamReader(stream, Charset.defaultCharset());
             final NormalizedNode initialDataBI = netconfDevice.getNetconfDeviceServices().getXmlNodeConverter()
                 .deserialize(netconfDevice.getNetconfDeviceServices().getRootInference(), reader);
             final String dataTreeString = NormalizedNodes.toStringTree(initialDataBI);
-            Assert.assertTrue(dataTreeString.contains("default-topology"));
-            Assert.assertTrue(dataTreeString.contains("default-topology"));
+            Assertions.assertTrue(dataTreeString.contains("default-topology"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

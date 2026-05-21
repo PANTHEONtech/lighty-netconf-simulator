@@ -7,7 +7,7 @@
  */
 package io.lighty.netconf.device.toaster;
 
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.lighty.netconf.device.utils.TimeoutUtil;
 import java.io.File;
@@ -117,7 +117,7 @@ public class DeviceTest {
             final NetconfMessage schemaResponse = sendRequestToDevice(GET_SCHEMAS_REQUEST_XML,
                     listener);
             final NodeList schema = schemaResponse.getDocument().getDocumentElement().getElementsByTagName("schema");
-            Assertions.assertTrue(schema.getLength() > 0);
+            assertTrue(schema.getLength() > 0);
             boolean toasterSchemaContained = false;
             for (int i = 0; i < schema.getLength(); i++) {
                 if (schema.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -131,7 +131,7 @@ public class DeviceTest {
                     }
                 }
             }
-            Assertions.assertTrue(toasterSchemaContained);
+            assertTrue(toasterSchemaContained);
         }
     }
 
@@ -141,7 +141,7 @@ public class DeviceTest {
         for (SimpleNetconfClientSessionListener listener : SESSION_LISTENERS) {
             final NetconfMessage makeToastResponse =
                     sendRequestToDevice(MAKE_TOAST_REQUEST_XML, listener);
-            Assertions.assertTrue(containsOkElement(makeToastResponse));
+            assertTrue(containsOkElement(makeToastResponse));
         }
     }
 

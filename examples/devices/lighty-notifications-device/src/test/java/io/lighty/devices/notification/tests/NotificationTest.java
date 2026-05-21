@@ -7,7 +7,7 @@
  */
 package io.lighty.devices.notification.tests;
 
-import static org.testng.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.lighty.netconf.device.notification.Main;
 import io.lighty.netconf.device.utils.TimeoutUtil;
