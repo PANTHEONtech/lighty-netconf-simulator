@@ -50,6 +50,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- netconf-testtool's NetconfDeviceSimulator builds a DaggerDefaultYangParserComponent at
+             runtime (via yangtools' dagger-yang-parser). odlparent pins com.google.dagger:dagger and
+             its DI helper artifacts to "provided" scope for OSGi/Karaf deployments where the bundles
+             are supplied by the container. Lighty's example devices run as standalone fat-jars with no
+             such container, so re-declare compile scope here to keep the jars on the runtime classpath
+             / assembled lib. -->
+        <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

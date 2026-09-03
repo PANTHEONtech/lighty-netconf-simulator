@@ -30,6 +30,27 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- netconf-testtool's NetconfDeviceSimulator builds a DaggerDefaultYangParserComponent
+                 at runtime (via yangtools' dagger-yang-parser). odlparent pins com.google.dagger:dagger
+                 and its DI helper artifacts to "provided" scope, assuming an OSGi/Karaf container
+                 supplies the bundles. These example devices are standalone runnable fat-jars with no
+                 such container, so re-pin them to compile scope here so every example device's
+                 assembly bundles them. -->
+            <dependency>
+                <groupId>com.google.dagger</groupId>
+                <artifactId>dagger</artifactId>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.guicedee.services</groupId>
+                <artifactId>javax.inject</artifactId>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.inject</groupId>
+                <artifactId>jakarta.inject-api</artifactId>
+                <scope>compile</scope>
+            </dependency>
             <dependency>
                 <groupId>io.lighty.netconf.device.examples</groupId>
                 <artifactId>examples-bom</artifactId>
