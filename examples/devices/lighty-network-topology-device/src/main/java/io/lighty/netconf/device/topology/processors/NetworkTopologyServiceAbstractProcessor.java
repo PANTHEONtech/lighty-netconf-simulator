@@ -57,7 +57,7 @@ public abstract class NetworkTopologyServiceAbstractProcessor<T extends DataObje
             //1. convert XML input into NormalizedNode
 
             final NormalizedNode deserializedNode = xmlNodeConverter.deserialize(
-                    Absolute.of(getRpcDefinition().getQName(), getRpcDefinition().getInput().getQName()),
+                    Absolute.of(getRpcStatement().argument(), getRpcStatement().inputStatement().argument()),
                     readerFromElement);
 
             //2. convert NormalizedNode into RPC input
