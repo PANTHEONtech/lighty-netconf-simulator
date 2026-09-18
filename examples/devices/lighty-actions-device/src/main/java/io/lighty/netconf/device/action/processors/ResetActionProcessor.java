@@ -36,7 +36,7 @@ import org.opendaylight.yangtools.binding.data.codec.spi.BindingDOMCodecServices
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.ActionDefinition;
+import org.opendaylight.yangtools.yang.model.api.stmt.ActionEffectiveStatement;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +50,14 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
 
     private final Reset resetAction;
     private final Absolute path;
-    private final ActionDefinition definition;
+    private final ActionEffectiveStatement actionStatement;
     private final CurrentAdapterSerializer adapterSerializer;
 
-    public ResetActionProcessor(final Reset resetAction, final Absolute path, final ActionDefinition definition,
-            final BindingDOMCodecServices codecServices) {
+    public ResetActionProcessor(final Reset resetAction, final Absolute path,
+            final ActionEffectiveStatement actionStatement, final BindingDOMCodecServices codecServices) {
         this.resetAction = resetAction;
         this.path = path;
-        this.definition = definition;
+        this.actionStatement = actionStatement;
         this.adapterSerializer = new ConstantAdapterContext(codecServices).currentSerializer();
     }
 
@@ -67,9 +67,9 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
         final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
         try {
             final XmlElement xmlElement = XmlElement.fromDomElement(requestXmlElement);
-            final Element actionElement = findInputElement(xmlElement, this.definition.getQName());
+            final Element actionElement = findInputElement(xmlElement, this.actionStatement.argument());
             final Reader readerFromElement = RPCUtil.createReaderFromElement(actionElement);
-            final Absolute actionInput = getActionInput(this.path, this.definition);
+            final Absolute actionInput = getActionInput(this.path, this.actionStatement);
             final ContainerNode deserializedNode = (ContainerNode) xmlNodeConverter
                     .deserialize(actionInput, readerFromElement);
             final ResetInput input = this.adapterSerializer.fromNormalizedNodeActionInput(Reset.class,
@@ -112,8 +112,8 @@ public final class ResetActionProcessor extends ActionServiceDeviceProcessor {
     }
 
     @Override
-    protected ActionDefinition getActionDefinition() {
-        return this.definition;
+    protected ActionEffectiveStatement getActionStatement() {
+        return this.actionStatement;
     }
 
     @Override

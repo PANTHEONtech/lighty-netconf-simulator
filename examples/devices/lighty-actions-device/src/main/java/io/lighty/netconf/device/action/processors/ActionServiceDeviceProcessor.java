@@ -35,13 +35,11 @@ import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.device.Sta
 import org.opendaylight.yang.gen.v1.urn.example.data.center.rev180807.server.Reset;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.model.api.ActionDefinition;
-import org.opendaylight.yangtools.yang.model.api.ActionNodeContainer;
-import org.opendaylight.yangtools.yang.model.api.CaseSchemaNode;
-import org.opendaylight.yangtools.yang.model.api.ChoiceSchemaNode;
-import org.opendaylight.yangtools.yang.model.api.DataNodeContainer;
-import org.opendaylight.yangtools.yang.model.api.DataSchemaNode;
+import org.opendaylight.yangtools.yang.model.api.Module;
+import org.opendaylight.yangtools.yang.model.api.stmt.ActionEffectiveStatement;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaTreeAwareEffectiveStatement;
+import org.opendaylight.yangtools.yang.model.api.stmt.SchemaTreeEffectiveStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -54,7 +52,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionServiceDeviceProcessor.class);
     private AdapterContext adapterContext;
-    private ImmutableMap<Absolute, ActionDefinition> actions;
+    private ImmutableMap<Absolute, ActionEffectiveStatement> actions;
     private ActionServiceDeviceProcessor actionProcessor;
 
     @Override
@@ -72,15 +70,15 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     @Override
     protected CompletableFuture<Response> execute(final Element requestXmlElement) {
         final XmlElement fromDomElement = XmlElement.fromDomElement(requestXmlElement);
-        final Optional<Entry<Absolute, ActionDefinition>> actionEntry = findActionInElement(fromDomElement);
+        final Optional<Entry<Absolute, ActionEffectiveStatement>> actionEntry = findActionInElement(fromDomElement);
 
         Preconditions.checkState(actionEntry.isPresent(), "Action is not present on the device.");
 
-        if (actionEntry.get().getValue().getQName().equals(Start.QNAME)) {
+        if (actionEntry.get().getValue().argument().equals(Start.QNAME)) {
             this.actionProcessor = new StartActionProcessor(new StartAction(), actionEntry.get().getKey(),
                     actionEntry.get().getValue(), this.adapterContext.currentSerializer());
         }
-        if (actionEntry.get().getValue().getQName().equals(Reset.QNAME)) {
+        if (actionEntry.get().getValue().argument().equals(Reset.QNAME)) {
             this.actionProcessor = new ResetActionProcessor(new ResetAction(), actionEntry.get().getKey(),
                     actionEntry.get().getValue(), this.adapterContext.currentSerializer());
         }
@@ -103,7 +101,7 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
             final NodeList nodeList = outputNodes.get(0).getChildNodes();
             for (int i = 0; i < nodeList.getLength(); i++) {
                 final Node node = nodeList.item(i);
-                final Element data = newDocument.createElementNS(this.actionProcessor.getActionDefinition().getQName()
+                final Element data = newDocument.createElementNS(this.actionProcessor.getActionStatement().argument()
                         .getNamespace()
                         .toString(), node.getNodeName());
                 final int length = node.getChildNodes().getLength();
@@ -132,23 +130,23 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
     protected String convertNormalizedNodeToXmlString(final NormalizedNode normalizedNode)
             throws SerializationException {
         final Absolute actionOutput = getActionOutput(actionProcessor.getActionPath(),
-                actionProcessor.getActionDefinition());
+                actionProcessor.getActionStatement());
         return getNetconfDeviceServices().getXmlNodeConverter().serializeRpc(actionOutput, normalizedNode).toString();
     }
 
-    protected static Absolute getActionInput(final Absolute path, final ActionDefinition action) {
+    protected static Absolute getActionInput(final Absolute path, final ActionEffectiveStatement action) {
         final var inputPath = new ArrayList<>(path.getNodeIdentifiers());
-        inputPath.add(action.getInput().getQName());
+        inputPath.add(action.inputStatement().argument());
         return Absolute.of(inputPath);
     }
 
-    protected static Absolute getActionOutput(final Absolute path, final ActionDefinition action) {
+    protected static Absolute getActionOutput(final Absolute path, final ActionEffectiveStatement action) {
         final var outputPath = new ArrayList<>(path.getNodeIdentifiers());
-        outputPath.add(action.getOutput().getQName());
+        outputPath.add(action.outputStatement().argument());
         return Absolute.of(outputPath);
     }
 
-    protected ActionDefinition getActionDefinition() {
+    protected ActionEffectiveStatement getActionStatement() {
         return null;
     }
 
@@ -172,10 +170,10 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
         return null;
     }
 
-    private Optional<Entry<Absolute, ActionDefinition>> findActionInElement(final XmlElement fromDomElement) {
-        for (final Entry<Absolute, ActionDefinition> actionEntry : actions.entrySet()) {
-            final var actionDefinition = actionEntry.getValue();
-            final var actionQname = actionDefinition.getQName();
+    private Optional<Entry<Absolute, ActionEffectiveStatement>> findActionInElement(final XmlElement fromDomElement) {
+        for (final Entry<Absolute, ActionEffectiveStatement> actionEntry : actions.entrySet()) {
+            final var actionStatement = actionEntry.getValue();
+            final var actionQname = actionStatement.argument();
             try {
                 if (actionQname.getLocalName().equals(fromDomElement.getName())
                         && actionQname.getNamespace().toString().equals(fromDomElement.getNamespace())) {
@@ -195,41 +193,26 @@ public class ActionServiceDeviceProcessor extends BaseRequestProcessor {
         return Optional.empty();
     }
 
-    private ImmutableMap<Absolute, ActionDefinition> getAction() {
-        final var builder = ImmutableMap.<Absolute, ActionDefinition>builder();
+    private ImmutableMap<Absolute, ActionEffectiveStatement> getAction() {
+        final var builder = ImmutableMap.<Absolute, ActionEffectiveStatement>builder();
         final var context = adapterContext.currentSerializer().getRuntimeContext().modelContext();
-        final var qnames = new ArrayDeque<QName>();
-        for (final DataSchemaNode dataSchemaNode : context.getChildNodes()) {
-            if (dataSchemaNode instanceof ActionNodeContainer) {
-                qnames.addLast(dataSchemaNode.getQName());
-                findAction(dataSchemaNode, builder, qnames);
-                qnames.removeLast();
-            }
+        final var path = new ArrayDeque<QName>();
+        for (final Module module : context.getModules()) {
+            findAction(module.asEffectiveStatement(), builder, path);
         }
         return builder.build();
     }
 
-    private void findAction(final DataSchemaNode dataSchemaNode, final Builder<Absolute, ActionDefinition> builder,
-            final Deque<QName> path) {
-        if (dataSchemaNode instanceof ActionNodeContainer) {
-            for (ActionDefinition actionDefinition : ((ActionNodeContainer) dataSchemaNode).getActions()) {
-                path.addLast(actionDefinition.getQName());
-                builder.put(Absolute.of(List.copyOf(path)), actionDefinition);
-                path.removeLast();
+    private void findAction(final SchemaTreeAwareEffectiveStatement<?, ?> parent,
+            final Builder<Absolute, ActionEffectiveStatement> builder, final Deque<QName> path) {
+        for (final SchemaTreeEffectiveStatement<?> child : parent.schemaTreeNodes()) {
+            path.addLast(child.argument());
+            if (child instanceof ActionEffectiveStatement action) {
+                builder.put(Absolute.of(List.copyOf(path)), action);
+            } else if (child instanceof SchemaTreeAwareEffectiveStatement<?, ?> aware) {
+                findAction(aware, builder, path);
             }
-        }
-        if (dataSchemaNode instanceof DataNodeContainer) {
-            for (DataSchemaNode innerDataSchemaNode : ((DataNodeContainer) dataSchemaNode).getChildNodes()) {
-                path.addLast(innerDataSchemaNode.getQName());
-                findAction(innerDataSchemaNode, builder, path);
-                path.removeLast();
-            }
-        } else if (dataSchemaNode instanceof ChoiceSchemaNode) {
-            for (CaseSchemaNode caze : ((ChoiceSchemaNode) dataSchemaNode).getCases()) {
-                path.addLast(caze.getQName());
-                findAction(caze, builder, path);
-                path.removeLast();
-            }
+            path.removeLast();
         }
     }
 

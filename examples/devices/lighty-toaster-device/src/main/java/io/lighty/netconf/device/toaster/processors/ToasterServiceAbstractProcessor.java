@@ -57,7 +57,7 @@ public abstract class ToasterServiceAbstractProcessor<I extends RpcInput, O exte
             final XmlNodeConverter xmlNodeConverter = getNetconfDeviceServices().getXmlNodeConverter();
 
             final NormalizedNode deserializedNode = xmlNodeConverter.deserialize(
-                    Absolute.of(getRpcDefinition().getQName(), getRpcDefinition().getInput().getQName()),
+                    Absolute.of(getRpcStatement().argument(), getRpcStatement().inputStatement().argument()),
                     readerFromElement);
 
             //2. convert NormalizedNode into RPC input

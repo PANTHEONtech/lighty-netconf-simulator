@@ -38,6 +38,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.NotificationDefinition;
+import org.opendaylight.yangtools.yang.model.api.stmt.NotificationEffectiveStatement;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,17 +69,17 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
             final ContainerNode containerNode = this.adapterContext.currentSerializer()
                     .toNormalizedNodeNotification(notificationMessage);
 
-            final Optional<? extends NotificationDefinition> notificationDefinition =
+            final Optional<NotificationEffectiveStatement> notificationStatement =
                     ConverterUtils.loadNotification(this.effectiveModelContext, quName);
             final XmlNodeConverter xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
 
-            if (notificationDefinition.isEmpty()) {
+            if (notificationStatement.isEmpty()) {
                 throw new UnsupportedOperationException("Cannot load definition for QName: " + quName);
             }
 
             final Writer writer;
             try {
-                writer = xmlNodeConverter.serializeRpc(Absolute.of(notificationDefinition.get().getQName()),
+                writer = xmlNodeConverter.serializeRpc(Absolute.of(notificationStatement.get().argument()),
                         containerNode);
                 try (InputStream is = new ByteArrayInputStream(writer.toString().getBytes(StandardCharsets.UTF_8))) {
                     final DocumentBuilder builder = UntrustedXML.newDocumentBuilder();

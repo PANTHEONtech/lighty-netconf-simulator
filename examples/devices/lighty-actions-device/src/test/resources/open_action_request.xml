@@ -1,0 +1,9 @@
+<rpc message-id="m-3" xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <action xmlns="urn:ietf:params:xml:ns:yang:1">
+        <box-out xmlns="urn:example:data-center">
+            <box-in>
+                <open/>
+            </box-in>
+        </box-out>
+    </action>
+</rpc>

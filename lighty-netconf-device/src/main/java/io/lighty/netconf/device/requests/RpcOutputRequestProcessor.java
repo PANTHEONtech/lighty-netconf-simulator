@@ -19,7 +19,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
-import org.opendaylight.yangtools.yang.model.api.RpcDefinition;
+import org.opendaylight.yangtools.yang.model.api.stmt.RpcEffectiveStatement;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,19 +32,19 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(RpcOutputRequestProcessor.class);
 
-    private RpcDefinition rpcDefinition;
+    private RpcEffectiveStatement rpcStatement;
 
     @Override
     public void init(NetconfDeviceServices netconfDeviceServices) {
         super.init(netconfDeviceServices);
         EffectiveModelContext schemaContext = getNetconfDeviceServices().getAdapterContext().currentSerializer()
                 .getRuntimeContext().modelContext();
-        Optional<? extends RpcDefinition> rpcDefinitionOptional =
+        Optional<RpcEffectiveStatement> rpcStatementOptional =
             ConverterUtils.loadRpc(schemaContext, getIdentifier());
-        if (rpcDefinitionOptional.isPresent()) {
-            this.rpcDefinition = rpcDefinitionOptional.get();
+        if (rpcStatementOptional.isPresent()) {
+            this.rpcStatement = rpcStatementOptional.get();
         } else {
-            throw new IllegalStateException("RpcDefinition for " + getIdentifier() + " was not found!");
+            throw new IllegalStateException("Rpc for " + getIdentifier() + " was not found!");
         }
     }
 
@@ -52,16 +52,16 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
     protected String convertNormalizedNodeToXmlString(NormalizedNode normalizedNode)
             throws SerializationException {
         return getNetconfDeviceServices().getXmlNodeConverter()
-                .serializeRpc(Absolute.of(rpcDefinition.getQName(), rpcDefinition.getOutput().getQName()),
+                .serializeRpc(Absolute.of(rpcStatement.argument(), rpcStatement.outputStatement().argument()),
                         normalizedNode).toString();
     }
 
-    public RpcDefinition getRpcDefinition() {
-        return rpcDefinition;
+    public RpcEffectiveStatement getRpcStatement() {
+        return rpcStatement;
     }
 
     protected Absolute getRpcDefInputAbsolutePath() {
-        return Absolute.of(rpcDefinition.getQName(), rpcDefinition.getInput().getQName());
+        return Absolute.of(rpcStatement.argument(), rpcStatement.inputStatement().argument());
     }
 
     @Override

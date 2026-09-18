@@ -60,8 +60,10 @@ public class ActionDeviceTest {
     private static final String START_ACTION_EXPECTED_VALUE = "2020-09-03T16:30:00Z";
     public static final String START_ACTION_REQUEST_XML = "start_action_request.xml";
     public static final String RESET_ACTION_REQUEST_XML = "reset_action_request.xml";
+    public static final String OPEN_ACTION_REQUEST_XML = "open_action_request.xml";
     public static final String START_TAG = "start-finished-at";
     public static final String RESET_TAG = "reset-finished-at";
+    private static final String NOT_IMPLEMENTED_ERROR = "Action is not implemented on the device";
     private static final SSHNegotiatedAlgListener ALG_LISTENER = (kexAlgorithm, hostKey, encryption, mac) -> {
         // No-op
     };
@@ -148,6 +150,22 @@ public class ActionDeviceTest {
             final String resetResultTag = resetActionResponse.getDocument().getDocumentElement().getElementsByTagName(
                     RESET_TAG).item(0).getTextContent();
             assertEquals(RESET_ACTION_EXPECTED_VALUE, resetResultTag);
+        }
+    }
+
+    @Test
+    public void openActionIsDiscoveredTest() throws IOException, URISyntaxException, SAXException,
+            InterruptedException, ExecutionException, TimeoutException, UnsupportedConfigurationException {
+        final SimpleNetconfClientSessionListener sessionListener = new SimpleNetconfClientSessionListener();
+        try (NetconfClientSession session =
+                dispatcher.createClient(createSHHConfig(sessionListener), ALG_LISTENER)
+                        .get(TimeoutUtil.TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+            final NetconfMessage openActionResponse = sentRequesttoDevice(sessionListener, OPEN_ACTION_REQUEST_XML);
+            final String errorInfo = openActionResponse.getDocument().getDocumentElement()
+                    .getElementsByTagName("error-info").item(0).getTextContent();
+            // "open" (box-out/box-in/open) has no processor; "not implemented" (not "not present") means it was
+            // still found two containers deep.
+            assertTrue(errorInfo.contains(NOT_IMPLEMENTED_ERROR));
         }
     }
 
