@@ -7,10 +7,10 @@
  */
 package io.lighty.netconf.device.requests;
 
-import io.lighty.codecs.util.ConverterUtils;
 import io.lighty.codecs.util.exception.SerializationException;
 import io.lighty.netconf.device.NetconfDeviceServices;
 import io.lighty.netconf.device.utils.RPCUtil;
+import io.lighty.netconf.device.utils.SchemaUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +40,7 @@ public abstract class RpcOutputRequestProcessor extends BaseRequestProcessor {
         EffectiveModelContext schemaContext = getNetconfDeviceServices().getAdapterContext().currentSerializer()
                 .getRuntimeContext().modelContext();
         Optional<? extends RpcDefinition> rpcDefinitionOptional =
-            ConverterUtils.loadRpc(schemaContext, getIdentifier());
+            SchemaUtils.loadRpc(schemaContext, getIdentifier());
         if (rpcDefinitionOptional.isPresent()) {
             this.rpcDefinition = rpcDefinitionOptional.get();
         } else {
