@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
@@ -49,43 +48,33 @@ public final class ModelUtils {
     }
 
     /**
-     * Returns the {@link RpcDefinition} from the given {@link EffectiveModelContext} and given {@link QName}.
-     * The {@link QName} of a rpc can be constructed via
+     * Returns the {@link RpcDefinition} identified by the given {@link QName}.
      *
-     * <p>{@code
-     * QName.create("http://netconfcentral.org/ns/toaster", "2009-11-20", "make-toast");
-     * } , where {@code "make-toast"} is the name of the RPC given in the yang model.
+     * <p>If the {@link QName} has no revision, the module is looked up by namespace only and must be unique.
      *
-     * <p>If the given RPC was found in the {@link EffectiveModelContext} the {@link RpcDefinition} will be returned
-     *
-     * @param effectiveModelContext the effective model context used for the RPC resolution
-     * @param rpcQName              {@link QName} of the RPC
-     * @return {@link Optional} representation of the {@link RpcDefinition}
-     * @see QName
+     * @param effectiveModelContext model context to search
+     * @param rpcQName {@link QName} of the RPC
+     * @return found {@link RpcDefinition}, or empty if it is not found or is ambiguous
      */
     public static Optional<? extends RpcDefinition> loadRpc(final EffectiveModelContext effectiveModelContext,
             final QName rpcQName) {
-        Optional<Module> findModule = findModule(effectiveModelContext, rpcQName);
-        if (findModule.isEmpty()) {
-            return Optional.empty();
-        }
-        return findDefinition(rpcQName, findModule.get().getRpcs());
+        return findModule(effectiveModelContext, rpcQName)
+            .flatMap(module -> findDefinition(rpcQName, module.getRpcs()));
     }
 
     /**
-     * Utility method to extract the {@link SchemaNode} for the given Notification.
+     * Returns the {@link NotificationDefinition} identified by the given {@link QName}.
      *
-     * @param effectiveModelContext to be used
-     * @param notificationQname     yang RPC name
-     * @return {@link Optional} of {@link SchemaNode}
+     * <p>If the {@link QName} has no revision, the module is looked up by namespace only and must be unique.
+     *
+     * @param effectiveModelContext model context to search
+     * @param notificationQName {@link QName} of the notification
+     * @return found {@link NotificationDefinition}, or empty if it is not found or is ambiguous
      */
     public static Optional<? extends NotificationDefinition> loadNotification(
-            final EffectiveModelContext effectiveModelContext, final QName notificationQname) {
-        Optional<Module> findModule = findModule(effectiveModelContext, notificationQname);
-        if (!findModule.isPresent()) {
-            return Optional.empty();
-        }
-        return findDefinition(notificationQname, findModule.get().getNotifications());
+            final EffectiveModelContext effectiveModelContext, final QName notificationQName) {
+        return findModule(effectiveModelContext, notificationQName)
+            .flatMap(module -> findDefinition(notificationQName, module.getNotifications()));
     }
 
     private static Optional<Module> findModule(final EffectiveModelContext effectiveModelContext, final QName qname) {
@@ -93,15 +82,15 @@ public final class ModelUtils {
             return effectiveModelContext.findModule(qname.getNamespace(), qname.getRevision());
         }
 
-        Collection<? extends Module> moduleByNamespace = effectiveModelContext.findModules(qname.getNamespace());
-        return Optional.ofNullable(moduleByNamespace.isEmpty() || moduleByNamespace.size() > 1 ? null
-                : moduleByNamespace.iterator().next());
+        final Collection<? extends Module> modules = effectiveModelContext.findModules(qname.getNamespace());
+        return modules.size() == 1 ? Optional.of(modules.iterator().next()) : Optional.empty();
     }
 
     private static <T extends SchemaNode> Optional<T> findDefinition(final QName qname, final Collection<T> nodes) {
-        List<T> foundNodes = nodes.stream().filter(node -> node.getQName().getLocalName().equals(qname.getLocalName()))
-                .collect(Collectors.toList());
-        return Optional.ofNullable(foundNodes.size() != 1 ? null : foundNodes.get(0));
+        final List<T> found = nodes.stream()
+            .filter(node -> node.getQName().getLocalName().equals(qname.getLocalName()))
+            .toList();
+        return found.size() == 1 ? Optional.of(found.get(0)) : Optional.empty();
     }
 
 }
