@@ -8,7 +8,6 @@
 package io.lighty.netconf.device;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.netconf.device.requests.notification.NotificationPublishService;
@@ -24,12 +23,14 @@ import org.opendaylight.mdsal.binding.dom.adapter.BindingDOMNotificationServiceA
 import org.opendaylight.mdsal.binding.dom.adapter.ConstantAdapterContext;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
+import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 import org.opendaylight.mdsal.dom.broker.DOMNotificationRouter;
 import org.opendaylight.mdsal.dom.broker.RouterDOMNotificationService;
 import org.opendaylight.mdsal.dom.broker.SerializedDOMDataBroker;
+import org.opendaylight.mdsal.dom.spi.FixedDOMSchemaService;
 import org.opendaylight.mdsal.dom.spi.store.DOMStore;
-import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStore;
-import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMDataStoreConfigProperties;
+import org.opendaylight.mdsal.dom.store.inmemory.InMemoryDOMStoreFactory;
+import org.opendaylight.mdsal.dom.store.inmemory.dagger.InMemoryDOMStoreFactoryModule;
 import org.opendaylight.yangtools.binding.data.codec.impl.BindingCodecContext;
 import org.opendaylight.yangtools.binding.generator.impl.DefaultBindingRuntimeGenerator;
 import org.opendaylight.yangtools.binding.meta.YangModuleInfo;
@@ -38,6 +39,8 @@ import org.opendaylight.yangtools.binding.runtime.api.BindingRuntimeTypes;
 import org.opendaylight.yangtools.binding.runtime.api.DefaultBindingRuntimeContext;
 import org.opendaylight.yangtools.binding.runtime.api.ModuleInfoSnapshot;
 import org.opendaylight.yangtools.binding.runtime.spi.ModuleInfoSnapshotResolver;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeConfiguration;
+import org.opendaylight.yangtools.yang.data.tree.dagger.ReferenceDataTreeFactoryModule;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack;
 import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack.Inference;
@@ -120,28 +123,16 @@ public class NetconfDeviceServicesImpl implements NetconfDeviceServices {
                 MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor()));
     }
 
-    private ListeningExecutorService getDataTreeChangeListenerExecutor() {
-        return MoreExecutors.newDirectExecutorService();
-    }
-
     private Map<LogicalDatastoreType, DOMStore> createDatastores() {
+        final InMemoryDOMStoreFactory storeFactory = InMemoryDOMStoreFactoryModule.provideInMemoryDOMStoreFactory(
+                ReferenceDataTreeFactoryModule.provideDataTreeFactory());
+        final DOMSchemaService schemaService = new FixedDOMSchemaService(effectiveModelContext);
         return ImmutableMap.<LogicalDatastoreType, DOMStore>builder()
-                .put(LogicalDatastoreType.OPERATIONAL, createOperationalDatastore())
-                .put(LogicalDatastoreType.CONFIGURATION, createConfigurationDatastore()).build();
-    }
-
-    private DOMStore createConfigurationDatastore() {
-        final InMemoryDOMDataStore store = new InMemoryDOMDataStore("CFG", LogicalDatastoreType.CONFIGURATION,
-                getDataTreeChangeListenerExecutor(),
-                InMemoryDOMDataStoreConfigProperties.DEFAULT_MAX_DATA_CHANGE_LISTENER_QUEUE_SIZE, false);
-        store.onModelContextUpdated(effectiveModelContext);
-        return store;
-    }
-
-    private DOMStore createOperationalDatastore() {
-        final InMemoryDOMDataStore store = new InMemoryDOMDataStore("OPER", getDataTreeChangeListenerExecutor());
-        store.onModelContextUpdated(effectiveModelContext);
-        return store;
+                .put(LogicalDatastoreType.OPERATIONAL,
+                    storeFactory.create("OPER", DataTreeConfiguration.DEFAULT_OPERATIONAL, schemaService))
+                .put(LogicalDatastoreType.CONFIGURATION,
+                    storeFactory.create("CFG", DataTreeConfiguration.DEFAULT_CONFIGURATION, schemaService))
+                .build();
     }
 
     private AdapterContext createAdapterContext(Collection<YangModuleInfo> moduleInfos) {
