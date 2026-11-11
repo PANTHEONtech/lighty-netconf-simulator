@@ -7,9 +7,9 @@
  */
 package io.lighty.netconf.device.requests.notification;
 
-import io.lighty.codecs.util.ConverterUtils;
 import io.lighty.codecs.util.XmlNodeConverter;
 import io.lighty.codecs.util.exception.SerializationException;
+import io.lighty.netconf.device.utils.ModelUtils;
 import io.lighty.netconf.device.utils.RPCUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class NotificationOperation implements SessionAwareNetconfOperation {
                     .toNormalizedNodeNotification(notificationMessage);
 
             final Optional<? extends NotificationDefinition> notificationDefinition =
-                    ConverterUtils.loadNotification(this.effectiveModelContext, quName);
+                    ModelUtils.loadNotification(this.effectiveModelContext, quName);
             final XmlNodeConverter xmlNodeConverter = new XmlNodeConverter(this.effectiveModelContext);
 
             if (notificationDefinition.isEmpty()) {
